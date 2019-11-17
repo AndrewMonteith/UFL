@@ -1,0 +1,7 @@
+name = "UFL"
+uuid = "27fb253f-b7e0-476f-9de5-e178d9285079"
+authors = ["AndrewMonteith <andrewmonteith1999@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
