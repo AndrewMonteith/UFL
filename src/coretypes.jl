@@ -1,11 +1,13 @@
-export Expr, Dimension, Foo
+export Terminal, Operator, Dimension
 
 """
     Root type of any node in the UFL tree.
 """
 abstract type AbstractExpr end 
 
+
 struct Foo <: AbstractExpr end 
+
 
 """
     An expression that does not depend on any other expression.
@@ -13,7 +15,6 @@ struct Foo <: AbstractExpr end
     such as geometry data or constants.
 """
 abstract type Terminal <: AbstractExpr end 
-
 
 """
     A result of an operator, such as IndexSum, ComponentTensor, MinValue, ...
@@ -24,6 +25,15 @@ abstract type Operator <: AbstractExpr end
 
 
 """
+    Variable length tuple of a type T 
+"""
+const VarTuple{T} = NTuple{N,T} where N
+
+
+"""
     A dimension represents any strictly positive integer
 """
 const Dimension = UInt32
+
+
+const DimensionTuple = VarTuple{Dimension}
