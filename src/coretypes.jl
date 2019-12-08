@@ -32,8 +32,9 @@ const VarTuple{T} = NTuple{N,T} where N
 
 """
     A dimension represents any strictly positive integer
+    We make it Int32 to just shut up any conversion errors
 """
-const Dimension = UInt32
+const Dimension = Int32
 
 
 const DimensionTuple = VarTuple{Dimension}

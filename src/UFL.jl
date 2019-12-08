@@ -1,7 +1,7 @@
 module UFL
 
 include("coretypes.jl")
-include("indicies.jl")
+include("indices.jl")
 include("ufltype.jl")
 include("constants.jl")
 include("indexed.jl")
