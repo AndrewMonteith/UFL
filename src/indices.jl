@@ -45,7 +45,7 @@ end
 Base.show(io::IO, i::Index) = print(io, "i_$(i.id)")
 Base.:(==)(i::Index, j::Index) = i.id === j.id
 Base.:(==)(i::Index, j::Int) = i.id === j
-Base.:(==)(i::Int, j::Index) = i === j.id
+Base.:(==)(i::Int, j::Index) = j == i
 
 """
     Sequence of indices either fixed or free 
