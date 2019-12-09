@@ -46,5 +46,8 @@ mesh is 2D
 ```
 
 ### Current Questions for my supervisor:
-1. Parameters in the evaluate function. x, mapping, component & index_values? The evaluate function may not be needed for my side of the project?
-2. Some methods include a domain parameter like the Constant class. Foudn some examples of domain but they are basically german to me. domain.py?
+1. VectorFunctionSpace from above example does not exist?
+2. Parameters in the evaluate function. x, mapping, component & index_values? The evaluate function may not be needed for my side of the project?
+3. Some methods include a domain parameter like the Constant class. Foudn some examples of domain but they are basically german to me. domain.py?
+4. How much of the function space / function stuff do I need to add. 
+5. Used in algebra.py, do I have to worry about how to sort Expr objects?

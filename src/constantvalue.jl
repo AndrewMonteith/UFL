@@ -1,4 +1,4 @@
-export Zero, Identity, IntValue
+export Zero, Identity, ScalarValue
 
 abstract type AbstractConstantValue <: Terminal end 
 
@@ -46,29 +46,19 @@ end
 Base.:(==)(::Zero, z2::Real) = z2 == 0 
 Base.:(==)(z::Real, z2::Zero) = z2 == z
 
-function pretty_print(z::Zero) 
+function Base.repr(io::IO, z::Zero) 
     if z.ufl_shape === () && z.ufl_free_indices === () 
-        "0"
+        repr(io, "0")
     elseif z.ufl_free_indices === ()
-        "0 shape $(z.ufl_shape)"
+        repr(io, "0 shape $(z.ufl_shape)")
     elseif z.ufl_shape === () 
-        "0 (index labels $(z.ufl_free_indices)"
+        repr(io, "0 (index labels $(z.ufl_free_indices)")
     else 
-        "0 (shape $(z.ufl_shape) index labels $(z.ufl_free_indices)"
+        repr(io, "0 (shape $(z.ufl_shape) index labels $(z.ufl_free_indices)")
     end
 end
 
-mathsy_print(::Zero) = "0"
-
-
-@ufl_type struct IntValue <: AbstractConstantValue
-    val::Int
-end
-pretty_print(i::IntValue) = "IntValue($(i.val))"
-mathsy_print(i::IntValue) = i.val 
-
-Base.:(==)(i::IntValue, j::Int) = i.val === j 
-Base.:(==)(i::Int, j::IntValue) = i === j.val 
+Base.show(io::IO, ::Zero) = show(io, "0")
 
 @ufl_type struct Identity <: AbstractConstantValue
     ufl_fields = (shape,)
@@ -80,8 +70,27 @@ Base.:(==)(i::Int, j::IntValue) = i === j.val
     end
 end
 
-Base.show(i::IO, id::Identity) = print("Identity($(id.dim))")
-Base.getindex(id::Identity, i::Int, j::Int) = IntValue(i == j ? 1 : 0)
+Base.show(i::IO, id::Identity) = show("Identity($(id.dim))")
+Base.getindex(id::Identity, i::Int, j::Int) = ScalarValue(i == j ? 1 : 0)
 Base.getindex(id::Identity, i::Int, j::FixedIndex) = id[i, j.d]
 Base.getindex(id::Identity, j::FixedIndex, i::Int) = id[j.d, i]
 Base.getindex(id::Identity, i::FixedIndex, j::FixedIndex) = id[i.d, j.d]
+
+
+
+struct ScalarValue{T <: Real} <: AbstractConstantValue 
+    val::T 
+
+    function ScalarValue(x)
+        if x === 0 
+            Zero() 
+        else
+            new{typeof(x)}(x)
+        end
+    end
+end
+
+# Yes this might not handle floating point problems
+# But frankly at the moment I could not care 
+Base.:(==)(a::ScalarValue{T}, b::T) where T <: Real = a.val == b 
+Base.:(==)(a::T, b::ScalarValue{T}) where T <: Real = b == a 

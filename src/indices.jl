@@ -9,7 +9,7 @@ abstract type AbstractIndex end
 struct FixedIndex <: AbstractIndex 
     d::Dimension
 end 
-Base.show(io::IO, i::FixedIndex) = print(io, "FixedIndex($(i.d))")
+Base.show(io::IO, i::FixedIndex) = show(io, "FixedIndex($(i.d))")
 
 """
     Note to future self:
@@ -43,7 +43,7 @@ struct Index <: AbstractIndex
         new(id)
     end
 end 
-Base.show(io::IO, i::Index) = print(io, "i_$(i.id)")
+Base.show(io::IO, i::Index) = show(io, "i_$(i.id)")
 Base.:(==)(i::Index, j::Index) = i.id === j.id
 Base.:(==)(i::Index, j::Int) = i.id === j
 Base.:(==)(i::Int, j::Index) = j == i

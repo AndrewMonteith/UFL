@@ -1,19 +1,47 @@
 export ufl_type
 
+const EXPORT_UFL_PROPERTY_METHODS = true
+
 field(sym::Symbol, t) = Expr(:(::), sym, t)
 
 fields = Dict(
-    :ufl_shape => field(:ufl_shape, DimensionTuple),
-    :ufl_free_indices => field(:ufl_free_indices, VarTuple{Index}),
-    :ufl_index_dimensions => field(:ufl_index_dimensions, DimensionTuple),
-    :ufl_operands => field(:ufl_operands, VarTuple{AbstractExpr}),
-    :ufl_domain => field(:ufl_domain, Any) 
+    :ufl_shape => (field(:ufl_shape, DimensionTuple), ()),
+    :ufl_free_indices => (field(:ufl_free_indices, VarTuple{Index}), ()),
+    :ufl_index_dimensions => (field(:ufl_index_dimensions, DimensionTuple), ()),
+    :ufl_operands => (field(:ufl_operands, VarTuple{AbstractExpr}), ()),
+
+    # any field marked with Any means we don't have an appropriate data type for it 
+    :ufl_domain => (field(:ufl_domain, Any), ()),
+    :ufl_function_space => (field(:ufl_function_space, Any), ())
 )
+
+macro load_ufl_property_methods()
+    methods = [] 
+    
+    for ufl_prop in keys(fields)   
+        # hacky way to stop the name mangling...     
+        prop_str = String(ufl_prop)
+        push!(methods, esc(:($ufl_prop(x::AbstractExpr) = fields[Symbol($prop_str)][2])))
+        
+        if EXPORT_UFL_PROPERTY_METHODS
+            push!(methods, Expr(:export, ufl_prop))
+        end 
+    end 
+
+    return Expr(:block, methods...) 
+end 
+
+@load_ufl_property_methods
+
 
 tag_methods = Dict(
     :inherit_indices_from_operand => (struct_name, operand_id) -> esc(quote 
-        ufl_free_indices(x::$struct_name) = ufl_free_indices(ufl_operands(x)[operand_id])
-        ufl_index_dimensions(x::$struct_name) = ufl_index_dimensions(ufl_operands(x)[operand_id])
+        ufl_free_indices(x::$struct_name) = ufl_free_indices( ufl_operands(x)[$operand_id] )
+        ufl_index_dimensions(x::$struct_name) = ufl_index_dimensions( ufl_operands(x)[$operand_id] )
+    end),
+
+    :inherit_shape_from_operand => (struct_name, operand_id) -> esc(quote 
+        ufl_shape(x::$struct_name) = ufl_shape( ufl_operands(x)[$operand_id] )
     end)
 )
 
@@ -34,6 +62,7 @@ end
     Inserts predefined fields for a struct 
     Generates accessors for the fields 
     Inserts the fields at the end of the struct body, so will be the last parameters in the new method
+    If the struct contains any tags, we insert the specified additional behaviour
 """
 macro ufl_type(expr)
     struct_fields = expr.args[3].args
@@ -53,7 +82,7 @@ macro ufl_type(expr)
                 error("don't recognise field $(field_name)")
             end
     
-            push!(struct_fields, fields[field_name])
+            push!(struct_fields, fields[field_name][1])
             push!(added_methods, method(struct_name, field_name))
         end
 

@@ -6,18 +6,6 @@ export Terminal, Operator, Dimension
 abstract type AbstractExpr end 
 
 """
-    Whether to pretty print as UFL types 
-    or to ty and print as close to the maths notation as possible 
-"""
-use_pretty_printing = true 
-
-pretty_print(e::AbstractExpr) = "missing pretty print implementation"
-mathsy_print(e::AbstractExpr) = "missing mathsy print implementation"
-
-Base.show(io::IO, e::AbstractExpr) = print(io, use_pretty_printing ? pretty_print(e) : mathsy_print(e))
-
-
-"""
     An expression that does not depend on any other expression.
     Typically a Terminal has some non-expression data associated with it 
     such as geometry data or constants.
