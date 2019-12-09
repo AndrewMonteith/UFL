@@ -30,7 +30,8 @@ struct Index <: AbstractIndex
     id::Int
 
     function Index()
-        id = index_count++
+        id = index_count
+        global index_count = index_count + 1
 
         new(id)
     end

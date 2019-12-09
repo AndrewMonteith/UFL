@@ -5,8 +5,16 @@ export Terminal, Operator, Dimension
 """
 abstract type AbstractExpr end 
 
+"""
+    Whether to pretty print as UFL types 
+    or to ty and print as close to the maths notation as possible 
+"""
+use_pretty_printing = true 
 
-struct Foo <: AbstractExpr end 
+pretty_print(e::AbstractExpr) = "missing pretty print implementation"
+mathsy_print(e::AbstractExpr) = "missing mathsy print implementation"
+
+Base.show(io::IO, e::AbstractExpr) = print(io, use_pretty_printing ? pretty_print(e) : mathsy_print(e))
 
 
 """

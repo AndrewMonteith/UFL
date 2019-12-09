@@ -6,6 +6,7 @@ include("ufltype.jl")
 include("constantvalue.jl")
 include("constants.jl")
 include("indexed.jl")
+include("differentiation.jl")
 # include("indexsum.jl")
 
 

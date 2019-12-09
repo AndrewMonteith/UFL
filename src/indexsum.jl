@@ -6,7 +6,7 @@ struct IndexSum <: Operator
         if length(index) != 1 
             error("expecting MultiIndex with only 1 index")
         end
-
+        
         # This is where one could do Zero Simplification
 
         i, = index

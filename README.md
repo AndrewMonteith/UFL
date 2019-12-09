@@ -46,4 +46,5 @@ mesh is 2D
 ```
 
 ### Current Questions for my supervisor:
-1. Parameters in the evaluate function. mapping, component & index_values? The evaluate function may not be needed for my side of the project
+1. Parameters in the evaluate function. x, mapping, component & index_values? The evaluate function may not be needed for my side of the project?
+2. Some methods include a domain parameter like the Constant class. Foudn some examples of domain but they are basically german to me. domain.py?

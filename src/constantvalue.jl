@@ -1,12 +1,12 @@
-export Zero
+export Zero, Identity, IntValue
 
 abstract type AbstractConstantValue <: Terminal end 
 
-is_cellwise_constant(::AbstractConstantValue) = True 
+is_cellwise_constant(::AbstractConstantValue) = true
 ufl_domains(::AbstractConstantValue) = ()
 
-struct Zero <: AbstractConstantValue
-    @ufl_type(Zero, ufl_shape, ufl_free_indices, ufl_index_dimensions) 
+@ufl_type struct Zero <: AbstractConstantValue
+    ufl_fields = (shape, free_indices, index_dimensions)
 
     function Zero(shape::DimensionTuple=())
         new(shape, (), ())
@@ -46,14 +46,42 @@ end
 Base.:(==)(::Zero, z2::Real) = z2 == 0 
 Base.:(==)(z::Real, z2::Zero) = z2 == z
 
-function Base.show(io::IO, z::Zero) 
-    if z.ufl_shape === () && self.ufl_free_indices === () 
-        print(io, "0")
+function pretty_print(z::Zero) 
+    if z.ufl_shape === () && z.ufl_free_indices === () 
+        "0"
     elseif z.ufl_free_indices === ()
-        print(io, "0 shape $(z.ufl_shape)")
+        "0 shape $(z.ufl_shape)"
     elseif z.ufl_shape === () 
-        print(io, "0 (index labels $(z.ufl_free_indices)")
+        "0 (index labels $(z.ufl_free_indices)"
     else 
-        print(io, "0 (shape $(z.ufl_shape) index labels $(z.ufl_free_indices)")
+        "0 (shape $(z.ufl_shape) index labels $(z.ufl_free_indices)"
     end
 end
+
+mathsy_print(::Zero) = "0"
+
+
+@ufl_type struct IntValue <: AbstractConstantValue
+    val::Int
+end
+pretty_print(i::IntValue) = "IntValue($(i.val))"
+mathsy_print(i::IntValue) = i.val 
+
+Base.:(==)(i::IntValue, j::Int) = i.val === j 
+Base.:(==)(i::Int, j::IntValue) = i === j.val 
+
+@ufl_type struct Identity <: AbstractConstantValue
+    ufl_fields = (shape,)
+
+    dim::Dimension 
+
+    function Identity(dim::Dimension)
+        new(dim, (dim, dim))
+    end
+end
+
+Base.show(i::IO, id::Identity) = print("Identity($(id.dim))")
+Base.getindex(id::Identity, i::Int, j::Int) = IntValue(i == j ? 1 : 0)
+Base.getindex(id::Identity, i::Int, j::FixedIndex) = id[i, j.d]
+Base.getindex(id::Identity, j::FixedIndex, i::Int) = id[j.d, i]
+Base.getindex(id::Identity, i::FixedIndex, j::FixedIndex) = id[i.d, j.d]
