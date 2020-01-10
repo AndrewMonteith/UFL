@@ -1,28 +1,30 @@
 # geometric_dimension would be exported by dimensions.jl if we had one
 export Argument, TrialFunction, TestFunction, FunctionSpace, geometric_dimension
 
+abstract type AbstractFunctionSpace end 
+
 """
-    Mishmash of datatypes needed to get TrialFunction & TestFunction 
-    working and bits and bobs. Eventually this file will get separated
-    into the appropriate files when I work out what FEM stuff 
+Mishmash of datatypes needed to get TrialFunction & TestFunction 
+working and bits and bobs. Eventually this file will get separated
+into the appropriate files when I work out what FEM stuff 
 """
 abstract type AbstractFormArgument <: Terminal end 
 
 
 @ufl_type struct Argument <: AbstractFormArgument 
-    ufl_fields = (shape, function_space)
+    ufl_fields = (shape,)
     
     number::Int
     part
+
+    ufl_function_space::AbstractFunctionSpace
     
-    function Argument(function_space, number::Int, part = nothing)
+    function Argument(function_space::AbstractFunctionSpace, number::Int, part = nothing)
         if part !== nothing && !isa(part, Int)
             error("part must be integral or nothing")
         end
 
-
-        # function_space should be a subtype of AbstractFunctionSpace
-        new(number, part, ufl_shape(function_space), function_space)
+        new(ufl_shape(function_space), number, part, function_space)
     end
 end
 
@@ -42,7 +44,6 @@ function Base.show(io::IO, arg::Argument)
 end
 
 
-abstract type AbstractFunctionSpace end 
 
 # Dummy function space until I can work out what I actually need 
 struct FunctionSpace <: AbstractFunctionSpace end

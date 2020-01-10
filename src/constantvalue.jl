@@ -26,7 +26,6 @@ ufl_domains(::AbstractConstantValue) = ()
         new(shape, Tuple(sortedIndicies), dimensions)
     end
 
-    # New Format
     """
         Constructor for the new format 
         Example new format code:
@@ -66,7 +65,7 @@ Base.show(io::IO, ::Zero) = show(io, "0")
     dim::Dimension 
 
     function Identity(dim::Dimension)
-        new(dim, (dim, dim))
+        new((dim, dim), dim)
     end
 end
 

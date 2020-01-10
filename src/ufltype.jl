@@ -11,8 +11,7 @@ fields = Dict(
     :ufl_operands => (field(:ufl_operands, VarTuple{AbstractExpr}), ()),
 
     # any field marked with Any means we don't have an appropriate data type for it 
-    :ufl_domain => (field(:ufl_domain, Any), ()),
-    :ufl_function_space => (field(:ufl_function_space, Any), ())
+    :ufl_domain => (field(:ufl_domain, Any), ()), # This field is meant to be depreceated?
 )
 
 macro load_ufl_property_methods()
@@ -75,6 +74,8 @@ macro ufl_type(expr)
     # and generate an accessor for the property that just returns the member 
     fields_index, ufl_fields = find_field(struct_fields, :ufl_fields)
     if fields_index !== nothing
+        deleteat!(struct_fields, fields_index)
+
         for wanted_field in ufl_fields.args[2].args
             field_name = Symbol(:ufl_, wanted_field)
     
@@ -82,17 +83,17 @@ macro ufl_type(expr)
                 error("don't recognise field $(field_name)")
             end
     
-            push!(struct_fields, fields[field_name][1])
+            prepend!(struct_fields, [fields[field_name][1]])
             push!(added_methods, method(struct_name, field_name))
         end
-
-        deleteat!(struct_fields, fields_index)
     end 
 
     # if the user has specified ufl_tags field 
     # we added a method for each tag they gave
     tags_index, ufl_tags = find_field(struct_fields, :ufl_tags)
     if tags_index !== nothing 
+        deleteat!(struct_fields, tags_index)
+
         for tag in ufl_tags.args[2].args
             if isa(tag, Symbol) 
                 push!(added_methods, tag_methods[tag](struct_name))
@@ -100,8 +101,6 @@ macro ufl_type(expr)
                 push!(added_methods, tag_methods[tag.args[1]](struct_name, tag.args[2]))
             end
         end
-
-        deleteat!(struct_fields, tags_index)
     end
 
     return Expr(:block, expr, added_methods...)
