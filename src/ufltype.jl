@@ -76,6 +76,8 @@ macro ufl_type(expr)
     if fields_index !== nothing
         deleteat!(struct_fields, fields_index)
 
+        wanted_fields = []
+
         for wanted_field in ufl_fields.args[2].args
             field_name = Symbol(:ufl_, wanted_field)
     
@@ -83,9 +85,11 @@ macro ufl_type(expr)
                 error("don't recognise field $(field_name)")
             end
     
-            prepend!(struct_fields, [fields[field_name][1]])
+            push!(wanted_fields, fields[field_name][1])
             push!(added_methods, method(struct_name, field_name))
         end
+
+        prepend!(struct_fields, wanted_fields)
     end 
 
     # if the user has specified ufl_tags field 

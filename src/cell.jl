@@ -1,7 +1,5 @@
 export Cell, vertex, triangle, quadrilateral 
 
-abstract type AbstractCell end 
-
 num_cell_entities = Dict(
     "vertex" => (1,),
     "interval" => (2, 1),
@@ -16,8 +14,8 @@ cell_name_to_dimensions = Dict(cellname => length(v)-1 for (cellname, v) in num_
 #=
     TODO: Attach hash data operators if hash_data is required.
 =#
-struct Cell <: AbstractCell  
-    nmae::String
+struct Cell
+    name::String
     topological_dimension::Dimension 
     geometric_dimension::Dimension 
 

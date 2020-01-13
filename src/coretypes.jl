@@ -1,4 +1,4 @@
-export Terminal, Operator, Dimension
+export Terminal, Operator, Dimension, geometric_dimension, topological_dimension
 
 """
     Root type of any node in the UFL tree.
@@ -34,3 +34,8 @@ const Dimension = Int32
 
 
 const DimensionTuple = VarTuple{Dimension}
+
+
+
+geometric_dimension(x::Any)::Dimension = x.geometric_dimension
+topological_dimension(x::Any)::Dimension = x.topological_dimension

@@ -1,25 +1,44 @@
 using Test, UFL 
 
-# VectorFunctionSpace does't exist
-V = FunctionSpace()
+mesh = UnitTriangleMesh()
 
-v = TestFunction(V)
+elem = VectorElement("CG", cell, 1)
 
-# nor does Function 
-u = TrialFunction(V)
+V = VectorFunctionSpace(mesh, elem)
 
-@test ufl_shape(v) === (2,)
-@test ufl_shape(u) === (2,)
+v = TestFunction(V) # <- Shape (2, )
 
-# The Constant class in UFL takes (domain, shape)
-# The Constant in the example snippet provides neither?
+u = TrialFunction(V) # <- Shape (2, )
 
 # T = Constant((0, -0.5))
+
 # B = Constant((0, -0.25))
 
-d = geometric_dimension(u)
+# d = u.geometric_dimension() <- d
 
-@test d === 2
+# I = Identity(d) (2x2 identity)
 
-I = Identity(d)
+# F = I + grad(u) <- (2x2)             # Deformation gradient
 
+# C = F.T*F <- (sum_i F.T[i, j] * F[j, k])                   # Right Cauchy-Green tensor
+
+# # Invariants of deformation tensors
+
+# Ic = tr(C)
+
+# J = det(F)
+
+# # Lamé parameters, "quite squishy"
+
+# mu = Constant(6.3)
+
+# lmbda = Constant(10.0)
+
+# # Stored strain energy density (compressible neo-Hookean model)
+
+# psi = (mu/2)*(Ic - 3) - mu*ln(J) + (lmbda/2)*(ln(J))**2
+
+# # Total potential energy
+# Pi = psi*dx # - dot(T, u)*ds(4) - dot(B, u)*dx
+
+# F = derivative(Pi, u, v)

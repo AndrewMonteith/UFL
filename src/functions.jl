@@ -1,30 +1,54 @@
 # geometric_dimension would be exported by dimensions.jl if we had one
-export Argument, TrialFunction, TestFunction, FunctionSpace, geometric_dimension
-
-abstract type AbstractFunctionSpace end 
-
-"""
-Mishmash of datatypes needed to get TrialFunction & TestFunction 
-working and bits and bobs. Eventually this file will get separated
-into the appropriate files when I work out what FEM stuff 
-"""
-abstract type AbstractFormArgument <: Terminal end 
+export Argument, TrialFunction, TestFunction, FunctionSpace, geometric_dimension, VectorFunctionSpace
 
 
-@ufl_type struct Argument <: AbstractFormArgument 
+
+#=
+Add required data as needed.
+=#
+struct FunctionSpace 
+    ufl_shape::DimensionTuple
+    mesh::Mesh 
+    element::AbstractFiniteElement
+    
+    # degree::Dimension Not sure how to set this... 
+    
+    function FunctionSpace(mesh::Mesh, element::AbstractFiniteElement)
+        shape = if isa(element, MixedElement) 
+            error("cannot create FunctionSpace from MixedElement")
+        elseif isa(element, VectorElement) 
+            fem_value_shape(element)
+        else
+            tuple(fem_value_shape(element)[:1])
+        end 
+        
+        new(shape, mesh, element)
+    end
+end
+
+function VectorFunctionSpace(mesh::Mesh, element::AbstractFiniteElement; kwargs...)
+    dim = get(kwargs, :dim, geometric_dimension(mesh))
+
+    element = VectorElement(element; dim=dim)
+
+    FunctionSpace(mesh, element)
+end
+
+
+@ufl_type struct Argument <: Terminal 
     ufl_fields = (shape,)
     
     number::Int
     part
 
-    ufl_function_space::AbstractFunctionSpace
+    ufl_function_space::FunctionSpace
     
-    function Argument(function_space::AbstractFunctionSpace, number::Int, part = nothing)
+    function Argument(function_space::FunctionSpace, number::Int, part = nothing)
         if part !== nothing && !isa(part, Int)
             error("part must be integral or nothing")
         end
 
-        new(ufl_shape(function_space), number, part, function_space)
+        new(function_space.ufl_shape, number, part, function_space)
     end
 end
 
@@ -43,22 +67,10 @@ function Base.show(io::IO, arg::Argument)
     show(io, s) 
 end
 
-
-
-# Dummy function space until I can work out what I actually need 
-struct FunctionSpace <: AbstractFunctionSpace end
-
-ufl_domain(::FunctionSpace) = error("not implemented yet")
-ufl_domains(::FunctionSpace) = error("not implemented yet")
-ufl_shape(::FunctionSpace) = (2,)
-
-
-function TestFunction(function_space::AbstractFunctionSpace, part = nothing)
+function TestFunction(function_space::FunctionSpace, part = nothing)
     Argument(function_space, 0, part)
 end 
 
-function TrialFunction(function_space::AbstractFunctionSpace, part = nothing)
+function TrialFunction(function_space::FunctionSpace, part = nothing)
     Argument(function_space, 1, part)
 end
-
-

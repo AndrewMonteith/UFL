@@ -9,7 +9,7 @@ mesh is 2D
 
     v = TestFunction(V) <- Shape (2, )
 
-    u = Function(V) <- Shape (2, )
+    u = Function(V) <- pe (2, )
 
     T = Constant((0, -0.5))
 
@@ -47,14 +47,28 @@ mesh is 2D
 
 Think about tranformation pass tools. Don't consider the UFL a tree, consider it a DAG. Think about avoiiding visting the same expression twice. Trees aren't large enough that creating a new tree isn't expensive expensive
 
-### Current Questions for my supervisor:
-Q: Is a FunctionSpace a valid node in the UFL tree, ie should be subtype of Terminal/Operator.
+### Current Questions for my supervisor
 
 Q: ufl_domain is commented as saying it should be deprecated? I presume I should do the same.
 
 Q: _ufl_hash_data is in UFL and seem to be like "get_unqiue_identifier_for_this_thing". Do I need it
+Answer I think: Yes, how else i do "have i seen the same expression"
 
-### Questions & Answers:
+Q: There are two definitions of FiniteElement, one in UFL and one in FIAT. I copied the UFL one. Is that right?
+
+Q: Discuss whether i've mocked enough of the stuff to actually go in the direction of the project
+
+Q: I've mocked the Mesh class keeping only what we discussed last time but it seems a bit simple.
+Q: Trying to rip out all the guf from firedrake into Julia is non-trivial. The point of the project is not the VectorFunctionSpace, Function, ... stuff. It's to focus on the DSL part more? In which case having these trivial copies to merely mock the data is ok?
+
+Q: How do you determine the degree of a FunctionSpace?
+
+Q: Do I need TensorElement/TensorFunctionSpace
+
+Q: elementlist.py How much do I need to copy and deal with?
+
+### Questions & Answers
+
 Q: VectorFunctionSpace from above example does not exist?
 
 Answer: VectorFunctionSpace lives in Firedrake Project.
