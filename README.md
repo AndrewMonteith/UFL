@@ -49,26 +49,32 @@ Think about tranformation pass tools. Don't consider the UFL a tree, consider it
 
 ### Current Questions for my supervisor
 
-Q: ufl_domain is commented as saying it should be deprecated? I presume I should do the same.
-
-Q: _ufl_hash_data is in UFL and seem to be like "get_unqiue_identifier_for_this_thing". Do I need it
-Answer I think: Yes, how else i do "have i seen the same expression"
-
-Q: There are two definitions of FiniteElement, one in UFL and one in FIAT. I copied the UFL one. Is that right?
-
-Q: Discuss whether i've mocked enough of the stuff to actually go in the direction of the project
-
-Q: I've mocked the Mesh class keeping only what we discussed last time but it seems a bit simple.
-Q: Trying to rip out all the guf from firedrake into Julia is non-trivial. The point of the project is not the VectorFunctionSpace, Function, ... stuff. It's to focus on the DSL part more? In which case having these trivial copies to merely mock the data is ok?
-
-Q: How do you determine the degree of a FunctionSpace?
-
-Q: Do I need TensorElement/TensorFunctionSpace
-
-Q: elementlist.py How much do I need to copy and deal with?
 
 ### Questions & Answers
 
+Q: ufl_domain is commented as saying it should be deprecated? I presume I should do the same.
+A: The TODO was wrong
+
+Q: _ufl_hash_data is in UFL and seem to be like "get_unqiue_identifier_for_this_thing". Do I need it
+Answer I think: Yes, how else i do "have i seen the same expression"
+A: I was right for once
+
+Q: There are two definitions of FiniteElement, one in UFL and one in FIAT. I copied the UFL one. Is that right?
+A: Two rights in a row
+
+
+Q: I've mocked the Mesh class keeping only what we discussed last time but it seems a bit simple.
+Q: Trying to rip out all the guf from firedrake into Julia is non-trivial. The point of the project is not the VectorFunctionSpace, Function, ... stuff. It's to focus on the DSL part more? In which case having these trivial copies to merely mock the data is ok?
+A: It's fine
+
+Q: How do you determine the degree of a FunctionSpace?
+A: Comes from the finite element
+
+Q: Do I need TensorElement/TensorFunctionSpace
+A: Add if necessary
+
+Q: elementlist.py How much do I need to copy and deal with?
+A: Don't need much from it. properties
 Q: VectorFunctionSpace from above example does not exist?
 
 Answer: VectorFunctionSpace lives in Firedrake Project.
