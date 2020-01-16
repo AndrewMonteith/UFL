@@ -1,5 +1,7 @@
 module UFL
 
+include("util.jl")
+
 include("coretypes.jl")
 include("indices.jl")
 include("ufltype.jl")
@@ -18,6 +20,7 @@ include("differentiation.jl")
 
 include("mesh.jl")
 include("functions.jl")
+include("arguments.jl")
 
 
 end # module

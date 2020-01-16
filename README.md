@@ -48,7 +48,7 @@ mesh is 2D
 Think about tranformation pass tools. Don't consider the UFL a tree, consider it a DAG. Think about avoiiding visting the same expression twice. Trees aren't large enough that creating a new tree isn't expensive expensive
 
 ### Current Questions for my supervisor
-
+Q: Why is the degree property automatically shadowed in FiniteElement
 
 ### Questions & Answers
 

@@ -1,4 +1,4 @@
-export Zero, Identity, ScalarValue
+export Zero, Identity, ScalarValue, as_ufl
 
 abstract type AbstractConstantValue <: Terminal end 
 
@@ -94,3 +94,7 @@ end
 # But frankly at the moment I could not care 
 Base.:(==)(a::ScalarValue{T}, b::T) where T <: Real = a.val == b 
 Base.:(==)(a::T, b::ScalarValue{T}) where T <: Real = b == a 
+
+
+as_ufl(x::AbstractExpr) = x 
+as_ufl(x::Real) = ScalarValue(x)

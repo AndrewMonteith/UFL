@@ -4,8 +4,8 @@ abstract type AbstractFiniteElement end
 
 struct FemBase 
     family::String 
-    cell 
-    degree::Union{Dimension, DimensionTuple} 
+    cell::Union{Cell, Nothing}
+    degree::Union{Dimension, DimensionTuple}
     value_shape::DimensionTuple 
 end
 
@@ -14,16 +14,18 @@ fem_cell(a::AbstractFiniteElement) = a.base.cell
 fem_degree(a::AbstractFiniteElement) = a.base.degree 
 fem_value_shape(a::AbstractFiniteElement) = a.base.value_shape
 
-family_analogies = Dict("CG" => "Lagrange")
+family_analogies = Dict("CG" => "Lagrange", "R" => "Real")
 
 family_to_value_ranks = Dict(
     "Lagrange" => 0,
+    "Real" => 0
 )
+
 
 struct FiniteElement <: AbstractFiniteElement 
     base::FemBase 
 
-    function FiniteElement(family::String, cell::Cell, degree::Union{Dimension, DimensionTuple})
+    function FiniteElement(family::String; @opt(cell::Cell), @opt(degree::Union{Dimension, DimensionTuple}))
         family = get(family_analogies, family, family)
 
         if !(family in keys(family_to_value_ranks))
@@ -33,6 +35,8 @@ struct FiniteElement <: AbstractFiniteElement
         value_rank = family_to_value_ranks[family]
         value_shape = if value_rank === 0
             ()
+        elseif cell === nothing 
+            error("cannot infer shape with no provided cell")
         elseif value_rank === 1
             (cell.geometric_dimension,)
         elseif value_rank === 2 
@@ -88,21 +92,24 @@ end
 struct VectorElement  <: AbstractFiniteElement
     base::FemBase 
 
-    function VectorElement(element::AbstractFiniteElement; kwargs...)
+    function VectorElement(family::String; @opt(cell::Cell), @opt(degree::Union{Dimension, DimensionTuple}), @opt(dim::Dimension))
+        sub_element = FiniteElement(family; cell=cell, degree=degree)
+
+        VectorElement(sub_element; dim=dim)
+    end
+
+    function VectorElement(element::AbstractFiniteElement; @opt(dim::Dimension))
         cell = fem_cell(element)
-        gdim = get(kwargs, :dim, geometric_dimension(cell))
 
-        sub_elements = collect(element for _ ∈ 1:gdim)
+        if dim === nothing 
+            dim = geometric_dimension(cell)
+        end
 
-        value_shape = tuple(gdim, fem_value_shape(element)...)
+        sub_elements = collect(element for _ ∈ 1:dim)
+
+        value_shape = tuple(dim, fem_value_shape(element)...)
 
         new(NewMixedElementBase(sub_elements...; value_shape=value_shape, family=fem_family(element)))
     end 
-
-    function VectorElement(family::String, cell::Cell, degree::Union{Dimension, DimensionTuple}; kwargs...)
-        sub_element = FiniteElement(family, cell, degree)
-
-        VectorElement(sub_element; kwargs...)
-    end
 end
 

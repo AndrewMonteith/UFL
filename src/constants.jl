@@ -20,38 +20,3 @@ is_cellwise_constant(::UflConstant) = true
 ufl_domains(c::UflConstant) = (ufl_domain(c),)
 Base.repr(io::IO, c::UflConstant) = "Constant(domain $(c.ufl_domain) shape $(c.ufl_shape) count $(c.id)"
 Base.show(io::IO, c::UflConstant) = show(io, "c_$(c.id)")
-
-
-
-struct Constant  
-    """ Constant literal as defined in the firedrake proejct """
-    
-    
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

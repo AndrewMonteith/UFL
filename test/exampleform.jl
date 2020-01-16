@@ -2,7 +2,7 @@ using Test, UFL
 
 mesh = UnitTriangleMesh()
 
-elem = VectorElement("CG", cell, 1)
+elem = VectorElement("CG"; cell=cell, degree=1)
 
 V = VectorFunctionSpace(mesh, elem)
 
@@ -10,15 +10,15 @@ v = TestFunction(V) # <- Shape (2, )
 
 u = TrialFunction(V) # <- Shape (2, )
 
-# T = Constant((0, -0.5))
+T = Constant((0.0, -0.5))
 
-# B = Constant((0, -0.25))
+B = Constant((0.0, -0.25))
 
-# d = u.geometric_dimension() <- d
+d = geometric_dimension(u) # <- d
 
-# I = Identity(d) (2x2 identity)
+I = Identity(d) # (2x2 identity)
 
-# F = I + grad(u) <- (2x2)             # Deformation gradient
+# F = I + grad(u) # <- (2x2)              Deformation gradient
 
 # C = F.T*F <- (sum_i F.T[i, j] * F[j, k])                   # Right Cauchy-Green tensor
 
