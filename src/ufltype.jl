@@ -57,6 +57,8 @@ function find_field(fields::AbstractArray{Any}, field_name)
     return (nothing, nothing)
 end
 
+typecode = 0
+
 """
     Inserts predefined fields for a struct 
     Generates accessors for the fields 
@@ -107,5 +109,21 @@ macro ufl_type(expr)
         end
     end
 
+    push!(added_methods, esc(quote 
+        ufl_typecode(x::$struct_name) = $(global typecode += 1)
+    end))
+
     return Expr(:block, expr, added_methods...)
+end
+
+macro use_hash_operators(e)
+    e.head === :struct || error("can only define hash operators on structs")
+    struct_name = e.args[2]
+
+    esc(quote
+        $e
+
+        Base.hash(x::$struct_name) = hash(hash_data(x))
+        Base.:(==)(x::$struct_name, y::$struct_name) = hash_data(x) === hash_data(y) 
+    end)
 end

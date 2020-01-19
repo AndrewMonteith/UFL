@@ -45,7 +45,7 @@ function Base.show(io::IO, cell::Cell)
     show(s)
 end
 
-function Base.repr(io::IO, cell::Cell) 
+function Base.repr(cell::Cell) 
     gdim, tdim = cell.geometric_dimension, cell.topological_dimension
 
     if gdim === tdim && cell.name in cell_name_to_dimensions

@@ -21,9 +21,9 @@ ufl_domains(::AbstractConstantValue) = ()
             z = Zero((), (j, i). Dict{i => 3, j => 5})
     """
     function Zero(shape::DimensionTuple, freeIndices::VarTuple{Index}, indexDimensions::Dict{Index, Dimension})
-        sortedIndicies = sort(collect(freeIndices); by=x -> x.id)
-        dimensions = Tuple(indexDimensions[index] for index in sortedIndicies)
-        new(shape, Tuple(sortedIndicies), dimensions)
+        sortedindices = sort(collect(freeIndices); by=x -> x.id)
+        dimensions = Tuple(indexDimensions[index] for index in sortedindices)
+        new(shape, Tuple(sortedindices), dimensions)
     end
 
     """
@@ -45,15 +45,15 @@ end
 Base.:(==)(::Zero, z2::Real) = z2 == 0 
 Base.:(==)(z::Real, z2::Zero) = z2 == z
 
-function Base.repr(io::IO, z::Zero) 
+function Base.repr(z::Zero) 
     if z.ufl_shape === () && z.ufl_free_indices === () 
-        repr(io, "0")
+        "0"
     elseif z.ufl_free_indices === ()
-        repr(io, "0 shape $(z.ufl_shape)")
+        "0 shape $(z.ufl_shape)"
     elseif z.ufl_shape === () 
-        repr(io, "0 (index labels $(z.ufl_free_indices)")
+        "0 (index labels $(z.ufl_free_indices)"
     else 
-        repr(io, "0 (shape $(z.ufl_shape) index labels $(z.ufl_free_indices)")
+        "0 (shape $(z.ufl_shape) index labels $(z.ufl_free_indices)"
     end
 end
 
@@ -98,3 +98,4 @@ Base.:(==)(a::T, b::ScalarValue{T}) where T <: Real = b == a
 
 as_ufl(x::AbstractExpr) = x 
 as_ufl(x::Real) = ScalarValue(x)
+as_ufl(x) = error("unsupported UFL type for $(x) with type $(typeof(x))")

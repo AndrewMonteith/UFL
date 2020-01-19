@@ -1,4 +1,4 @@
-export Terminal, Operator, Dimension, geometric_dimension, topological_dimension
+export Terminal, Operator, Dimension, geometric_dimension, topological_dimension, ufl_compute_hash
 
 """
     Root type of any node in the UFL tree.
@@ -19,6 +19,11 @@ abstract type Terminal <: AbstractExpr end
 """
 abstract type Operator <: AbstractExpr end 
 
+ufl_compute_hash(o::Operator) = hash((ufl_typecode(o), (hash(op) for op in ufl_operands(o))...))
+function Base.repr(o::Operator)
+    str_ops = join((repr(op) for op in ufl_operands(o)), ",")
+    "$(typeof(o))$(str_ops)"
+end
 
 """
     Variable length tuple of a type T 

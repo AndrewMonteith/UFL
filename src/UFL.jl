@@ -6,6 +6,7 @@ include("coretypes.jl")
 include("indices.jl")
 include("ufltype.jl")
 
+include("iteration.jl")
 
 include("cell.jl")
 include("fem.jl")

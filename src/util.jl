@@ -4,7 +4,7 @@ function get_opt_type(type)
     else
         union_types = type.args
 
-        union_types[2:length(union_types)]
+        union_types[2:end]
     end
 
     :(Union{$(types...), Nothing})

@@ -1,8 +1,10 @@
-export grad
+export grad, find_geometric_dimension
 
 abstract type AbstractDifferential <: Operator end 
 
 is_differential(::AbstractDifferential) = true 
+
+
 
 abstract type CompoundDerivative <: AbstractDifferential end 
 

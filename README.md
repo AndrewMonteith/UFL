@@ -1,6 +1,23 @@
 A sample implemendation of UFL in Julia
 
 ### Current Goals:
+
+* Can add, div, sub, mult UFL expressions, ...
+Achieved: Add
+
+* Can build trees
+
+* Hashing defines for types
+* Traversal
+* Grad
+
+For next iteration:
+    * IndexSum, ComponentTensor in order to allow mulitplication to work
+    * Implement Tensors and Multiplication
+    * Get IndexSum, ComponentTensor working ie dot, inner, ...
+
+
+
 Get this code to work:
 ```julia 
 mesh is 2D
@@ -49,6 +66,8 @@ Think about tranformation pass tools. Don't consider the UFL a tree, consider it
 
 ### Current Questions for my supervisor
 Q: Why is the degree property automatically shadowed in FiniteElement
+
+Q: Should I think about adding Tensors?
 
 ### Questions & Answers
 
