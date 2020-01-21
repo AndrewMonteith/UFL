@@ -5,7 +5,7 @@ export Argument, TrialFunction, TestFunction, FunctionSpace, geometric_dimension
 #=
 Add required data as needed.
 =#
-struct FunctionSpace 
+@attach_hash_operators struct FunctionSpace 
     ufl_shape::DimensionTuple
     mesh::@opt_t(Mesh)
     element::AbstractFiniteElement
@@ -25,7 +25,8 @@ struct FunctionSpace
         new(shape, mesh, element)
     end
 end
-ufl_element(f::FunctionSpace) = f.element
+ufl_element(fs::FunctionSpace) = fs.element
+hash_data(fs::FunctionSpace) = ("FunctionSpace", hash_data(fs.mesh), hash_data(fs.element))
 
 function VectorFunctionSpace(mesh::Mesh, element::AbstractFiniteElement; @opt(dim::Dimension))
     if dim === nothing 

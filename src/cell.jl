@@ -11,10 +11,7 @@ num_cell_entities = Dict(
 
 cell_name_to_dimensions = Dict(cellname => length(v)-1 for (cellname, v) in num_cell_entities)
 
-#=
-    TODO: Attach hash data operators if hash_data is required.
-=#
-struct Cell
+@attach_hash_operators struct Cell
     name::String
     topological_dimension::Dimension 
     geometric_dimension::Dimension 
@@ -33,6 +30,7 @@ struct Cell
         new(cellname, topological_dimension, geometric_dimension)
     end
 end
+hash_data(c::Cell) = (c.geometric_dimension, c.topological_dimension, c.name)
 
 function Base.show(io::IO, cell::Cell) 
     gdim, tdim = cell.geometric_dimension, cell.topological_dimension

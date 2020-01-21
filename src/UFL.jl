@@ -4,7 +4,7 @@ include("util.jl")
 
 include("coretypes.jl")
 include("indices.jl")
-include("ufltype.jl")
+include("uflmacros.jl")
 
 include("iteration.jl")
 

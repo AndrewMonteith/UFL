@@ -109,14 +109,16 @@ macro ufl_type(expr)
         end
     end
 
+    tc = global typecode += 1
+
     push!(added_methods, esc(quote 
-        ufl_typecode(x::$struct_name) = $(global typecode += 1)
+        ufl_typecode(x::$struct_name) = $tc
     end))
 
     return Expr(:block, expr, added_methods...)
 end
 
-macro use_hash_operators(e)
+macro attach_hash_operators(e)
     e.head === :struct || error("can only define hash operators on structs")
     struct_name = e.args[2]
 
@@ -127,3 +129,5 @@ macro use_hash_operators(e)
         Base.:(==)(x::$struct_name, y::$struct_name) = hash_data(x) === hash_data(y) 
     end)
 end
+
+hash_data(n::Nothing) = nothing

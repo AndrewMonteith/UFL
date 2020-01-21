@@ -6,5 +6,5 @@ using UFL, Test
 @testset "FEM" begin include("fem.jl") end 
 @testset "Constants" begin include("arguments.jl") end
 @testset "Misc" begin include("misc.jl") end 
-# @testset "Iteration Tests" begin include("iteration.jl") end
+@testset "Iteration Tests" begin include("iteration.jl") end
 @testset "Example Form" begin include("exampleform.jl") end

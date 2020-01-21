@@ -9,9 +9,8 @@ constant_id = 0
     id::Int 
 
     function Constant(domain, shape::DimensionTuple=())
-        id = constant_id
+        new_id = constant_id
         global constant_id = constant_id + 1
-
         new(domain, shape, id)
     end
 end

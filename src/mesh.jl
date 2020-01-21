@@ -5,23 +5,30 @@ export Mesh, UnitTriangleMesh, UnitSquareMesh
     I will add data to this structure as I need it.
 =#
 
+mesh_id = 0
+
 # MAYBE TODO:
 # - @attach_ufl_id
-# - @attach_operators_from_hash_data
 # - is_affine
 # - Information for actual data of mesh (ie triangle or square?)
-struct Mesh 
+# - @attach_ddoperators_from_hash_data
+@attach_hash_operators struct Mesh 
+    id::Int
     geometric_dimension::Dimension 
     topological_dimension::Dimension 
 
     function Mesh(c::Cell)
-        new(geometric_dimension(c), topological_dimension(c))
+        Mesh(geometric_dimension(c), topological_dimension(c))
     end
 
     function Mesh(geometric_dimension::Dimension, topological_dimension::Dimension)
-        new(geometric_dimension, topological_dimension)
+        new_id = mesh_id
+        global mesh_id = mesh_id + 1 
+        new(new_id, geometric_dimension, topological_dimension)
     end
 end
+Base.repr(m::Mesh) = "Mesh$(m.id)"
+hash_data(m::Mesh) = repr(m)
 
 
 #=

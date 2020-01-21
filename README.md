@@ -5,18 +5,20 @@ A sample implemendation of UFL in Julia
 * Can add, div, sub, mult UFL expressions, ...
 Achieved: Add
 
-* Can build trees
+* Can build trees (implemented most of the Product,Division, ... operators)
 
 * Hashing defines for types
+Achieved: Mostly
+
 * Traversal
-* Grad
+Achieved: Non unique traversal of the tree
 
 For next iteration:
+    * Work out whether i == j should actually be true in tests/iteration.jl
     * IndexSum, ComponentTensor in order to allow mulitplication to work
     * Implement Tensors and Multiplication
     * Get IndexSum, ComponentTensor working ie dot, inner, ...
-
-
+    * Grad
 
 Get this code to work:
 ```julia 
@@ -68,6 +70,8 @@ Think about tranformation pass tools. Don't consider the UFL a tree, consider it
 Q: Why is the degree property automatically shadowed in FiniteElement
 
 Q: Should I think about adding Tensors?
+
+Q: Well done for using like the most unknown feature of python (else on for loop)
 
 ### Questions & Answers
 
