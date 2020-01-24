@@ -1,6 +1,4 @@
-include("UFL.jl")
-
-using Main.UFL
+using BenchmarkTools
 
 function build_random_tree(N)
     rootnode = Identity(3) + Identity(3)
@@ -16,35 +14,87 @@ function build_random_tree(N)
     rootnode
 end
 
-function random_tree_benchmark()
-    x = build_random_tree()
-    print("done")
+function random_tree_benchmark(N)
+    x = build_random_tree(N)
+    nothing
 end
 
-function do_benchmarks(randomtree)
-    # build up random expression tree
-
+function count_nodes(expr::AbstractExpr)
+    to_visit::Vector{AbstractExpr} = [expr] 
     s = 0
-    for node in pre_order_traversal(randomtree)
+
+    while !isempty(to_visit)
+        e = pop!(to_visit)
+        append!(to_visit, ufl_operands(e))
+
         s += 1
     end
 
     s
 end
 
-function do_benchmarks_(randomtree)
-    s = 0 
+function do_benchmarks_1(tree::AbstractExpr)
+    s = 0
 
-    pre_order_traversal_((_) -> s += 1, randomtree) 
+    pre_order_traversal_(tree) do x
+        s += 1
+    end
 
     s
 end
 
+function do_benchmarks_2(tree::AbstractExpr)
+    s = 0
 
-for i in 1:200
-    println("Benchark $(i)")
-    s = build_random_tree(1000000)
+    pre_order_traversal_(tree) do x
+        s += 1
+    end
 
-    @time do_benchmarks(s)
-    @time do_benchmarks_(s)
+    s
+end
+
+function do_benchmarks_3(tree::AbstractExpr) 
+    s = 0 
+
+    @pre_order_traversal_m(tree, begin
+        s += 1 
+    end)
+
+    s 
+end
+
+function do_benchmarks_4(tree::AbstractExpr) 
+    s = 0 
+
+    @pre_order_traversal_m2(tree, begin 
+        s += 1 
+    end)
+
+    s 
+end
+
+function do_benchmarks_5(tree)
+    s = 0
+    for node in Main.UFL.pre_order_traversal(tree) 
+        s += 1
+    end
+    s
+end
+
+function run_benchmark()
+    suite = BenchmarkGroup()
+
+    println("building with 10_000 nodes")
+
+    suite["building-array"] = @benchmarkable build_random_tree(10_000)
+    suite["function-inbuilt-array"] = @benchmarkable do_benchmarks_1(x) setup=(x=build_random_tree(10_000))
+    suite["function-capacity-array"] = @benchmarkable do_benchmarks_2(x) setup=(x=build_random_tree(10_000))
+    suite["macro-inbuilt-array"] = @benchmarkable do_benchmarks_3(x) setup=(x=build_random_tree(10_000))
+    suite["macro-capacity-array"] = @benchmarkable do_benchmarks_4(x) setup=(x=build_random_tree(10_000))
+    suite["iterator-inbuilt-array"] = @benchmarkable do_benchmarks_5(x) setup=(x=build_random_tree(10_000))
+    suite["raw"] = @benchmarkable count_nodes(x) setup=(x=build_random_tree(10_000))
+
+    tune!(suite)
+
+    BenchmarkTools.run(suite, verbose=true, seconds=5)
 end

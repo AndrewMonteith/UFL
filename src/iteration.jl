@@ -15,34 +15,130 @@
 
 export pre_order_traversal, pre_order_traversal_, post_order_traversal
 
-struct PreOrderTraversal 
-    lifo::Array{AbstractExpr}
+# struct PreOrderTraversal 
+#     lifo::Array{AbstractExpr}
+# end
+
+# function Base.iterate(pret::PreOrderTraversal)
+#     e = pop!(pret.lifo)
+#     append!(pret.lifo, ufl_operands(e))
+#     (e, nothing)
+# end
+
+# function Base.iterate(pret::PreOrderTraversal, _::Nothing)
+#     isempty(pret.lifo) && return nothing 
+
+#     Base.iterate(pret)
+# end
+
+# function pre_order_traversal(e::AbstractExpr)
+#     PreOrderTraversal([e])
+# end
+
+struct PreOrderWalker{T <: AbstractExpr} 
+    node::T
 end
 
-function Base.iterate(pret::PreOrderTraversal)
-    e = pop!(pret.lifo)
-    append!(pret.lifo, ufl_operands(e))
-    (e, nothing)
+mutable struct CapacityArray{T} 
+    buf::Vector{T} 
+    len::Int 
+    capacity::Int
+
+    function CapacityArray{T}(capacity::Int) where T
+        new{T}(Vector{T}(undef, capacity), 0, capacity)
+    end
 end
 
-function Base.iterate(pret::PreOrderTraversal, _::Nothing)
-    isempty(pret.lifo) && return nothing 
+@inline function Base.append!(arr::CapacityArray{T}, vals) where T
+    n = length(vals)
 
-    Base.iterate(pret)
+    if arr.len + n > arr.capacity
+        append!(arr.buf, Vector{T}(undef, arr.capacity))
+        arr.capacity = round(arr.capacity * 1.5)
+    end
+
+    @inbounds for ii in 1:n 
+        arr.buf[arr.len + ii] = vals[ii]
+    end
+
+    arr.len += n 
 end
 
-function pre_order_traversal(e::AbstractExpr)
-    PreOrderTraversal([e])
+@inline function Base.pop!(arr::CapacityArray{T}) where T 
+    x = arr.buf[arr.len]
+    arr.len -= 1
+    x 
 end
 
-function pre_order_traversal_(func, op::AbstractExpr)
-    to_visit::Array{AbstractExpr} = [op] 
+@inline function Base.iterate(w::PreOrderWalker)
+    state = Vector{AbstractExpr}() 
+    
+    append!(state, ufl_operands(w.node))
+    (w.node, state)
+end
+
+@inline function Base.iterate(w::PreOrderWalker, stack::Vector{AbstractExpr})
+    isempty(stack) && return nothing 
+    
+    e = pop!(stack)
+    append!(stack, ufl_operands(e))
+    (e, stack)
+end
+
+@inline function pre_order_traversal(e::AbstractExpr)
+    PreOrderWalker{typeof(e)}(e)
+end
+
+@inline function pre_order_traversal_(func::F, op::AbstractExpr) where F <: Function
+    to_visit::Array{AbstractExpr} = [op]
 
     while !isempty(to_visit)
         e = pop!(to_visit)
         append!(to_visit, ufl_operands(e))
         func(e)
     end
+end
+
+@inline function pre_order_traversal_2(func::F, op::AbstractExpr) where F <: Function
+    to_visit = CapacityArray{AbstractExpr}(1000)
+    append!(to_visit, [op])
+
+    while to_visit.len > 0
+        e = pop!(to_visit)
+        append!(to_visit, ufl_operands(e))
+        func(e)
+    end
+end
+
+macro pre_order_traversal_m(op, code)
+    esc(
+        quote
+            to_visit = CapacityArray{AbstractExpr}(100)
+            append!(to_visit, [$op::AbstractExpr])
+
+            while to_visit.len > 0
+                e = pop!(to_visit)
+                append!(to_visit, ufl_operands(e))
+
+                $code
+            end
+        end
+    )
+end
+
+macro pre_order_traversal_m2(op, code)
+    esc(
+        quote
+            to_visit::Vector{AbstractExpr} = [$op] 
+
+            while !isempty(to_visit)
+                e = pop!(to_visit)
+                append!(to_visit, ufl_operands(e))
+
+                $code
+            end
+        end
+    )
 end
 
 struct PostOrderTraversal 

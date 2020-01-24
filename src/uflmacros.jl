@@ -1,6 +1,6 @@
 export ufl_type
 
-const EXPORT_UFL_PROPERTY_METHODS = true
+const EXPORT_UFL_PROPERTY_METHODS = false
 
 field(sym::Symbol, t) = Expr(:(::), sym, t)
 

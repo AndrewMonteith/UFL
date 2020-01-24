@@ -23,5 +23,6 @@ include("mesh.jl")
 include("functions.jl")
 include("arguments.jl")
 
+include("basic_benchmarks.jl")
 
 end # module
