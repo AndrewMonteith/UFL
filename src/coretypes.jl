@@ -5,12 +5,16 @@ export Terminal, Operator, Dimension, geometric_dimension, topological_dimension
 """
 abstract type AbstractExpr end 
 
+# ufl_shape(s::AbstractExpr) = s.ufl_shape
+
 """
-    An expression that does not depend on any other expression.
-    Typically a Terminal has some non-expression data associated with it 
-    such as geometry data or constants.
+An expression that does not depend on any other expression.
+Typically a Terminal has some non-expression data associated with it 
+such as geometry data or constants.
 """
 abstract type Terminal <: AbstractExpr end 
+
+ufl_operands(t::Terminal) = ()
 
 """
     A result of an operator, such as IndexSum, ComponentTensor, MinValue, ...
@@ -18,6 +22,8 @@ abstract type Terminal <: AbstractExpr end
     will represent the non-terminal types.
 """
 abstract type Operator <: AbstractExpr end 
+
+ufl_operands(o::Operator) = o.ufl_operands
 
 ufl_compute_hash(o::Operator) = hash((ufl_typecode(o), (hash(op) for op in ufl_operands(o))...))
 function Base.repr(o::Operator)

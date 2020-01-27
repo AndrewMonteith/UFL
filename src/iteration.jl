@@ -35,8 +35,8 @@ export pre_order_traversal, pre_order_traversal_, post_order_traversal
 #     PreOrderTraversal([e])
 # end
 
-struct PreOrderWalker{T <: AbstractExpr} 
-    node::T
+struct PreOrderWalker 
+    node::AbstractExpr
 end
 
 mutable struct CapacityArray{T} 
@@ -70,14 +70,13 @@ end
     x 
 end
 
-@inline function Base.iterate(w::PreOrderWalker)
-    state = Vector{AbstractExpr}() 
-    
-    append!(state, ufl_operands(w.node))
-    (w.node, state)
+function new_state(x::AbstractExpr)::Vector{AbstractExpr}
+    v = Vector{AbstractExpr}()
+    push!(v, x)
+    v
 end
 
-@inline function Base.iterate(w::PreOrderWalker, stack::Vector{AbstractExpr})
+function Base.iterate(w::PreOrderWalker, stack=new_state(w.node))
     isempty(stack) && return nothing 
     
     e = pop!(stack)
@@ -85,8 +84,10 @@ end
     (e, stack)
 end
 
-@inline function pre_order_traversal(e::AbstractExpr)
-    PreOrderWalker{typeof(e)}(e)
+Base.eltype(w::PreOrderWalker) = AbstractExpr
+
+@inline function pre_order_traversal(e::AbstractExpr)::PreOrderWalker
+    PreOrderWalker(e)
 end
 
 @inline function pre_order_traversal_(func::F, op::AbstractExpr) where F <: Function

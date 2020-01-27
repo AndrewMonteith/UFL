@@ -1,5 +1,7 @@
 using BenchmarkTools
 
+export do_benchmarks_5
+
 function build_random_tree(N)
     rootnode = Identity(3) + Identity(3)
     
@@ -73,7 +75,7 @@ function do_benchmarks_4(tree::AbstractExpr)
     s 
 end
 
-function do_benchmarks_5(tree)
+function do_benchmarks_5(tree::AbstractExpr)
     s = 0
     for node in Main.UFL.pre_order_traversal(tree) 
         s += 1
@@ -84,17 +86,17 @@ end
 function run_benchmark()
     suite = BenchmarkGroup()
 
-    println("building with 10_000 nodes")
+    println("building with 100_000 nodes")
 
-    suite["building-array"] = @benchmarkable build_random_tree(10_000)
-    suite["function-inbuilt-array"] = @benchmarkable do_benchmarks_1(x) setup=(x=build_random_tree(10_000))
-    suite["function-capacity-array"] = @benchmarkable do_benchmarks_2(x) setup=(x=build_random_tree(10_000))
-    suite["macro-inbuilt-array"] = @benchmarkable do_benchmarks_3(x) setup=(x=build_random_tree(10_000))
-    suite["macro-capacity-array"] = @benchmarkable do_benchmarks_4(x) setup=(x=build_random_tree(10_000))
-    suite["iterator-inbuilt-array"] = @benchmarkable do_benchmarks_5(x) setup=(x=build_random_tree(10_000))
-    suite["raw"] = @benchmarkable count_nodes(x) setup=(x=build_random_tree(10_000))
+    suite["building-array"] = @benchmarkable build_random_tree(100_000)
+    suite["function-inbuilt-array"] = @benchmarkable do_benchmarks_1(x) setup=(x=build_random_tree(100_000))
+    suite["function-capacity-array"] = @benchmarkable do_benchmarks_2(x) setup=(x=build_random_tree(100_000))
+    suite["macro-inbuilt-array"] = @benchmarkable do_benchmarks_3(x) setup=(x=build_random_tree(100_000))
+    suite["macro-capacity-array"] = @benchmarkable do_benchmarks_4(x) setup=(x=build_random_tree(100_000))
+    suite["iterator-inbuilt-array"] = @benchmarkable do_benchmarks_5(x) setup=(x=build_random_tree(100_000))
+    suite["raw"] = @benchmarkable count_nodes(x) setup=(x=build_random_tree(100_000))
 
     tune!(suite)
 
-    BenchmarkTools.run(suite, verbose=true, seconds=5)
+    BenchmarkTools.run(suite, verbose=true, seconds=10)
 end

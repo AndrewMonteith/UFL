@@ -19,9 +19,9 @@ abstract type CompoundDerivative <: AbstractDifferential end
     ufl_tags = (inherit_indices_from_operand=1,)
 
     function Grad(expr::AbstractExpr, operands::VarTuple{AbstractExpr})
-        # TODO: Simplification if expr is_cellwise_constant
-        #   - Requirements: find_geometric_dimension (ie dimension stuff)
-        #                   Could test whether just directly calling geometric_dimension works
+        # IMPROVEMENT: Simplification if expr is_cellwise_constant
+        #              - Requirements: find_geometric_dimension (ie dimension stuff)
+        #                              Could test whether just directly calling geometric_dimension works
 
         new(operands)
     end

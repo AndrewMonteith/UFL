@@ -1,8 +1,7 @@
 export ufl_type
 
-const EXPORT_UFL_PROPERTY_METHODS = false
-
 field(sym::Symbol, t) = Expr(:(::), sym, t)
+method(name::Symbol, param::Symbol) = esc(quote $param(x::$name) = x.$param end)
 
 fields = Dict(
     :ufl_shape => (field(:ufl_shape, DimensionTuple), ()),
@@ -18,20 +17,17 @@ macro load_ufl_property_methods()
     methods = [] 
     
     for ufl_prop in keys(fields)   
+        ufl_prop === :ufl_operands && continue
+
         # hacky way to stop the name mangling...     
         prop_str = String(ufl_prop)
         push!(methods, esc(:($ufl_prop(x::AbstractExpr) = fields[Symbol($prop_str)][2])))
-        
-        if EXPORT_UFL_PROPERTY_METHODS
-            push!(methods, Expr(:export, ufl_prop))
-        end 
     end 
 
     return Expr(:block, methods...) 
 end 
 
 @load_ufl_property_methods
-
 
 tag_methods = Dict(
     :inherit_indices_from_operand => (struct_name, operand_id) -> esc(quote 
@@ -44,7 +40,6 @@ tag_methods = Dict(
     end)
 )
 
-method(name::Symbol, param::Symbol) = esc(quote $param(x::$name) = x.$param end)
 get_struct_name(def::Expr) = isa(def.args[2], Symbol) ? def.args[2] : def.args[2].args[1]
 
 function find_field(fields::AbstractArray{Any}, field_name)
@@ -88,7 +83,9 @@ macro ufl_type(expr)
             end
     
             push!(wanted_fields, fields[field_name][1])
-            push!(added_methods, method(struct_name, field_name))
+            # if field_name !== :ufl_operands 
+            #     push!(added_methods, method(struct_name, field_name))
+            # end
         end
 
         prepend!(struct_fields, wanted_fields)

@@ -53,9 +53,13 @@ Base.:(==)(i::Int, j::Index) = j == i
     Note:
         This type is not a subtype of Terminal 
         This could be a problem? However for know just treating 
-        this as a class seems sufficient.
+        this as a class seems sufficient. We can just treat this as an 
+        edge case
 """
 const MultiIndex = VarTuple{AbstractIndex}
+
+indices(n::Int) = tuple((Index() for _ ∈ 1:n)...)
+
 
 # struct MultiIndex <: Terminal
 #     indices::VarTuple{AbstractIndex}

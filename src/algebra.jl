@@ -156,19 +156,43 @@ function mult(a::AbstractExpr, b::AbstractExpr)
 
     if rank1 === 0 && rank2 === 0 
         p = Product(a, b)
+        ti = () 
     elseif rank1 === 0 || rank2 === 0 
         if rank2 === 0 
             a, b = b, a 
         end
-        # rank2 === 0 && (a, b = b, a)
 
         if a isa Zero || b isa Zero 
             shape = shape1 === () ? shape2 : shape1 
             return Zero(shape, fi, fid)
         end 
+
+        ti = (indices ∘ length ∘ ufl_shape)(b)
+        p = Product(a, b[ti])
+    elseif rank1 === 2 && (rank2 === 1 || rank2 === 2)
+        !isempty(ri) && error("Not expecting repeate indices in non-scalar product.")
+
+        (a isa Zero || b isa Zero) && return Zero(tuple(shape1[1:end-1]..., shape2[1:end]), fi, fid)
+
+        ai = indices(length(shape1) - 1)
+        bi = indices(length(shape2) - 1)
+        k = Index()
+
+        p = a[tuple(ai..., k)] * b[tuple(bi..., k)]
+        ti = tuple(ai..., bi...)
+    else
+        error("Invalid ranks $(rank1) and $(rank2) in product.")
     end
 
-    error("not implemented")
+    if !isempty(ti)
+        p = as_tensor(p, ti)
+    end 
+
+    for ii ∈ ri 
+        p = IndexSum(p, (ii,))
+    end 
+
+    p
 end
 
 is_true_scalar(a::AbstractExpr) = ufl_shape(a) === () && ufl_free_indices(a) === ()
