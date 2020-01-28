@@ -6,8 +6,6 @@ is_cellwise_constant(::AbstractConstantValue) = true
 ufl_domains(::AbstractConstantValue) = ()
 
 @ufl_type struct Zero <: AbstractConstantValue
-    ufl_fields = (shape, free_indices, index_dimensions)
-
     function Zero(shape::DimensionTuple=())
         new(shape, (), ())
     end
@@ -20,10 +18,10 @@ ufl_domains(::AbstractConstantValue) = ()
 
             z = Zero((), (j, i). Dict{i => 3, j => 5})
     """
-    function Zero(shape::DimensionTuple, freeIndices::VarTuple{Index}, indexDimensions::Dict{Index, Dimension})
-        sortedindices = sort(collect(freeIndices); by=x -> x.id)
-        dimensions = Tuple(indexDimensions[index] for index in sortedindices)
-        new(shape, Tuple(sortedindices), dimensions)
+    function Zero(shape::DimensionTuple, free_indices::VarTuple{Index}, index_dimensions::Dict{Index, Dimension})
+        sorted_indices = sort(collect(free_indices); by=x -> x.id)
+        dimensions = Tuple(index_dimensions[index] for index in sorted_indices)
+        new(shape, Tuple(sorted_indices), dimensions)
     end
 
     """
@@ -31,8 +29,8 @@ ufl_domains(::AbstractConstantValue) = ()
         Example new format code:
             z = Zero((), (2, 4), (3, 5))
     """
-    function Zero(shape::DimensionTuple, freeIndices::VarTuple{Dimension}, indexDimensions::VarTuple{Dimension})
-        new(shape, freeIndices, indexDimensions)
+    function Zero(shape::DimensionTuple, free_indices::VarTuple{Dimension}, index_dimensions::VarTuple{Dimension})
+        new(shape, free_indices, index_dimensions)
     end
 end
 
@@ -61,12 +59,10 @@ Base.show(io::IO, ::Zero) = show(io, "0")
 
 
 @ufl_type struct Identity <: AbstractConstantValue
-    ufl_fields = (shape,)
-    
     dim::Dimension 
 
     function Identity(dim::Dimension)
-        new((dim, dim), dim)
+        new((dim, dim), (), (), dim)
     end
 end
 

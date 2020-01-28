@@ -83,20 +83,30 @@ function do_benchmarks_5(tree::AbstractExpr)
     s
 end
 
+function do_benchmarks_6(tree::AbstractExpr)
+    s = 0
+    for node in Main.UFL.post_order_traversal(tree) 
+        s += 1
+    end
+    s
+end
+
 function run_benchmark()
     suite = BenchmarkGroup()
 
-    println("building with 100_000 nodes")
+    n = 10_000_000
+    println("building with n nodes")
 
-    suite["building-array"] = @benchmarkable build_random_tree(100_000)
-    suite["function-inbuilt-array"] = @benchmarkable do_benchmarks_1(x) setup=(x=build_random_tree(100_000))
-    suite["function-capacity-array"] = @benchmarkable do_benchmarks_2(x) setup=(x=build_random_tree(100_000))
-    suite["macro-inbuilt-array"] = @benchmarkable do_benchmarks_3(x) setup=(x=build_random_tree(100_000))
-    suite["macro-capacity-array"] = @benchmarkable do_benchmarks_4(x) setup=(x=build_random_tree(100_000))
-    suite["iterator-inbuilt-array"] = @benchmarkable do_benchmarks_5(x) setup=(x=build_random_tree(100_000))
-    suite["raw"] = @benchmarkable count_nodes(x) setup=(x=build_random_tree(100_000))
+    suite["building-array"] = @benchmarkable build_random_tree($n)
+    # suite["function-inbuilt-array"] = @benchmarkable do_benchmarks_1(x) setup=(x=build_random_tree($n))
+    # suite["function-capacity-array"] = @benchmarkable do_benchmarks_2(x) setup=(x=build_random_tree($n))
+    # suite["macro-inbuilt-array"] = @benchmarkable do_benchmarks_3(x) setup=(x=build_random_tree($n))
+    # suite["macro-capacity-array"] = @benchmarkable do_benchmarks_4(x) setup=(x=build_random_tree($n))
+    # suite["iterator-inbuilt-array"] = @benchmarkable do_benchmarks_5(x) setup=(x=build_random_tree($n))
+    # suite["post-iterator-inbuilt-array"] = @benchmarkable do_benchmarks_6(x) setup=(x=build_random_tree($n))
+    suite["raw"] = @benchmarkable count_nodes(x) setup=(x=build_random_tree($n))
 
     tune!(suite)
 
-    BenchmarkTools.run(suite, verbose=true, seconds=10)
+    BenchmarkTools.run(suite, verbose=true, seconds=8)
 end

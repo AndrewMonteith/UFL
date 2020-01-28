@@ -4,8 +4,7 @@ using UFL, Test
 @testset "Algebra" begin include("algebra.jl") end
 @testset "Meshs" begin include("mesh.jl") end
 @testset "FEM" begin include("fem.jl") end 
-@testset "Constants" begin include("arguments.jl") end
 @testset "Misc" begin include("misc.jl") end 
 @testset "Iteration" begin include("iteration.jl") end
 @testset "Indexing" begin include("indexing.jl") end 
-@testset "Example Form" begin include("exampleform.jl") end
+# @testset "Example Form" begin include("exampleform.jl") end

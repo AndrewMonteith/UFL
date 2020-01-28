@@ -5,15 +5,15 @@ i, j = Index(), Index()
 @test j.id === 1
 
 z = Zero(())
-@test z.ufl_shape === () 
-@test z.ufl_free_indices === () 
-@test z.ufl_index_dimensions === () 
+@test ufl_shape(z) === () 
+@test ufl_free_indices(z) === () 
+@test ufl_index_dimensions(z) === () 
 @test z == 0
 
 z = Zero((3,))
-@test z.ufl_shape === (3,)
-@test z.ufl_free_indices === () 
-@test z.ufl_index_dimensions === ()
+@test ufl_shape(z) === (3,)
+@test ufl_free_indices(z) === () 
+@test ufl_index_dimensions(z) === ()
 @test z == Zero((3, ))
 
 

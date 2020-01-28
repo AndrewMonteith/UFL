@@ -1,33 +1,19 @@
 export ufl_type
 
+using OrderedCollections: LittleDict
+
 field(sym::Symbol, t) = Expr(:(::), sym, t)
 method(name::Symbol, param::Symbol) = esc(quote $param(x::$name) = x.$param end)
 
-fields = Dict(
-    :ufl_shape => (field(:ufl_shape, DimensionTuple), ()),
-    :ufl_free_indices => (field(:ufl_free_indices, VarTuple{Index}), ()),
-    :ufl_index_dimensions => (field(:ufl_index_dimensions, DimensionTuple), ()),
-    :ufl_operands => (field(:ufl_operands, VarTuple{AbstractExpr}), ()),
-
-    # any field marked with Any means we don't have an appropriate data type for it 
-    :ufl_domain => (field(:ufl_domain, Any), ()), # This field is meant to be depreceated?
+required_fields = LittleDict(
+    :ufl_shape => (ast=field(:ufl_shape, DimensionTuple), default_val=()),
+    :ufl_free_indices => (ast=field(:ufl_free_indices, VarTuple{Index}), default_val=()),
+    :ufl_index_dimensions => (ast=field(:ufl_index_dimensions, DimensionTuple), default_val=()),
 )
 
-macro load_ufl_property_methods()
-    methods = [] 
-    
-    for ufl_prop in keys(fields)   
-        ufl_prop === :ufl_operands && continue
-
-        # hacky way to stop the name mangling...     
-        prop_str = String(ufl_prop)
-        push!(methods, esc(:($ufl_prop(x::AbstractExpr) = fields[Symbol($prop_str)][2])))
-    end 
-
-    return Expr(:block, methods...) 
-end 
-
-@load_ufl_property_methods
+optional_fields = Dict(
+    :ufl_operands => (ast=field(:ufl_operands, VarTuple{AbstractExpr}), default_val=())
+)
 
 tag_methods = Dict(
     :inherit_indices_from_operand => (struct_name, operand_id) -> esc(quote 
@@ -40,9 +26,21 @@ tag_methods = Dict(
     end)
 )
 
-get_struct_name(def::Expr) = isa(def.args[2], Symbol) ? def.args[2] : def.args[2].args[1]
+for (required_field, def) ∈ required_fields 
+    required_field === :ufl_operands && continue
+    @eval begin 
+        $required_field(x::AbstractExpr) = x.$required_field 
+        export $required_field
+    end 
+end
 
-function find_field(fields::AbstractArray{Any}, field_name)
+for (optional_field, def) ∈ optional_fields 
+    @eval begin 
+        $optional_field(x::AbstractExpr) = $(def.default_val)
+    end
+end
+        
+function find_field(fields::AbstractArray{Any}, field_name::Symbol)
     for (i, field) in enumerate(fields)
         if isa(field, Expr) && field.args[1] == field_name 
             return i, field 
@@ -54,6 +52,8 @@ end
 
 typecode = 0
 
+get_struct_name(def::Expr) = isa(def.args[2], Symbol) ? def.args[2] : def.args[2].args[1]
+
 """
     Inserts predefined fields for a struct 
     Generates accessors for the fields 
@@ -62,33 +62,37 @@ typecode = 0
 """
 macro ufl_type(expr)
     struct_fields = expr.args[3].args
-    added_methods = []
 
+    methods_to_add, fields_to_add = [], []
     struct_name = get_struct_name(expr)
-    
-    # Has the user provided ufl_fields tag in struct body 
-    # if so we generte all the properties they requested as members on the struct 
-    # and generate an accessor for the property that just returns the member 
+   
+    # Any struct that uses this macro will have any field from required_fields injected into it 
+    # In the order specified in the dictionary
+    for (_, (field_ast, _)) ∈ required_fields 
+        push!(fields_to_add, field_ast)
+    end
+
+    # If the user has provided a ufl_fields tag in the struct body 
+    # Any property mentioned in there must be in the optional_fields dictionary 
+    # We then generate an accessor that reads from the field of the struct rather than the 
+    # the default value 
     fields_index, ufl_fields = find_field(struct_fields, :ufl_fields)
     if fields_index !== nothing
         deleteat!(struct_fields, fields_index)
 
-        wanted_fields = []
-
-        for wanted_field in ufl_fields.args[2].args
+        for wanted_field ∈ ufl_fields.args[2].args
             field_name = Symbol(:ufl_, wanted_field)
     
-            if !(field_name in keys(fields))
+            if !(field_name in keys(optional_fields))
                 error("don't recognise field $(field_name)")
             end
     
-            push!(wanted_fields, fields[field_name][1])
-            # if field_name !== :ufl_operands 
-            #     push!(added_methods, method(struct_name, field_name))
-            # end
-        end
+            push!(fields_to_add, optional_fields[field_name].ast)
 
-        prepend!(struct_fields, wanted_fields)
+            if field_name !== :ufl_operands
+                push!(!methods_to_add, esc(:( $field_name(x::$struct_name)=x.$field_name )))
+            end
+        end
     end 
 
     # if the user has specified ufl_tags field 
@@ -99,20 +103,19 @@ macro ufl_type(expr)
 
         for tag in ufl_tags.args[2].args
             if isa(tag, Symbol) 
-                push!(added_methods, tag_methods[tag](struct_name))
+                push!(methods_to_add, tag_methods[tag](struct_name))
             else
-                push!(added_methods, tag_methods[tag.args[1]](struct_name, tag.args[2]))
+                push!(methods_to_add, tag_methods[tag.args[1]](struct_name, tag.args[2]))
             end
         end
     end
 
+    prepend!(struct_fields, fields_to_add)
+    
     tc = global typecode += 1
+    push!(methods_to_add, esc(quote ufl_typecode(x::$struct_name) = $tc end))
 
-    push!(added_methods, esc(quote 
-        ufl_typecode(x::$struct_name) = $tc
-    end))
-
-    return Expr(:block, expr, added_methods...)
+    return Expr(:block, expr, methods_to_add...)
 end
 
 macro attach_hash_operators(e)

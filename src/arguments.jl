@@ -1,3 +1,5 @@
+export TrialFunction, TestFunction, Constant
+
 abstract type AbstractFormArgument end 
 
 ufl_function_space(arg::AbstractFormArgument) = arg.ufl_function_space
@@ -6,8 +8,6 @@ ufl_domains(arg::AbstractFormArgument) = ufl_domains(arg.ufl_function_space)
 geometric_dimension(arg::AbstractFormArgument) = ufl_shape(arg)[1]
 
 @ufl_type struct Argument <: AbstractFormArgument 
-    ufl_fields = (shape,)
-    
     number::Int
     part
 
@@ -18,7 +18,7 @@ geometric_dimension(arg::AbstractFormArgument) = ufl_shape(arg)[1]
             error("part must be integral or nothing")
         end
 
-        new(function_space.ufl_shape, number, part, function_space)
+        new(function_space.ufl_shape, (), (), number, part, function_space)
     end
 end
 Base.repr(arg::Argument) = "Argument($(repr(arg.ufl_function_space)), $(repr(arg.number)))"
@@ -46,8 +46,6 @@ end
 
 
 @ufl_type struct Constant <: AbstractFormArgument 
-    ufl_fields = (shape,)
-
     value
     ufl_function_space::FunctionSpace
 
@@ -68,7 +66,7 @@ end
 
         shape = fem_value_shape(function_space.element) 
 
-        new(shape, value, function_space)
+        new(shape, (), (), value, function_space)
     end
 end
 

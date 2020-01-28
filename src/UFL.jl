@@ -16,10 +16,10 @@ include("constantvalue.jl")
 include("tensors.jl")
 include("indexing.jl")
 
-include("constants.jl")
+# include("constants.jl") Never used anywhere
 include("algebra.jl")
 
-include("differentiation.jl")
+# include("differentiation.jl") Not implemented yet
 
 include("mesh.jl")
 include("functions.jl")

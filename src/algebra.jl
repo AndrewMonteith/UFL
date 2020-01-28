@@ -1,8 +1,9 @@
 export Sum, Product, Divison, Power
 
 @ufl_type struct Sum <: Operator 
-    ufl_fields = (operands,)
     ufl_tags = (inherit_shape_from_operand=1, inherit_indices_from_operand=1)
+
+    ufl_fields = (operands,)
     
     function Sum(a::AbstractExpr, b::AbstractExpr)
         shape = ufl_shape(a)
@@ -37,9 +38,9 @@ export Sum, Product, Divison, Power
             # have to implement 
         end 
 
-        new((a, b))
+        new((), (), (), (a, b))
     end
-end 
+end
 
 Base.:+(e1::AbstractExpr, e2::AbstractExpr) = Sum(e1, e2)
 Base.:+(e1::AbstractExpr, e2::Real) = Sum(e1, as_ufl(e2))
@@ -92,7 +93,7 @@ function merge_unqiue_indices(afi, afid, bfi, bfid)
 end
 
 @ufl_type struct Product <: Operator 
-    ufl_fields = (operands, free_indices, index_dimensions)
+    ufl_fields = (operands,)
 
     function Product(a::AbstractExpr, b::AbstractExpr) 
         if ufl_shape(a) === () || ufl_shape(b) === () 
@@ -112,8 +113,10 @@ end
             return a 
         end 
 
-        new((a, b), merge_unqiue_indices(), merge_unqiue_indices(ufl_free_indices(a), ufl_index_dimensions(a),
-                                                                 ufl_free_indices(b), ufl_index_dimensions(b))...)
+        fi, fid = merge_unqiue_indices(ufl_free_indices(a), ufl_index_dimensions(a),
+                                       ufl_free_indices(b), ufl_index_dimensions(b))
+
+        new((), fi, fid, (a, b))
     end
 end
 
@@ -209,7 +212,7 @@ is_true_scalar(a::AbstractExpr) = ufl_shape(a) === () && ufl_free_indices(a) ===
 
         (a isa ScalarValue && b isa ScalarValue) && ScalarValue(a.val / b.val)
 
-        new((a, b))
+        new((), (), (), (a, b))
     end
 end
 ufl_shape(d::Division) = ()
@@ -225,7 +228,6 @@ Base.:/(e1::AbstractExpr, e2::Real) = _div(e1, as_ufl(e2))
 Base.:/(e1::Real, e2::AbstractExpr) = _div(as_ufl(e1), e2)
 
 @ufl_type struct Power <: Operator 
-    ufl_fields = (operands,)
     ufl_tags = (inherit_indices_from_operand=0,)
 
     function Power(a::AbstractExpr, b::AbstractExpr) 
@@ -242,7 +244,7 @@ Base.:/(e1::Real, e2::AbstractExpr) = _div(as_ufl(e1), e2)
         elseif b isa ScalarValue && b.val === 1
             a
         else
-            new((a, b))
+            new((), (), (), (a, b))
         end
     end
 end

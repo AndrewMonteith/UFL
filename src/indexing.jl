@@ -1,8 +1,6 @@
 export Indexed 
 
 @ufl_type struct Indexed <: Operator
-    ufl_fields = (operands, free_indices, index_dimensions)
-
     function Indexed(expr::AbstractExpr, multiindex::MultiIndex)
         operands = (expr, multiindex)
 
@@ -33,13 +31,11 @@ export Indexed
             zip(fi...)
         end 
 
-        new(operands, fi, fid)
+        new((), fi, fid, operands)
     end
 end
 
 @ufl_type struct IndexSum <: Operator 
-    ufl_fields = (operands, free_indices, index_dimensions)
-
     dim::Dimension
 
     function IndexSum(summand::AbstractExpr, index::MultiIndex)
@@ -52,13 +48,11 @@ end
         new_fi = tuple(fi[1:pos-1]..., fi[pos+1:end]...)
         new_fid = tuple(fid[1:pos-1]..., fid[pos+1:end]...)
 
-        new((summand, index), new_fi, new_fid, pos)
+        new((), new_fi, new_fid, (summand, index), pos)
     end
 end
 
 ufl_shape(is::IndexSum) = ufl_shape(is.ufl_operands[1])
-
-
 
 function create_slice_indices(indexer, shape, fi)
     all_indices::Array{AbstractIndex} = []
