@@ -2,6 +2,12 @@ A sample implemendation of UFL in Julia
 
 ### Current Goals:
 
+* Make sure indexing works
+* Make add, div, sub, mult work
+* Change API for traversal to make it friendly
+* Investigate unique traversal of the tree
+
+
 * Can add, div, sub, mult UFL expressions, ...
 Achieved: Add
 
