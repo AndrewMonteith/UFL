@@ -74,14 +74,14 @@ Base.getindex(id::Identity, i::FixedIndex, j::FixedIndex) = id[i.d, j.d]
 
 
 
-struct ScalarValue{T <: Real} <: AbstractConstantValue 
+@ufl_type struct ScalarValue{T <: Real} <: AbstractConstantValue 
     val::T 
 
     function ScalarValue(x)
         if x === 0 
             Zero() 
         else
-            new{typeof(x)}(x)
+            new{typeof(x)}((), (), (), x)
         end
     end
 end

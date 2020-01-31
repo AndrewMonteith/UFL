@@ -7,25 +7,6 @@ A sample implemendation of UFL in Julia
 * Change API for traversal to make it friendly
 * Investigate unique traversal of the tree
 
-
-* Can add, div, sub, mult UFL expressions, ...
-Achieved: Add
-
-* Can build trees (implemented most of the Product,Division, ... operators)
-
-* Hashing defines for types
-Achieved: Mostly
-
-* Traversal
-Achieved: Non unique traversal of the tree
-
-For next iteration:
-    * Work out whether i == j should actually be true in tests/iteration.jl
-    * IndexSum, ComponentTensor in order to allow mulitplication to work
-    * Implement Tensors and Multiplication
-    * Get IndexSum, ComponentTensor working ie dot, inner, ...
-    * Grad
-
 Get this code to work:
 ```julia 
 mesh is 2D

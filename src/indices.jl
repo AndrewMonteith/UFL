@@ -57,17 +57,21 @@ Base.:(==)(i::Int, j::Index) = j == i
         edge case
 """
 const MultiIndex = VarTuple{AbstractIndex}
+indicies(m::MultiIndex) = m 
 
-indices(n::Int) = tuple((Index() for _ ∈ 1:n)...)
+indices_n(n::Int) = tuple((Index() for _ ∈ 1:n)...)
 
 
-# struct MultiIndex <: Terminal
-#     indices::VarTuple{AbstractIndex}
+struct MultiIndexNode <: Terminal
+    indices::VarTuple{AbstractIndex}
 
-#     function MultiIndex(indices::VarTuple{AbstractIndex})
-#         new(indices)
-#     end
-# end
-# Base.length(m::MultiIndex) = Base.length(m.indices)
-# Base.iterate(m::MultiIndex) = Base.iterate(m.indices)
-# Base.show(io::IO, m::MultiIndex) = print(io, "(", join(m.indices, ", "), ")")
+    function MultiIndexNode(indices::VarTuple{AbstractIndex})
+        new(indices)
+    end
+end
+Base.length(m::MultiIndexNode) = Base.length(m.indices)
+Base.iterate(m::MultiIndexNode) = Base.iterate(m.indices)
+Base.show(io::IO, m::MultiIndexNode) = print(io, "(", join(m.indices, ", "), ")")
+indicies(m::MultiIndexNode) = m.indices
+
+convert(::Type{VarTuple{AbstractIndex}}, x) = MultiIndexNode(x)

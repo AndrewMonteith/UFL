@@ -1,8 +1,10 @@
 export Indexed 
 
 @ufl_type struct Indexed <: Operator
+    ufl_fields = (operands,)
+
     function Indexed(expr::AbstractExpr, multiindex::MultiIndex)
-        operands = (expr, multiindex)
+        operands = (expr, MultiIndexNode(multiindex))
 
         shape = ufl_shape(expr)
 
@@ -15,20 +17,26 @@ export Indexed
         efi = ufl_free_indices(expr)
         efid = ufl_index_dimensions(expr)
 
-        fi = collect(zip(efi, efid))
+        # If efi or efid are empty collect destroys the type information of the elements of the array 
+        # by erasing them to Union{} which causes the push later to fail
+        fi_and_d::Vector{Tuple{AbstractIndex, Dimension}} = if isempty(efi) 
+            []
+        else
+            collect(zip(efi, efid))
+        end
 
         for (pos, ind) ∈ enumerate(multiindex)
             if ind isa Index 
-                append!(fi, (ind, shape[pos]))
+                push!(fi_and_d, (ind, shape[pos]))
             end 
         end 
-        
-        unique!(fi)
 
-        fi, fid = if fi === () 
+        unique!(fi_and_d)
+
+        fi, fid = if fi_and_d === () 
             (), ()
         else
-            zip(fi...)
+            collect(zip(fi_and_d...))
         end 
 
         new((), fi, fid, operands)
@@ -36,6 +44,8 @@ export Indexed
 end
 
 @ufl_type struct IndexSum <: Operator 
+    ufl_fields = (operands,)
+
     dim::Dimension
 
     function IndexSum(summand::AbstractExpr, index::MultiIndex)
@@ -48,7 +58,7 @@ end
         new_fi = tuple(fi[1:pos-1]..., fi[pos+1:end]...)
         new_fid = tuple(fid[1:pos-1]..., fid[pos+1:end]...)
 
-        new((), new_fi, new_fid, (summand, index), pos)
+        new((), new_fi, new_fid, (summand, MultiIndexNode(index)), pos)
     end
 end
 
@@ -63,8 +73,8 @@ function create_slice_indices(indexer, shape, fi)
     for ind ∈ indexer 
         if ind isa Index 
             push!(all_indices, ind)
-            push!(free_indices, ind)
             (ind ∈ fi || ind ∈ free_indices) && push!(repeated_indices, ind)
+            push!(free_indices, ind)
         elseif ind isa FixedIndex 
             ind.d > shape[length(all_indices) + 1] && error("Index out of bounds.")
             push!(all_indices, ind) 
@@ -82,7 +92,7 @@ function create_slice_indices(indexer, shape, fi)
 
     length(all_indices) !== length(shape) && error("Component and shape length don't match")
     
-    tuple(all_indices), tuple(slice_indices), tuple(repeated_indices)
+    tuple(all_indices...), tuple(slice_indices...), tuple(repeated_indices...)
 end
 
 function Base.getindex(e::AbstractExpr, indexer...)

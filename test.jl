@@ -1,12 +1,18 @@
-struct Foo 
-end 
+abstract type Foo end 
+struct FooBar <: Foo end 
 
-function Base.getindex(f::Foo, x...) 
-    println(typeof(x))
+Base.getindex(f::Foo, x...) = x[2]
+
+function Base.getindex(f::FooBar, x...)
+    if x[1] === 0 
+        return 100 
+    else
+        invoke(Base.getindex, Tuple{Foo, Vararg}, f, x...)
+    end 
 end
 
-f = Foo() 
 
-f[1, 1:3]
+f = FooBar() 
 
-f[1, 1:3, :]
+println(f[0, 5]) # Returns 100 Correctly
+println(f[1, 1]) # Causes stackoverflow, want to return 2

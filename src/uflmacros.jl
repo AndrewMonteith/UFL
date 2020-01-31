@@ -1,4 +1,4 @@
-export ufl_type
+export ufl_type, ufl_shape, ufl_free_indices, ufl_index_dimensions
 
 using OrderedCollections: LittleDict
 
@@ -6,13 +6,13 @@ field(sym::Symbol, t) = Expr(:(::), sym, t)
 method(name::Symbol, param::Symbol) = esc(quote $param(x::$name) = x.$param end)
 
 required_fields = LittleDict(
-    :ufl_shape => (ast=field(:ufl_shape, DimensionTuple), default_val=()),
-    :ufl_free_indices => (ast=field(:ufl_free_indices, VarTuple{Index}), default_val=()),
-    :ufl_index_dimensions => (ast=field(:ufl_index_dimensions, DimensionTuple), default_val=()),
+    :ufl_shape => (type=:DimensionTuple, default_val=()),
+    :ufl_free_indices => (type=:(VarTuple{Index}), default_val=()),
+    :ufl_index_dimensions => (type=:DimensionTuple, default_val=()),
 )
 
 optional_fields = Dict(
-    :ufl_operands => (ast=field(:ufl_operands, VarTuple{AbstractExpr}), default_val=())
+    :ufl_operands => (type=VarTuple{AbstractExpr}, default_val=())
 )
 
 tag_methods = Dict(
@@ -27,7 +27,6 @@ tag_methods = Dict(
 )
 
 for (required_field, def) ∈ required_fields 
-    required_field === :ufl_operands && continue
     @eval begin 
         $required_field(x::AbstractExpr) = x.$required_field 
         export $required_field
@@ -52,7 +51,15 @@ end
 
 typecode = 0
 
-get_struct_name(def::Expr) = isa(def.args[2], Symbol) ? def.args[2] : def.args[2].args[1]
+function get_struct_name(def::Expr)
+    if def.args[2] isa Symbol  # Struct that does not subtype abstract type
+        def.args[2]
+    elseif def.args[2].args[1] isa Symbol # Subtyped struct with no parametric types 
+        def.args[2].args[1]
+    else
+        def.args[2].args[1].args[1]
+    end
+end
 
 """
     Inserts predefined fields for a struct 
@@ -68,8 +75,8 @@ macro ufl_type(expr)
    
     # Any struct that uses this macro will have any field from required_fields injected into it 
     # In the order specified in the dictionary
-    for (_, (field_ast, _)) ∈ required_fields 
-        push!(fields_to_add, field_ast)
+    for (name, details) ∈ required_fields 
+        push!(fields_to_add, field(name, details.type))
     end
 
     # If the user has provided a ufl_fields tag in the struct body 
@@ -87,7 +94,7 @@ macro ufl_type(expr)
                 error("don't recognise field $(field_name)")
             end
     
-            push!(fields_to_add, optional_fields[field_name].ast)
+            push!(fields_to_add, field(field_name, optional_fields[field_name].type))
 
             if field_name !== :ufl_operands
                 push!(!methods_to_add, esc(:( $field_name(x::$struct_name)=x.$field_name )))

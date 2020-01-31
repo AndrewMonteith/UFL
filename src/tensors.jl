@@ -1,4 +1,4 @@
-export ComponentTensor, as_tensor
+export ComponentTensor, as_tensor, as_matrix
 
 function remove_indices(fi::MultiIndex, fid::DimensionTuple, rfi::MultiIndex)
     isempty(rfi) && return fi, fid 
@@ -58,14 +58,14 @@ end
 @ufl_type struct ListTensor <: Operator 
     ufl_fields = (operands,)
 
-    function ListTensor(exprs::Union{VarTuple{AbstractExpr}, AbstractArray{AbstractExpr}})
+    function ListTensor(exprs::Union{VarTuple, AbstractArray})
         e_shape = ufl_shape(exprs[1])
         e_fi = ufl_free_indices(exprs[1])
         e_fid = ufl_index_dimensions(exprs[1])
 
         all(e -> ufl_shape(e) == e_shape, exprs) || error("All subexpressions must have the same shape")
-        all(e -> ufl_free_indices(e) == e_fi) || error("All components must have same free indices")
-        all(e -> ufl_index_dimensions(e) == e_fid) || error("All component shave different free index dimensions")
+        all(e -> ufl_free_indices(e) == e_fi, exprs) || error("All components must have same free indices")
+        all(e -> ufl_index_dimensions(e) == e_fid, exprs) || error("All component shave different free index dimensions")
 
         exprs = exprs isa Tuple ? exprs : tuple(exprs...)
 
@@ -73,11 +73,28 @@ end
     end
 end
 
+function Base.getindex(lt::ListTensor, key...)
+    key_i = indicies(key)
+
+    index(d::Dimension) = true, d 
+    index(i::FixedIndex) = true, i.d 
+    index(i) = false, -1 
+
+    valid, k = index(key_i[1])
+    if valid 
+        op = ufl_operands(lt)[k]
+
+        return length(key_i) === 1 ? op : op[key[2:end]...]
+    else
+        invoke(Base.getindex, Tuple{AbstractExpr, Vararg}, lt, key...)
+    end
+end
+
 ufl_shape(lt::ListTensor) = tuple(length(lt.ufl_operands), ufl_shape(lt.ufl_operands[1])...)
 
 as_tensor(expr::AbstractExpr) = expr 
-function as_tensor(exprs::Union{VarTuple{AbstractExpr}, AbstractArray{AbstractExpr}})
-    recursive_convert(expr::Union{Tuple, AbstractArray}) = ListTensor(collect(recursive_convert(e) for e ∈ expr)...)
+function as_tensor(exprs::Union{VarTuple, AbstractArray})
+    recursive_convert(expr::Union{Tuple, AbstractArray}) = ListTensor(collect(recursive_convert(e) for e ∈ expr))
     recursive_convert(expr) = as_ufl(expr)
 
     recursive_convert(exprs)
