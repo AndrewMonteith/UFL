@@ -144,8 +144,8 @@ function merge_overlappin_indices(afi, afid, bfi, bfid)
         end
     end
 
-    length(Set(free_indices)) === length(free_indices) || error("Free indicies must not contain repeats")
-    length(free_indices) + 2(length(repeated_indices)) === len_a+len_b || error("Expected only twice repeated indicies")
+    length(Set(free_indices)) === length(free_indices) || error("Free indices must not contain repeats")
+    length(free_indices) + 2(length(repeated_indices)) === len_a+len_b || error("Expected only twice repeated indices")
 
     tuple(free_indices), tuple(index_dimensions), tuple(repeated_indices), tuple(repeated_index_dimensions)
 end

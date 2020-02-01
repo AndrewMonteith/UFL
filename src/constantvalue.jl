@@ -93,5 +93,6 @@ Base.:(==)(a::T, b::ScalarValue{T}) where T <: Real = b == a
 
 
 as_ufl(x::AbstractExpr) = x 
+as_ufl(x::MultiIndex) = MultiIndexNode(x)
 as_ufl(x::Real) = ScalarValue(x)
 as_ufl(x) = error("unsupported UFL type for $(x) with type $(typeof(x))")

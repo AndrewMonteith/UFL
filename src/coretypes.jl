@@ -14,16 +14,12 @@ such as geometry data or constants.
 """
 abstract type Terminal <: AbstractExpr end 
 
-ufl_operands(t::Terminal) = ()
-
 """
     A result of an operator, such as IndexSum, ComponentTensor, MinValue, ...
     If Terminal types represnet leaf nodes of the type tree, then Operator types
     will represent the non-terminal types.
 """
 abstract type Operator <: AbstractExpr end 
-
-ufl_operands(o::Operator) = o.ufl_operands
 
 ufl_compute_hash(o::Operator) = hash((ufl_typecode(o), (hash(op) for op in ufl_operands(o))...))
 function Base.repr(o::Operator)

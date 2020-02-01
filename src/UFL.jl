@@ -3,11 +3,10 @@ module UFL
 include("util.jl")
 
 include("coretypes.jl")
+include("corefunctions.jl")
 include("indices.jl")
 include("uflmacros.jl")
-
 include("iteration.jl")
-
 
 include("cell.jl")
 include("fem.jl")

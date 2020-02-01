@@ -1,11 +1,15 @@
 A sample implemendation of UFL in Julia
 
-### Current Goals:
+### Current Goals
 
 * Make sure indexing works
 * Make add, div, sub, mult work
 * Change API for traversal to make it friendly
 * Investigate unique traversal of the tree
+
+### POINTS TO TALK ABOUT
+
+* Is it worth exploring more around traits?
 
 Get this code to work:
 ```julia 

@@ -34,6 +34,8 @@ for (required_field, def) ∈ required_fields
 end
 
 for (optional_field, def) ∈ optional_fields 
+    optional_field === :ufl_operands && continue
+
     @eval begin 
         $optional_field(x::AbstractExpr) = $(def.default_val)
     end

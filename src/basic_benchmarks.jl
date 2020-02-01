@@ -6,11 +6,16 @@ function build_random_tree(N)
     rootnode = Identity(3) + Identity(3)
     
     for i in 1:N
-        if randn() < 0 
+        r = rand()
+        if rand() < -0.5 
+            rootnode = rootnode + as_tensor([[r, r, r], [r, r, r], [r, r, r]])
+        elseif rand() < 0
+            rootnode = as_tensor([[r, r, r], [r, r, r], [r, r, r]]) + rootnode 
+        elseif rand() < 0.5 
             rootnode = rootnode + Identity(3)
         else
             rootnode = Identity(3) + rootnode 
-        end
+        end 
     end
 
     rootnode
@@ -94,8 +99,8 @@ end
 function run_benchmark()
     suite = BenchmarkGroup()
 
-    n = 10_000_000
-    println("building with n nodes")
+    n = 100_000
+    println("building with $(n) nodes")
 
     suite["building-array"] = @benchmarkable build_random_tree($n)
     # suite["function-inbuilt-array"] = @benchmarkable do_benchmarks_1(x) setup=(x=build_random_tree($n))

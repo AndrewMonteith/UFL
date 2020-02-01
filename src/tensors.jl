@@ -3,7 +3,7 @@ export ComponentTensor, as_tensor, as_matrix
 function remove_indices(fi::MultiIndex, fid::DimensionTuple, rfi::MultiIndex)
     isempty(rfi) && return fi, fid 
 
-    rfip = sort(zip(ind, i) for (i, ind) ∈ enumerate(rfi))
+    rfip = (sort ∘ collect)((ind, i) for (i, ind) ∈ enumerate(rfi))
     rfi_len, fi_len = length(rfi), length(fi) 
 
     shape = collect(-1 for _ ∈ 1:rfi_len)
@@ -20,7 +20,7 @@ function remove_indices(fi::MultiIndex, fid::DimensionTuple, rfi::MultiIndex)
         end 
 
         removed = 0
-        while pos < nfi && fi[pos] === rk 
+        while pos <= fi_len && fi[pos] === rk 
             shape[rfip[k][2]] = fid[pos]
             pos += 1
             removed += 1
@@ -38,7 +38,7 @@ function remove_indices(fi::MultiIndex, fid::DimensionTuple, rfi::MultiIndex)
 
     fi, fid = isempty(newfiid) ? ((), ()) : zip(newfiid...)
     
-    fi, fid, tuple(shape)
+    fi, fid, tuple(shape...)
 end
 
 @ufl_type struct ComponentTensor <: Operator 
@@ -50,8 +50,8 @@ end
         fi, fid, sh = remove_indices(ufl_free_indices(expr),
                                      ufl_index_dimensions(expr),
                                      indices)
-
-        new(sh, fi, fid, (expr, indices))
+        
+        new(sh, fi, fid, (expr, as_ufl(indices)))
     end 
 end 
 
@@ -74,7 +74,7 @@ end
 end
 
 function Base.getindex(lt::ListTensor, key...)
-    key_i = indicies(key)
+    key_i = indices(key)
 
     index(d::Dimension) = true, d 
     index(i::FixedIndex) = true, i.d 

@@ -1,5 +1,6 @@
 using UFL, Test
 
+@testset "Indices" begin include("indices.jl") end 
 @testset "Constant Values" begin include("constantvalue.jl") end
 @testset "Algebra" begin include("algebra.jl") end
 @testset "Meshs" begin include("mesh.jl") end

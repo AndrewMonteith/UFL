@@ -8,10 +8,12 @@ j = Identity(3)
 @assert ufl_shape(j) == (3, 3)
 
 i_sum = i + j 
+
+@test ufl_operands(i_sum) == (i, j)
 @test ufl_shape(i_sum) == (3, 3)
 @test i_sum isa Sum 
 
+s = ScalarValue(1)
 
-# Subtraction is defined via -1 * <node>
-# i_sub = i - j
-# @test ufl_shape(i_sub) == (3, 3)
+@test ufl_operands(s) === ()
+@test ufl_shape(s) === () 

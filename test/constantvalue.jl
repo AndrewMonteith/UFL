@@ -1,8 +1,6 @@
 using Test, UFL
 
 i, j = Index(), Index()
-@test i.id === 0
-@test j.id === 1
 
 z = Zero(())
 @test ufl_shape(z) === () 

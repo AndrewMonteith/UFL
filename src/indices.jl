@@ -11,6 +11,7 @@ struct FixedIndex <: AbstractIndex
 end 
 Base.show(io::IO, i::FixedIndex) = show(io, "FixedIndex($(i.d))")
 
+
 """
     Note to future self:
         May need to maintain a cache of the indices 
@@ -47,6 +48,7 @@ Base.show(io::IO, i::Index) = show(io, "i_$(i.id)")
 Base.:(==)(i::Index, j::Index) = i.id === j.id
 Base.:(==)(i::Index, j::Int) = i.id === j
 Base.:(==)(i::Int, j::Index) = j == i
+Base.isless(i::Index, j::Index) = i.id < j.id
 
 """
     Sequence of indices either fixed or free 
@@ -57,14 +59,11 @@ Base.:(==)(i::Int, j::Index) = j == i
         edge case
 """
 const MultiIndex = VarTuple{AbstractIndex}
-indicies(m::MultiIndex) = m 
-
-indices_n(n::Int) = tuple((Index() for _ ∈ 1:n)...)
 
 
 struct MultiIndexNode <: Terminal
     indices::VarTuple{AbstractIndex}
-
+    
     function MultiIndexNode(indices::VarTuple{AbstractIndex})
         new(indices)
     end
@@ -72,6 +71,9 @@ end
 Base.length(m::MultiIndexNode) = Base.length(m.indices)
 Base.iterate(m::MultiIndexNode) = Base.iterate(m.indices)
 Base.show(io::IO, m::MultiIndexNode) = print(io, "(", join(m.indices, ", "), ")")
-indicies(m::MultiIndexNode) = m.indices
 
-convert(::Type{VarTuple{AbstractIndex}}, x) = MultiIndexNode(x)
+# convert(::Type{VarTuple{AbstractIndex}}, x) = MultiIndexNode(x)
+
+indices_n(n::Int) = tuple((Index() for _ ∈ 1:n)...)
+indices(m::MultiIndexNode) = m.indices
+indices(m) = m

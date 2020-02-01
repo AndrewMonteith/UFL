@@ -1,10 +1,10 @@
-export Indexed 
+export Indexed, IndexSum, ComponentTensor
 
 @ufl_type struct Indexed <: Operator
     ufl_fields = (operands,)
 
     function Indexed(expr::AbstractExpr, multiindex::MultiIndex)
-        operands = (expr, MultiIndexNode(multiindex))
+        operands = (expr, as_ufl(multiindex))
 
         shape = ufl_shape(expr)
 
@@ -58,7 +58,7 @@ end
         new_fi = tuple(fi[1:pos-1]..., fi[pos+1:end]...)
         new_fid = tuple(fid[1:pos-1]..., fid[pos+1:end]...)
 
-        new((), new_fi, new_fid, (summand, MultiIndexNode(index)), pos)
+        new((), new_fi, new_fid, (summand, as_ufl(index)), pos)
     end
 end
 
