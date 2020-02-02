@@ -44,11 +44,11 @@ Base.:(==)(::Zero, z2::Real) = z2 == 0
 Base.:(==)(z::Real, z2::Zero) = z2 == z
 
 function Base.repr(z::Zero) 
-    if z.ufl_shape === () && z.ufl_free_indices === () 
+    if isempty(z.ufl_shape) && isempty(z.ufl_free_indices)
         "0"
-    elseif z.ufl_free_indices === ()
+    elseif isempty(z.ufl_free_indices)
         "0 shape $(z.ufl_shape)"
-    elseif z.ufl_shape === () 
+    elseif isempty(z.ufl_shape)
         "0 (index labels $(z.ufl_free_indices)"
     else 
         "0 (shape $(z.ufl_shape) index labels $(z.ufl_free_indices)"

@@ -15,5 +15,5 @@ i_sum = i + j
 
 s = ScalarValue(1)
 
-@test ufl_operands(s) === ()
+@test (isempty ∘ ufl_operands)(s)
 @test ufl_shape(s) === () 

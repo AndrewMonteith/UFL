@@ -2,8 +2,15 @@ export ComponentTensor, as_tensor, as_matrix
 
 function remove_indices(fi::MultiIndex, fid::DimensionTuple, rfi::MultiIndex)
     isempty(rfi) && return fi, fid 
+    # println("remove_indices fi:", fi)
+    # println("remove_indices fid:", fid)
+    # println("remove_indices rfi:", rfi)
+
 
     rfip = (sort ∘ collect)((ind, i) for (i, ind) ∈ enumerate(rfi))
+    
+    # println("remove_indices:", rfip)
+
     rfi_len, fi_len = length(rfi), length(fi) 
 
     shape = collect(-1 for _ ∈ 1:rfi_len)
@@ -11,7 +18,7 @@ function remove_indices(fi::MultiIndex, fid::DimensionTuple, rfi::MultiIndex)
 
     k, pos = 1, 1 
 
-    while pos < fi_len
+    while pos <= fi_len
         rk = rfip[k][1]
 
         while fi[pos] < rk 
@@ -31,7 +38,8 @@ function remove_indices(fi::MultiIndex, fid::DimensionTuple, rfi::MultiIndex)
 
         k += 1
         if k > rfi_len 
-            pos <= fi_len && append!(newfiid, zip(fi[pos:end-1], fid[pos:end-1]))
+            # println("need to append?", pos <= fi_len)
+            pos <= fi_len && append!(newfiid, zip(fi[pos:end], fid[pos:end]))
             break 
         end 
     end
@@ -47,10 +55,19 @@ end
     function ComponentTensor(expr::AbstractExpr, indices::VarTuple{Index})
         ufl_shape(expr) !== () && error("Expecting scalar valued expression.")
 
+        # println("--- Creating Component Tensor")
+        # println("Free Indices from expression:", ufl_free_indices(expr))
+        # println("Index Dimensions from expression:", ufl_free_indices(expr))
+        # println("Indices:", indices)
+
         fi, fid, sh = remove_indices(ufl_free_indices(expr),
                                      ufl_index_dimensions(expr),
                                      indices)
-        
+       
+        # println("Free Indices:", fi)
+        # println("Free Index Dimensions:", fid)
+        # println("Shape:", sh)
+
         new(sh, fi, fid, (expr, as_ufl(indices)))
     end 
 end 

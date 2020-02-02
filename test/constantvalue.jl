@@ -3,22 +3,22 @@ using Test, UFL
 i, j = Index(), Index()
 
 z = Zero(())
-@test ufl_shape(z) === () 
-@test ufl_free_indices(z) === () 
-@test ufl_index_dimensions(z) === () 
+@test (isempty ∘ ufl_shape)(z)
+@test (isempty ∘ ufl_free_indices)(z)
+@test (isempty ∘ ufl_index_dimensions)(z)
 @test z == 0
 
 z = Zero((3,))
 @test ufl_shape(z) === (3,)
-@test ufl_free_indices(z) === () 
-@test ufl_index_dimensions(z) === ()
+@test (isempty ∘ ufl_free_indices)(z)
+@test (isempty ∘ ufl_index_dimensions)(z) 
 @test z == Zero((3, ))
 
 
 # i, j = Index(2), Index(4)
 
 # z = Zero((), (j, i), Dict(i => 3, j => 5))
-# @test z.ufl_shape === () 
+# @test z.ufl_shape  
 # @test z.ufl_free_indices == (2, 4)
 # @test z.ufl_index_dimensions === (3, 5)
 

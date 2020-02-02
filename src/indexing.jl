@@ -33,7 +33,7 @@ export Indexed, IndexSum, ComponentTensor
 
         unique!(fi_and_d)
 
-        fi, fid = if fi_and_d === () 
+        fi, fid = if isempty(fi_and_d)
             (), ()
         else
             collect(zip(fi_and_d...))

@@ -160,7 +160,7 @@ function recurse_into_tree!(post::PostOrderTraversal)
         dep = pop!(deps)
         dep_ops = ufl_operands(dep)
 
-        if dep_ops === () 
+        if isempty(dep_ops)
             return dep 
         else 
             push!(post.lifo, (dep, collect(dep_ops)))

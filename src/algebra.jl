@@ -96,7 +96,7 @@ end
     ufl_fields = (operands,)
 
     function Product(a::AbstractExpr, b::AbstractExpr) 
-        if ufl_shape(a) === () || ufl_shape(b) === () 
+        if (isempty ∘ ufl_shape)(a) || (isempty ∘ ufl_shape)(b) 
             error("product can only represent product of scalars")
         end
 
@@ -166,19 +166,19 @@ function mult(a::AbstractExpr, b::AbstractExpr)
         end
 
         if a isa Zero || b isa Zero 
-            shape = shape1 === () ? shape2 : shape1 
+            shape = isempty(shape1) ? shape2 : shape1 
             return Zero(shape, fi, fid)
         end 
 
-        ti = (indices ∘ length ∘ ufl_shape)(b)
+        ti = (indices_n ∘ length ∘ ufl_shape)(b)
         p = Product(a, b[ti])
     elseif rank1 === 2 && (rank2 === 1 || rank2 === 2)
         !isempty(ri) && error("Not expecting repeate indices in non-scalar product.")
 
         (a isa Zero || b isa Zero) && return Zero(tuple(shape1[1:end-1]..., shape2[1:end]), fi, fid)
 
-        ai = indices(length(shape1) - 1)
-        bi = indices(length(shape2) - 1)
+        ai = indices_n(length(shape1) - 1)
+        bi = indices_n(length(shape2) - 1)
         k = Index()
 
         p = a[tuple(ai..., k)] * b[tuple(bi..., k)]
@@ -198,7 +198,7 @@ function mult(a::AbstractExpr, b::AbstractExpr)
     p
 end
 
-is_true_scalar(a::AbstractExpr) = ufl_shape(a) === () && ufl_free_indices(a) === ()
+is_true_scalar(a::AbstractExpr) = (isempty ∘ ufl_shape)(a) && (isempty ∘ ufl_free_indices)(a)
 
 @ufl_type struct Division <: Operator 
     ufl_fields = (operands,)
