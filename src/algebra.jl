@@ -42,13 +42,8 @@ export Sum, Product, Divison, Power
     end
 end
 
-Base.:+(e1::AbstractExpr, e2::AbstractExpr) = Sum(e1, e2)
-Base.:+(e1::AbstractExpr, e2::Real) = Sum(e1, as_ufl(e2))
-Base.:+(e1::Real, e2::AbstractExpr) = Sum(as_ufl(e1), e2)
-Base.:-(e1::AbstractExpr, e2::AbstractExpr) = Sum(e1, -e2)
-Base.:-(e1::AbstractExpr, e2::Real) = Sum(e1, -as_ufl(e2))
-Base.:-(e1::Real, e2::AbstractExpr) = Sum(as_ufl(e1), -e2)
-
+Base.:+(e1, e2) = Sum(as_ufl(e1), as_ufl(e2))
+Base.:-(e1, e2) = Sum(as_ufl(e1), -as_ufl(e2))
 Base.:-(e::AbstractExpr) = -1 * e
 
 function merge_unqiue_indices(afi, afid, bfi, bfid)
@@ -57,7 +52,7 @@ function merge_unqiue_indices(afi, afid, bfi, bfid)
     len_a === 0 && return bfi, bfid 
     len_b === 0 && return afi, afid 
 
-    ak, bk = 0, 0
+    ak, bk = 1, 1
     fi, fid = [], []
 
     while !(ak === len_a || bk === len_b)
@@ -89,16 +84,14 @@ function merge_unqiue_indices(afi, afid, bfi, bfid)
         end
     end
     
-    tuple(fi), tuple(fid) 
+    tuple(fi...), tuple(fid...) 
 end
 
 @ufl_type struct Product <: Operator 
     ufl_fields = (operands,)
 
     function Product(a::AbstractExpr, b::AbstractExpr) 
-        if (isempty ∘ ufl_shape)(a) || (isempty ∘ ufl_shape)(b) 
-            error("product can only represent product of scalars")
-        end
+        (isempty ∘ ufl_shape)(a) || (isempty ∘ ufl_shape)(b) && error("product can only represent product of scalars")
 
         (a isa Zero || b isa Zero) && return Zero((), merge_unqiue_indices(ufl_free_indices(a), ufl_index_dimensions(a),
                                                                            ufl_free_indices(b), ufl_index_dimensions(b))...)
@@ -119,6 +112,7 @@ end
         new((), fi, fid, (a, b))
     end
 end
+
 
 function merge_overlappin_indices(afi, afid, bfi, bfid)
     len_a, len_b = length(afi), length(bfi)
@@ -147,13 +141,13 @@ function merge_overlappin_indices(afi, afid, bfi, bfid)
     length(Set(free_indices)) === length(free_indices) || error("Free indices must not contain repeats")
     length(free_indices) + 2(length(repeated_indices)) === len_a+len_b || error("Expected only twice repeated indices")
 
-    tuple(free_indices), tuple(index_dimensions), tuple(repeated_indices), tuple(repeated_index_dimensions)
+    tuple(free_indices...), tuple(index_dimensions...), tuple(repeated_indices...), tuple(repeated_index_dimensions...)
 end
 
 function mult(a::AbstractExpr, b::AbstractExpr)
     fi, fid, ri, rid = merge_overlappin_indices(ufl_free_indices(a), ufl_index_dimensions(a),
                                                 ufl_free_indices(b), ufl_index_dimensions(b))
-    
+   
     shape1, shape2 = ufl_shape(a), ufl_shape(b)
     rank1, rank2 = length(shape1), length(shape2)
 
@@ -171,7 +165,7 @@ function mult(a::AbstractExpr, b::AbstractExpr)
         end 
 
         ti = (indices_n ∘ length ∘ ufl_shape)(b)
-        p = Product(a, b[ti])
+        p = Product(a, b[ti...])
     elseif rank1 === 2 && (rank2 === 1 || rank2 === 2)
         !isempty(ri) && error("Not expecting repeate indices in non-scalar product.")
 
@@ -181,7 +175,7 @@ function mult(a::AbstractExpr, b::AbstractExpr)
         bi = indices_n(length(shape2) - 1)
         k = Index()
 
-        p = a[tuple(ai..., k)] * b[tuple(bi..., k)]
+        p = a[ai..., k] * b[k, bi...]
         ti = tuple(ai..., bi...)
     else
         error("Invalid ranks $(rank1) and $(rank2) in product.")
@@ -197,6 +191,8 @@ function mult(a::AbstractExpr, b::AbstractExpr)
 
     p
 end
+
+Base.:*(e1, e2) = mult(as_ufl(e1), as_ufl(e2))
 
 is_true_scalar(a::AbstractExpr) = (isempty ∘ ufl_shape)(a) && (isempty ∘ ufl_free_indices)(a)
 
@@ -217,15 +213,18 @@ is_true_scalar(a::AbstractExpr) = (isempty ∘ ufl_shape)(a) && (isempty ∘ ufl
 end
 ufl_shape(d::Division) = ()
 
-function _div(a::AbstractExpr, b::AbstractExpr)
-    ufl_shape(a) !== () && error("cannot handle tensors yet")
+function Base.:/(e1::AbstractExpr, e2) 
+    e2 = as_ufl(e2)
+    sh = ufl_shape(e1)
 
-    Divison(a, b)
-end
-
-Base.:/(e1::AbstractExpr, e2::AbstractExpr) = _div(e1, e2)
-Base.:/(e1::AbstractExpr, e2::Real) = _div(e1, as_ufl(e2))
-Base.:/(e1::Real, e2::AbstractExpr) = _div(as_ufl(e1), e2)
+    if !isempty(sh) 
+        ii = (indices_n ∘ length)(sh)
+        d = Division(e1[ii...], e2)
+        as_tensor(d, ii)
+    else
+        Divison(e1, e2)
+    end
+end 
 
 @ufl_type struct Power <: Operator 
     ufl_tags = (inherit_indices_from_operand=0,)

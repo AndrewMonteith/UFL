@@ -3,7 +3,7 @@ A sample implemendation of UFL in Julia
 ### Current Goals
 
 * Make sure indexing works **Done**
-* Make add, div, sub, mult work
+* Make add, div, sub, mult work **Sufficiently Done**
 * Change API for traversal to make it friendly
 * Investigate unique traversal of the tree
 

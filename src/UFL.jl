@@ -6,7 +6,7 @@ include("coretypes.jl")
 include("corefunctions.jl")
 include("indices.jl")
 include("uflmacros.jl")
-include("iteration.jl")
+include("traversal.jl")
 
 include("cell.jl")
 include("fem.jl")
