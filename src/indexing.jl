@@ -43,6 +43,7 @@ export Indexed, IndexSum, ComponentTensor
     end
 end
 
+
 @ufl_type struct IndexSum <: Operator 
     ufl_fields = (operands,)
 

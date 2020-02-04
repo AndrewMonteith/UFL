@@ -5,7 +5,7 @@ export Terminal, Operator, Dimension, geometric_dimension, topological_dimension
 """
 abstract type AbstractExpr end 
 
-# ufl_shape(s::AbstractExpr) = s.ufl_shape
+Base.hash(a::AbstractExpr) = compute_expr_hash(a)
 
 """
 An expression that does not depend on any other expression.
@@ -13,6 +13,8 @@ Typically a Terminal has some non-expression data associated with it
 such as geometry data or constants.
 """
 abstract type Terminal <: AbstractExpr end 
+
+ufl_compute_hash(t::Terminal) = (hash ∘ repr)(t)
 
 """
     A result of an operator, such as IndexSum, ComponentTensor, MinValue, ...

@@ -71,8 +71,9 @@ end
 Base.length(m::MultiIndexNode) = Base.length(m.indices)
 Base.iterate(m::MultiIndexNode) = Base.iterate(m.indices)
 Base.show(io::IO, m::MultiIndexNode) = print(io, "(", join(m.indices, ", "), ")")
+Base.repr(m::MultiIndexNode) = "MultiIndex$(repr(m.indices))"
 
-# convert(::Type{VarTuple{AbstractIndex}}, x) = MultiIndexNode(x)
+convert(::Type{VarTuple{AbstractIndex}}, x) = MultiIndexNode(x)
 
 indices_n(n::Int) = tuple((Index() for _ ∈ 1:n)...)
 indices(m::MultiIndexNode) = m.indices

@@ -55,7 +55,7 @@ function Base.repr(z::Zero)
     end
 end
 
-Base.show(io::IO, ::Zero) = show(io, "0")
+Base.show(io::IO, ::Zero) = print(io, "0")
 
 
 @ufl_type struct Identity <: AbstractConstantValue
@@ -66,7 +66,7 @@ Base.show(io::IO, ::Zero) = show(io, "0")
     end
 end
 
-Base.show(i::IO, id::Identity) = show("Identity($(id.dim))")
+Base.show(io::IO, id::Identity) = print(io, "Identity($(id.dim))")
 Base.getindex(id::Identity, i::Int, j::Int) = ScalarValue(i == j ? 1 : 0)
 Base.getindex(id::Identity, i::Int, j::FixedIndex) = id[i, j.d]
 Base.getindex(id::Identity, j::FixedIndex, i::Int) = id[j.d, i]

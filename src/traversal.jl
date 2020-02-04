@@ -1,4 +1,4 @@
-export pre_order_traversal, post_order_traversal
+export pre_order_traversal, unique_pre_traversal, post_order_traversal
 
 function make_pre_traversal_pattern(root, loop_body; iter_var::Symbol=:e)
     esc(quote
@@ -58,47 +58,62 @@ macro post_order_traversal(root, loop_body)
     make_post_traversal_pattern(root, loop_body)
 end
 
-# struct PostOrderTraversal 
-#     lifo::Array{Tuple{AbstractExpr, Array{AbstractExpr}}}
-# end 
+macro post_order_traversal(for_loop)
+    iter_var = for_loop.args[1].args[1]
+    root_expression = for_loop.args[1].args[2]
+    loop_body = for_loop.args[2]
 
-# function recurse_into_tree!(post::PostOrderTraversal)
-#     (expr, deps) = post.lifo[end]
+    make_post_traversal_pattern(root_expression, loop_body; iter_var=iter_var)
+end
 
-#     if isempty(deps)
-#         pop!(post.lifo)
-#         return expr 
-#     end 
+expr_hashes = Dict{AbstractExpr, UInt32}()
 
-#     while true
-#         (_, deps) = post.lifo[end]
+function _compute_expr_hash(expr::AbstractExpr)
+    lifo::Vector{Tuple{AbstractExpr, Vector{AbstractExpr}}} = [(expr, (collect ∘ ufl_operands)(expr))]
+    
+    while !isempty(lifo)
+        (expr, deps) = lifo[end]
+        
+        if isempty(deps)
+            if expr ∉ keys(expr_hashes)
+                expr_hashes[expr] = ufl_compute_hash(expr)
+            end
+            pop!(lifo)
+        else
+            e = pop!(deps)
+            e_ops = ufl_operands(e)
+            if isempty(e_ops) 
+                expr_hashes[e] = ufl_compute_hash(expr)
+            else
+                push!(lifo, (e, collect(e_ops)))
+            end
+        end
+    end
+    
+    expr_hashes[expr]
+end
 
-#         dep = pop!(deps)
-#         dep_ops = ufl_operands(dep)
+# Was going to use WeakKeyDict but apparently 'objects of type Identity' cannot be finalized
+# Apparently the types need be mutable? Until memory becomes a problem this can suffice being a dict
+function compute_expr_hash(expr::AbstractExpr)
+    get!(expr_hashes, expr, _compute_expr_hash(expr))
+end
 
-#         if isempty(dep_ops)
-#             return dep 
-#         else 
-#             push!(post.lifo, (dep, collect(dep_ops)))
-#         end
-#     end
-# end
+function unique_pre_traversal(root::AbstractExpr, func::T) where T <: Function
+    visited = Set{AbstractExpr}()
+    lifo::Vector{AbstractExpr} = [root]
+    push!(visited, root)
+    
+    while !isempty(lifo)
+        e = pop!(lifo)
 
-# function Base.iterate(post::PostOrderTraversal)
-#     leaf_node = recurse_into_tree!(post)
-#     (leaf_node, nothing)
-# end
+        func(e)
 
-# function Base.iterate(post::PostOrderTraversal, _::Nothing)
-#     isempty(post.lifo) && return nothing 
-
-#     Base.iterate(post)
-# end
-
-# function post_order_traversal(e)
-#     #=
-#         post order traversal as defined in traversal.py 
-#         Does not use reversed operands as we don't sort them 
-#     =#
-#     PostOrderTraversal([(e, (collect ∘ ufl_operands)(e))])
-# end
+        for op ∈ ufl_operands(e)
+            if op ∉ visited 
+                push!(lifo, op)
+                push!(visited, op)
+            end 
+        end 
+    end
+end

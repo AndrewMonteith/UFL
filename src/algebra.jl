@@ -42,6 +42,8 @@ export Sum, Product, Divison, Power
     end
 end
 
+Base.show(io::IO, s::Sum) = print(io, join(map(repr, ufl_operands(s)), " + "))
+
 Base.:+(e1, e2) = Sum(as_ufl(e1), as_ufl(e2))
 Base.:-(e1, e2) = Sum(as_ufl(e1), -as_ufl(e2))
 Base.:-(e::AbstractExpr) = -1 * e
@@ -112,6 +114,8 @@ end
         new((), fi, fid, (a, b))
     end
 end
+
+Base.show(io::IO, p::Product) = "$(repr(p.ufl_operands[1])) * $(repr(p.ufl_operands[2]))"
 
 
 function merge_overlappin_indices(afi, afid, bfi, bfid)

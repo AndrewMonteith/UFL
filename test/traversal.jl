@@ -40,10 +40,11 @@ function post_t_for(tree)
 end
 @test post_t_for(F) == expected_post_order_walk
     
+s2 = s1 + s1 
+function pre_unqiue_t(tree)
+    walk = []
+    UFL.@unique_pre_traversal(tree, node -> push!(walk, node))
+    walk
+end
 
-# post_order_walk = []
-# for x in post_order_traversal(F)
-#     push!(post_order_walk, x)
-# end
-
-# @test post_order_walk == expected_post_order_walk
+# @test pre_unqiue_t(s2) == [s1, s2]

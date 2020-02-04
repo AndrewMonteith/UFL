@@ -21,7 +21,7 @@ geometric_dimension(arg::AbstractFormArgument) = ufl_shape(arg)[1]
         new(function_space.ufl_shape, (), (), number, part, function_space)
     end
 end
-Base.repr(arg::Argument) = "Argument($(repr(arg.ufl_function_space)), $(repr(arg.number)))"
+Base.repr(arg::Argument) = "Argument($(repr(arg.ufl_function_space)), $(arg.number))"
 
 is_cellwise_constant(::Argument) = false 
 
@@ -71,3 +71,4 @@ end
 end
 
 Base.repr(c::Constant) = "Constant($((repr ∘ ufl_element)(c))))"
+Base.show(io::IO, c::Constant) = print(io, repr(c))

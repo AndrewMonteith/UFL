@@ -4,12 +4,32 @@ A sample implemendation of UFL in Julia
 
 * Make sure indexing works **Done**
 * Make add, div, sub, mult work **Sufficiently Done**
-* Change API for traversal to make it friendly
+* Change API for traversal to make it friendly **Done**
 * Investigate unique traversal of the tree
 
 ### POINTS TO TALK ABOUT
 
 * Is it worth exploring more around traits?
+* Found my new favorite comment precedence.py L13
+* Automatic memoization I think only happens in RPEL? - Literally no documentation on that
+
+* Verified via testing against UFL
+  UFL.compute_expr_hash(i + (j - k)) != UFL.compute_expr_hash(i + (j - k))
+  I believe this is because - is implemented internally with a -1*k which creates different indices for the one on the left and right
+  Is this a limiation?
+
+* Discuss the hashing problem of Base.hash
+  Solution #1:
+    Want to avoid attaching it to the struct? - Is it a bad thing? -> Make struct mutable. Mutable structs can make things less optimised
+    Basically impossible to use dictionary like memoization techniques
+
+    **Probably gonna have to attach the hash to the struct**
+    should we compute it as we initalise the object?
+
+  Solution #2:
+    No idiomatic way to change hash function for a set
+    Could create custom AbstractNode set function
+
 
 Get this code to work:
 ```julia 
@@ -56,13 +76,6 @@ mesh is 2D
 ```
 
 Think about tranformation pass tools. Don't consider the UFL a tree, consider it a DAG. Think about avoiiding visting the same expression twice. Trees aren't large enough that creating a new tree isn't expensive expensive
-
-### Current Questions for my supervisor
-Q: Why is the degree property automatically shadowed in FiniteElement
-
-Q: Should I think about adding Tensors?
-
-Q: Well done for using like the most unknown feature of python (else on for loop)
 
 ### Questions & Answers
 
