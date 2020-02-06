@@ -2,8 +2,14 @@ A sample implemendation of UFL in Julia
 
 ### Current Goals
 
+- Have fields on struct you mark as sig to say "Inlcude in signature"
+    - Field must be marked sig to be included in signature
+    - Let f1, ..., fk be fields marked as sig on a struct of type T
+    - We generate the signature with compute_hash(T, f1, ...., fk)
+    - When then inject the signature parameter into parameter 1 of the constructor
+
+
 * Make hashing eager
-* Compare goals and stuff
 * Make sure DAG'ify works
 * Best way to turn DAG's into DAG's without tree expansion (map_expr_dag example, maybe not best for Julia)
   - Subexpression replacement
@@ -17,6 +23,11 @@ A sample implemendation of UFL in Julia
 
 ### POINTS TO TALK ABOUT
 
+### POINTS I COULD WRITE ABOUT
+1. Eager Hashing vs Lazy Hashing
+2. Traits via having properties on structs
+3. Difference in tree traversal speed via various flavours
+4. Metaprogramming in Julia vs Metaprogrammign in Julia
 
 
 Get this code to work:
