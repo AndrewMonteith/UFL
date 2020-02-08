@@ -42,7 +42,7 @@ function remove_indices(fi::MultiIndex, fid::DimensionTuple, rfi::MultiIndex)
 end
 
 @ufl_type struct ComponentTensor <: Operator 
-    ufl_fields = (operands,)
+    ufl_fields = (shape, free_indices, index_dimensions, operands)
 
     function ComponentTensor(expr::AbstractExpr, indices::VarTuple{Index})
         ufl_shape(expr) !== () && error("Expecting scalar valued expression.")
@@ -70,7 +70,7 @@ Base.show(io::IO, ct::ComponentTensor) = print(io, "{ A | A_{$(ct.ufl_operands[2
 
         exprs = exprs isa Tuple ? exprs : tuple(exprs...)
 
-        new((), (), (), exprs)
+        new(exprs)
     end
 end
 
@@ -91,7 +91,6 @@ function Base.getindex(lt::ListTensor, key...)
     end
 end
 
-ufl_shape(lt::ListTensor) = tuple(length(lt.ufl_operands), ufl_shape(lt.ufl_operands[1])...)
 
 as_tensor(expr::AbstractExpr) = expr 
 function as_tensor(exprs::Union{VarTuple, AbstractArray})

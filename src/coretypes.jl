@@ -1,11 +1,9 @@
-export Terminal, Operator, Dimension, geometric_dimension, topological_dimension, ufl_compute_hash
+export Terminal, Operator, Dimension, geometric_dimension, topological_dimension, ufl_compute_hash, ufl_shape, ufl_operands, ufl_free_indices, ufl_index_dimensions
 
 """
     Root type of any node in the UFL tree.
 """
 abstract type AbstractExpr end 
-
-Base.hash(a::AbstractExpr) = compute_expr_hash(a)
 
 """
 An expression that does not depend on any other expression.
@@ -44,6 +42,11 @@ const Dimension = Int32
 
 const DimensionTuple = VarTuple{Dimension}
 
+
+function ufl_shape end 
+function ufl_operands end
+function ufl_free_indices end 
+function ufl_index_dimensions end 
 
 
 geometric_dimension(x::Any)::Dimension = x.geometric_dimension

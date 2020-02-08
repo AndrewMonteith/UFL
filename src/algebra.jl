@@ -1,13 +1,13 @@
 export Sum, Product, Divison, Power
 
 @ufl_type struct Sum <: Operator 
-    ufl_tags = (inherit_shape_from_operand=1, inherit_indices_from_operand=1)
-
     ufl_fields = (operands,)
     
     function Sum(a::AbstractExpr, b::AbstractExpr)
         shape = ufl_shape(a)
         if shape !== ufl_shape(b) 
+            println("Shape of $(a) is $(shape)")
+            println("Shape of $(b) is $(ufl_shape(b))")
             error("Cannot add expressions of different shape")
         end 
 
@@ -38,7 +38,7 @@ export Sum, Product, Divison, Power
             # have to implement 
         end 
 
-        new((), (), (), (a, b))
+        new((a, b))
     end
 end
 
@@ -90,7 +90,7 @@ function merge_unqiue_indices(afi, afid, bfi, bfid)
 end
 
 @ufl_type struct Product <: Operator 
-    ufl_fields = (operands,)
+    ufl_fields = (operands, free_indices, index_dimensions)
 
     function Product(a::AbstractExpr, b::AbstractExpr) 
         (isempty ∘ ufl_shape)(a) || (isempty ∘ ufl_shape)(b) && error("product can only represent product of scalars")
@@ -111,7 +111,7 @@ end
         fi, fid = merge_unqiue_indices(ufl_free_indices(a), ufl_index_dimensions(a),
                                        ufl_free_indices(b), ufl_index_dimensions(b))
 
-        new((), fi, fid, (a, b))
+        new((a, b), fi, fid)
     end
 end
 
@@ -173,7 +173,7 @@ function mult(a::AbstractExpr, b::AbstractExpr)
     elseif rank1 === 2 && (rank2 === 1 || rank2 === 2)
         !isempty(ri) && error("Not expecting repeate indices in non-scalar product.")
 
-        (a isa Zero || b isa Zero) && return Zero(tuple(shape1[1:end-1]..., shape2[1:end]), fi, fid)
+        (a isa Zero || b isa Zero) && return Zero(tuple(shape1[1:end-1]..., shape2[2:end]...), fi, fid)
 
         ai = indices_n(length(shape1) - 1)
         bi = indices_n(length(shape2) - 1)
@@ -202,7 +202,7 @@ is_true_scalar(a::AbstractExpr) = (isempty ∘ ufl_shape)(a) && (isempty ∘ ufl
 
 @ufl_type struct Division <: Operator 
     ufl_fields = (operands,)
-    ufl_tags = (inherit_indices_from_operand=0,)
+    # ufl_tags = (inherit_indices_from_operand=0,)
 
     function Division(a::AbstractExpr, b::AbstractExpr)
         ufl_shape(a) !== () && error("expecting scalar numerator in Divison.")
@@ -212,10 +212,10 @@ is_true_scalar(a::AbstractExpr) = (isempty ∘ ufl_shape)(a) && (isempty ∘ ufl
 
         (a isa ScalarValue && b isa ScalarValue) && ScalarValue(a.val / b.val)
 
-        new((), (), (), (a, b))
+        new((a, b))
     end
 end
-ufl_shape(d::Division) = ()
+# ufl_shape(d::Division) = ()
 
 function Base.:/(e1::AbstractExpr, e2) 
     e2 = as_ufl(e2)
@@ -231,7 +231,7 @@ function Base.:/(e1::AbstractExpr, e2)
 end 
 
 @ufl_type struct Power <: Operator 
-    ufl_tags = (inherit_indices_from_operand=0,)
+    # ufl_tags = (inherit_indices_from_operand=0,)
 
     function Power(a::AbstractExpr, b::AbstractExpr) 
         !is_true_scalar(a) && error("Cannot take the power of a non-scalar expression")
@@ -247,9 +247,9 @@ end
         elseif b isa ScalarValue && b.val === 1
             a
         else
-            new((), (), (), (a, b))
+            new((a, b))
         end
     end
 end
-ufl_shape(p::Power) = ()
+# ufl_shape(p::Power) = ()
 

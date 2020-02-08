@@ -43,7 +43,7 @@ end
 s2 = s1 + s1 
 function pre_unqiue_t(tree)
     walk = []
-    UFL.@unique_pre_traversal(tree, node -> push!(walk, node))
+    UFL.unique_pre_traversal(tree, node -> push!(walk, node))
     walk
 end
 

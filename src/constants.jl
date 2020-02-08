@@ -1,7 +1,8 @@
-export UflConstant, Constant
+export UflConstant
 
 constant_id = 0
 
+# Not currently used
 @ufl_type struct UflConstant 
     """ Mirrors the Constant Literal class as defined in UFL """
     ufl_fields = (domain, shape)

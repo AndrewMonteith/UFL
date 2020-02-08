@@ -61,13 +61,14 @@ Base.isless(i::Index, j::Index) = i.id < j.id
 const MultiIndex = VarTuple{AbstractIndex}
 
 
-struct MultiIndexNode <: Terminal
+@ufl_type struct MultiIndexNode <: Terminal
     indices::VarTuple{AbstractIndex}
     
     function MultiIndexNode(indices::VarTuple{AbstractIndex})
         new(indices)
     end
 end
+
 Base.length(m::MultiIndexNode) = Base.length(m.indices)
 Base.iterate(m::MultiIndexNode) = Base.iterate(m.indices)
 Base.show(io::IO, m::MultiIndexNode) = print(io, "(", join(m.indices, ", "), ")")

@@ -16,7 +16,7 @@ abstract type CompoundDerivative <: AbstractDifferential end
 =#
 @ufl_type struct Grad <: CompoundDerivative 
     ufl_fields = (operands,)
-    ufl_tags = (inherit_indices_from_operand=1,)
+    # ufl_tags = (inherit_indices_from_operand=1,)
 
     function Grad(expr::AbstractExpr, operands::VarTuple{AbstractExpr})
         # IMPROVEMENT: Simplification if expr is_cellwise_constant

@@ -6,6 +6,8 @@ is_cellwise_constant(::AbstractConstantValue) = true
 ufl_domains(::AbstractConstantValue) = ()
 
 @ufl_type struct Zero <: AbstractConstantValue
+    ufl_fields = (shape, free_indices, index_dimensions)
+
     function Zero(shape::DimensionTuple=())
         new(shape, (), ())
     end
@@ -21,7 +23,7 @@ ufl_domains(::AbstractConstantValue) = ()
     function Zero(shape::DimensionTuple, free_indices::VarTuple{Index}, index_dimensions::Dict{Index, Dimension})
         sorted_indices = sort(collect(free_indices); by=x -> x.id)
         dimensions = Tuple(index_dimensions[index] for index in sorted_indices)
-        new(shape, Tuple(sorted_indices), dimensions)
+        new(shape, Tuple(sorted_indices), index_dimensions)
     end
 
     """
@@ -59,10 +61,11 @@ Base.show(io::IO, ::Zero) = print(io, "0")
 
 
 @ufl_type struct Identity <: AbstractConstantValue
+    ufl_fields = (shape,)
     dim::Dimension 
 
     function Identity(dim::Dimension)
-        new((dim, dim), (), (), dim)
+        new((dim, dim), dim)
     end
 end
 
@@ -73,7 +76,6 @@ Base.getindex(id::Identity, j::FixedIndex, i::Int) = id[j.d, i]
 Base.getindex(id::Identity, i::FixedIndex, j::FixedIndex) = id[i.d, j.d]
 
 
-
 @ufl_type struct ScalarValue{T <: Real} <: AbstractConstantValue 
     val::T 
 
@@ -81,10 +83,11 @@ Base.getindex(id::Identity, i::FixedIndex, j::FixedIndex) = id[i.d, j.d]
         if x === 0 
             Zero() 
         else
-            new{typeof(x)}((), (), (), x)
+            new{typeof(x)}(x)
         end
     end
 end
+
 
 # Yes this might not handle floating point problems
 # But frankly at the moment I could not care 

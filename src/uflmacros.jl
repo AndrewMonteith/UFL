@@ -1,45 +1,13 @@
-export ufl_type, ufl_shape, ufl_free_indices, ufl_index_dimensions
-
-using OrderedCollections: LittleDict
+export ufl_type, attach_hash_operators
 
 field(sym::Symbol, t) = Expr(:(::), sym, t)
-method(name::Symbol, param::Symbol) = esc(quote $param(x::$name) = x.$param end)
 
-required_fields = LittleDict(
+fields = Dict(
     :ufl_shape => (type=:DimensionTuple, default_val=()),
+    :ufl_operands => (type=VarTuple{AbstractExpr}, default_val=()),
     :ufl_free_indices => (type=:(VarTuple{Index}), default_val=()),
     :ufl_index_dimensions => (type=:DimensionTuple, default_val=()),
 )
-
-optional_fields = Dict(
-    :ufl_operands => (type=VarTuple{AbstractExpr}, default_val=())
-)
-
-tag_methods = Dict(
-    :inherit_indices_from_operand => (struct_name, operand_id) -> esc(quote 
-        ufl_free_indices(x::$struct_name) = ufl_free_indices( ufl_operands(x)[$operand_id] )
-        ufl_index_dimensions(x::$struct_name) = ufl_index_dimensions( ufl_operands(x)[$operand_id] )
-    end),
-
-    :inherit_shape_from_operand => (struct_name, operand_id) -> esc(quote 
-        ufl_shape(x::$struct_name) = ufl_shape( ufl_operands(x)[$operand_id] )
-    end)
-)
-
-for (required_field, def) ∈ required_fields 
-    @eval begin 
-        $required_field(x::AbstractExpr) = x.$required_field 
-        export $required_field
-    end 
-end
-
-for (optional_field, def) ∈ optional_fields 
-    optional_field === :ufl_operands && continue
-
-    @eval begin 
-        $optional_field(x::AbstractExpr) = $(def.default_val)
-    end
-end
         
 function find_field(fields::AbstractArray{Any}, field_name::Symbol)
     for (i, field) in enumerate(fields)
@@ -65,9 +33,6 @@ end
 
 """
     Inserts predefined fields for a struct 
-    Generates accessors for the fields 
-    Inserts the fields at the end of the struct body, so will be the last parameters in the new method
-    If the struct contains any tags, we insert the specified additional behaviour
 """
 macro ufl_type(expr)
     struct_fields = expr.args[3].args
@@ -75,49 +40,22 @@ macro ufl_type(expr)
     methods_to_add, fields_to_add = [], []
     struct_name = get_struct_name(expr)
    
-    # Any struct that uses this macro will have any field from required_fields injected into it 
-    # In the order specified in the dictionary
-    for (name, details) ∈ required_fields 
-        push!(fields_to_add, field(name, details.type))
-    end
-
-    # If the user has provided a ufl_fields tag in the struct body 
-    # Any property mentioned in there must be in the optional_fields dictionary 
-    # We then generate an accessor that reads from the field of the struct rather than the 
-    # the default value 
     fields_index, ufl_fields = find_field(struct_fields, :ufl_fields)
     if fields_index !== nothing
         deleteat!(struct_fields, fields_index)
 
-        for wanted_field ∈ ufl_fields.args[2].args
+        wanted_fields = ufl_fields.args[2].args
+
+        for wanted_field ∈ wanted_fields
             field_name = Symbol(:ufl_, wanted_field)
     
-            if !(field_name in keys(optional_fields))
+            if !(field_name in keys(fields))
                 error("don't recognise field $(field_name)")
             end
     
-            push!(fields_to_add, field(field_name, optional_fields[field_name].type))
-
-            if field_name !== :ufl_operands
-                push!(!methods_to_add, esc(:( $field_name(x::$struct_name)=x.$field_name )))
-            end
+            push!(fields_to_add, field(field_name, fields[field_name].type))
         end
     end 
-
-    # if the user has specified ufl_tags field 
-    # we added a method for each tag they gave
-    tags_index, ufl_tags = find_field(struct_fields, :ufl_tags)
-    if tags_index !== nothing 
-        deleteat!(struct_fields, tags_index)
-
-        for tag in ufl_tags.args[2].args
-            if isa(tag, Symbol) 
-                push!(methods_to_add, tag_methods[tag](struct_name))
-            else
-                push!(methods_to_add, tag_methods[tag.args[1]](struct_name, tag.args[2]))
-            end
-        end
-    end
 
     prepend!(struct_fields, fields_to_add)
     

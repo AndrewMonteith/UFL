@@ -1,7 +1,7 @@
 export Indexed, IndexSum, ComponentTensor
 
 @ufl_type struct Indexed <: Operator
-    ufl_fields = (operands,)
+    ufl_fields = (operands,free_indices, index_dimensions)
 
     function Indexed(expr::AbstractExpr, multiindex::MultiIndex)
         operands = (expr, as_ufl(multiindex))
@@ -39,31 +39,29 @@ export Indexed, IndexSum, ComponentTensor
             collect(zip(fi_and_d...))
         end 
 
-        new((), fi, fid, operands)
+        new(operands, fi, fid)
     end
 end
 
-
 @ufl_type struct IndexSum <: Operator 
-    ufl_fields = (operands,)
-
+    ufl_fields = (operands,free_indices, index_dimensions)
+    
     dim::Dimension
-
+    
     function IndexSum(summand::AbstractExpr, index::MultiIndex)
         length(index) !== 1 && error("Expecting a single Index but got $(length(index))")
-
+        
         j, = index 
         fi, fid = ufl_free_indices(summand), ufl_index_dimensions(summand)
         pos = findall(i -> i == j, fi)[1]
-
+        
         new_fi = tuple(fi[1:pos-1]..., fi[pos+1:end]...)
         new_fid = tuple(fid[1:pos-1]..., fid[pos+1:end]...)
-
-        new((), new_fi, new_fid, (summand, as_ufl(index)), pos)
+        
+        new((summand, as_ufl(index)), new_fi, new_fid, pos)
     end
 end
 
-ufl_shape(is::IndexSum) = ufl_shape(is.ufl_operands[1])
 
 function create_slice_indices(indexer, shape, fi)
     all_indices::Array{AbstractIndex} = []

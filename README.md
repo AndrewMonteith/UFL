@@ -22,12 +22,17 @@ A sample implemendation of UFL in Julia
 
 
 ### POINTS TO TALK ABOUT
+Traits had a neglible performance impact and seem quite idiomatic. 
+  - Worth it for things like Shape, but not for Operands and stuff
+  - Define behaviour at end of system, far away from definition of struct. Is that maintainable? Should we define behaviour next to struct
+  - Reduce complexity of the macro
 
 ### POINTS I COULD WRITE ABOUT
 1. Eager Hashing vs Lazy Hashing
 2. Traits via having properties on structs
 3. Difference in tree traversal speed via various flavours
 4. Metaprogramming in Julia vs Metaprogrammign in Julia
+5. Importance of type stability for performance
 
 
 Get this code to work:
