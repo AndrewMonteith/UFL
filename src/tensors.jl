@@ -51,7 +51,7 @@ end
                                      ufl_index_dimensions(expr),
                                      indices)
 
-        new(sh, fi, fid, (expr, as_ufl(indices)))
+        new(sh, fi, fid, @sig((expr, as_ufl(indices))))
     end 
 end 
 Base.show(io::IO, ct::ComponentTensor) = print(io, "{ A | A_{$(ct.ufl_operands[2]) = $(ct.ufl_operands[1])}")
@@ -70,7 +70,7 @@ Base.show(io::IO, ct::ComponentTensor) = print(io, "{ A | A_{$(ct.ufl_operands[2
 
         exprs = exprs isa Tuple ? exprs : tuple(exprs...)
 
-        new(exprs)
+        new(@sig(exprs))
     end
 end
 

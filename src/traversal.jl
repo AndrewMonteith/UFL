@@ -76,14 +76,14 @@ function _compute_expr_hash(expr::AbstractExpr)
         
         if isempty(deps)
             if expr ∉ keys(expr_hashes)
-                expr_hashes[expr] = ufl_compute_hash(expr)
+                expr_hashes[expr] = compute_hash(expr)
             end
             pop!(lifo)
         else
             e = pop!(deps)
             e_ops = ufl_operands(e)
             if isempty(e_ops) 
-                expr_hashes[e] = ufl_compute_hash(expr)
+                expr_hashes[e] = compute_hash(expr)
             else
                 push!(lifo, (e, collect(e_ops)))
             end

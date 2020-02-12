@@ -45,3 +45,6 @@ get_index_dimensions(::NoFreeIndices, x::AbstractExpr)::DimensionTuple = ()
 get_index_dimensions(::InheritsFreeIndices, x::AbstractExpr)::DimensionTuple = ufl_index_dimensions(ufl_operands(x)[1])
 
 ufl_index_dimensions(x::T) where T = get_index_dimensions(free_indices_type(T), x)
+
+
+Base.hash(x::AbstractExpr) = x.ufl_hash_code

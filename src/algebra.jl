@@ -38,7 +38,7 @@ export Sum, Product, Divison, Power
             # have to implement 
         end 
 
-        new((a, b))
+        new(@sig((a, b)))
     end
 end
 
@@ -111,7 +111,7 @@ end
         fi, fid = merge_unqiue_indices(ufl_free_indices(a), ufl_index_dimensions(a),
                                        ufl_free_indices(b), ufl_index_dimensions(b))
 
-        new((a, b), fi, fid)
+        new(@sig((a, b)), fi, fid)
     end
 end
 
@@ -246,9 +246,9 @@ end
             Zero((), (), ())
         elseif b isa ScalarValue && b.val === 1
             a
-        else
-            new((a, b))
         end
+
+        new(@sig((a, b)))
     end
 end
 # ufl_shape(p::Power) = ()

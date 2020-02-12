@@ -20,7 +20,7 @@ geometric_dimension(arg::AbstractFormArgument) = ufl_shape(arg)[1]
             error("part must be integral or nothing")
         end
 
-        new(function_space.ufl_shape, number, part, function_space)
+        new(@sig(function_space.ufl_shape), @sig(number), @sig(part), function_space)
     end
 end
 Base.repr(arg::Argument) = "Argument($(repr(arg.ufl_function_space)), $(arg.number))"
@@ -45,15 +45,19 @@ function TrialFunction(function_space::FunctionSpace, part = nothing)
     Argument(function_space, 1, part)
 end
 
-
+constant_id = 0
 
 @ufl_type struct Constant <: AbstractFormArgument 
     ufl_fields = (shape,)
 
+    id::Int
     value
     ufl_function_space::FunctionSpace
 
     function Constant(value::T; @opt(cell::Cell)) where T <: Union{Real, NTuple{N, Real} where N}
+        c = constant_id 
+        global constant_id = constant_id + 1
+
         shape = isa(value, Tuple) ? length(value) : size(value)
         rank = length(shape)
 
@@ -70,7 +74,7 @@ end
 
         shape = fem_value_shape(function_space.element) 
 
-        new(shape, value, function_space)
+        new(@sig(c), shape, value, @sig(function_space))
     end
 end
 

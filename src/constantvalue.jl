@@ -9,7 +9,7 @@ ufl_domains(::AbstractConstantValue) = ()
     ufl_fields = (shape, free_indices, index_dimensions)
 
     function Zero(shape::DimensionTuple=())
-        new(shape, (), ())
+        new(@sig(shape), @sig(()), @sig(()))
     end
 
     """
@@ -23,7 +23,7 @@ ufl_domains(::AbstractConstantValue) = ()
     function Zero(shape::DimensionTuple, free_indices::VarTuple{Index}, index_dimensions::Dict{Index, Dimension})
         sorted_indices = sort(collect(free_indices); by=x -> x.id)
         dimensions = Tuple(index_dimensions[index] for index in sorted_indices)
-        new(shape, Tuple(sorted_indices), index_dimensions)
+        new(@sig(shape), @sig(Tuple(sorted_indices)), @sig(index_dimensions))
     end
 
     """
@@ -32,7 +32,7 @@ ufl_domains(::AbstractConstantValue) = ()
             z = Zero((), (2, 4), (3, 5))
     """
     function Zero(shape::DimensionTuple, free_indices::VarTuple{Dimension}, index_dimensions::VarTuple{Dimension})
-        new(shape, free_indices, index_dimensions)
+        new(@sig(shape), @sig(free_indices), @sig(index_dimensions))
     end
 end
 
@@ -59,13 +59,12 @@ end
 
 Base.show(io::IO, ::Zero) = print(io, "0")
 
-
 @ufl_type struct Identity <: AbstractConstantValue
     ufl_fields = (shape,)
     dim::Dimension 
 
     function Identity(dim::Dimension)
-        new((dim, dim), dim)
+        new(@sig((dim, dim)), dim)
     end
 end
 
@@ -82,9 +81,9 @@ Base.getindex(id::Identity, i::FixedIndex, j::FixedIndex) = id[i.d, j.d]
     function ScalarValue(x)
         if x === 0 
             Zero() 
-        else
-            new{typeof(x)}(x)
         end
+
+        new{typeof(x)}(@sig(x))
     end
 end
 

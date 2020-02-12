@@ -1,4 +1,4 @@
-export Terminal, Operator, Dimension, geometric_dimension, topological_dimension, ufl_compute_hash, ufl_shape, ufl_operands, ufl_free_indices, ufl_index_dimensions
+export Terminal, Operator, Dimension, geometric_dimension, topological_dimension, compute_hash, ufl_shape, ufl_operands, ufl_free_indices, ufl_index_dimensions
 
 """
     Root type of any node in the UFL tree.
@@ -12,8 +12,6 @@ such as geometry data or constants.
 """
 abstract type Terminal <: AbstractExpr end 
 
-ufl_compute_hash(t::Terminal) = (hash ∘ repr)(t)
-
 """
     A result of an operator, such as IndexSum, ComponentTensor, MinValue, ...
     If Terminal types represnet leaf nodes of the type tree, then Operator types
@@ -21,7 +19,7 @@ ufl_compute_hash(t::Terminal) = (hash ∘ repr)(t)
 """
 abstract type Operator <: AbstractExpr end 
 
-ufl_compute_hash(o::Operator) = hash((ufl_typecode(o), (hash(op) for op in ufl_operands(o))...))
+# compute_hash(o::Operator) = hash((ufl_typecode(o), (hash(op) for op in ufl_operands(o))...))
 function Base.repr(o::Operator)
     str_ops = join((repr(op) for op in ufl_operands(o)), ",")
     "$(typeof(o))$(str_ops)"
@@ -48,6 +46,19 @@ function ufl_operands end
 function ufl_free_indices end 
 function ufl_index_dimensions end 
 
+function compute_hash(xs...)
+    hashes = [] 
+
+    for x ∈ xs 
+        if x isa Tuple{AbstractExpr}
+            push!(hashes, compute_hash(x...))
+        else
+            push!(hashes, hash(x))
+        end
+    end
+
+    hash(tuple(hashes))
+end
 
 geometric_dimension(x::Any)::Dimension = x.geometric_dimension
 topological_dimension(x::Any)::Dimension = x.topological_dimension

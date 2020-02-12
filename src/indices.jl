@@ -3,11 +3,16 @@ export FixedIndex, Index, MultiIndex
 # We do not subtype Operator or Terminal as this will never be directly a node a UFL tree.
 abstract type AbstractIndex end 
 
-"""
-    An index with a specific value d assigned to it
-"""
-struct FixedIndex <: AbstractIndex 
+# We apply the ufl_type macros to the indices not because they are part the UFL type tree
+# but because we want to apply the hashing behaviour
+
+# An index with a specific value d assigned to it
+@ufl_type struct FixedIndex <: AbstractIndex 
     d::Dimension
+
+    function FixedIndex(d::Dimension)
+        new(@sig(d))
+    end
 end 
 Base.show(io::IO, i::FixedIndex) = show(io, "FixedIndex($(i.d))")
 
@@ -21,27 +26,25 @@ Base.show(io::IO, i::FixedIndex) = show(io, "FixedIndex($(i.d))")
 """
 
 
-"""
-    Index with a value that ranges between 1 and a dimension d.
-    d cannot be initally known hence the data will be provided later 
-    alongside the index dimensions
-"""
+# Index with a value that ranges between 1 and a dimension d.
+# d cannot be initally known hence the data will be provided later 
+        # alongside the index dimensions
 index_count = 0
-struct Index <: AbstractIndex 
+@ufl_type struct Index <: AbstractIndex 
     id::Int
 
     function Index()
         id = index_count
         global index_count = index_count + 1
 
-        new(id)
+        new(@sig(id))
     end
 
     """
         Used for testing purposes
     """
     function Index(id::Int)
-        new(id)
+        new(@sig(id))
     end
 end 
 Base.show(io::IO, i::Index) = show(io, "i_$(i.id)")

@@ -39,7 +39,7 @@ export Indexed, IndexSum, ComponentTensor
             collect(zip(fi_and_d...))
         end 
 
-        new(operands, fi, fid)
+        new(@sig(operands), fi, fid)
     end
 end
 
@@ -58,7 +58,7 @@ end
         new_fi = tuple(fi[1:pos-1]..., fi[pos+1:end]...)
         new_fid = tuple(fid[1:pos-1]..., fid[pos+1:end]...)
         
-        new((summand, as_ufl(index)), new_fi, new_fid, pos)
+        new(@sig((summand, as_ufl(index))), new_fi, new_fid, pos)
     end
 end
 

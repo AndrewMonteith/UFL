@@ -2,9 +2,10 @@ using UFL, Test
 
 i, j = Identity(3), Identity(3)
 
-@test UFL.compute_expr_hash(i) === UFL.compute_expr_hash(j)
+@test i.ufl_hash_code === j.ufl_hash_code
+@test hash(i) === hash(j)
 
 s1, s2 = i+j, j+i
 
-# @test UFL.compute_expr_hash(s1) === UFL.compute_expr_hash(s1)
-# @test UFL.compute_expr_hash(s1) === UFL.compute_expr_hash(s2)
+@test s1.ufl_hash_code === s2.ufl_hash_code
+@test hash(s1) === hash(s2)
