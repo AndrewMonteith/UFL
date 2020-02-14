@@ -47,4 +47,4 @@ function pre_unqiue_t(tree)
     walk
 end
 
-# @test pre_unqiue_t(s2) == [s1, s2]
+@test pre_unqiue_t(s2) == [s2, s1, i]

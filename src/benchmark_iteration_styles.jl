@@ -98,6 +98,7 @@ end
 
 function do_benchmark(tree::AbstractExpr)
     s = 0
+   
     @pre_order_traversal for x ∈ tree 
         s += 1
     end
@@ -123,7 +124,7 @@ end
 function run_benchmark()
     suite = BenchmarkGroup()
 
-    n = 100_000
+    n = 400
     println("building with $(n) nodes")
 
     suite["building-array"] = @benchmarkable build_random_tree($n)
@@ -133,11 +134,11 @@ function run_benchmark()
     # suite["macro-capacity-array"] = @benchmarkable do_benchmarks_4(x) setup=(x=build_random_tree($n))
     # suite["iterator-inbuilt-array"] = @benchmarkable do_benchmarks_5(x) setup=(x=build_random_tree($n))
     # suite["post-iterator-inbuilt-array"] = @benchmarkable do_benchmarks_6(x) setup=(x=build_random_tree($n))
-    suite["raw"] = @benchmarkable count_nodes(x) setup=(x=build_random_tree($n))
-    suite["inline-macro"] = @benchmarkable do_benchmark(x) setup=(x=build_random_tree($n))
-    suite["for-macro"] = @benchmarkable do_benchmark_2(x) setup=(x=build_random_tree($n))
+    # suite["raw"] = @benchmarkable count_nodes(x) setup=(x=build_random_tree($n))
+    # suite["inline-macro"] = @benchmarkable do_benchmark(x) setup=(x=build_random_tree($n))
+    # suite["for-macro"] = @benchmarkable do_benchmark_2(x) setup=(x=build_random_tree($n))
 
     tune!(suite)
 
-    BenchmarkTools.run(suite, verbose=true, seconds=8)
+    BenchmarkTools.run(suite, verbose=true, seconds=10)
 end

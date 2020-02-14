@@ -2,10 +2,14 @@ A sample implemendation of UFL in Julia
 
 ### Current Goals
 
+Things to do:
+- See best way to do map_expr_dag 
+    - Subexpression replacement?
+    - Benchmark against python
 
-* Make hashing eager **Done - Was nontrivial...**
-
-* Make sure DAG'ify works
+* Make hashing eager **Done - Was nontrivial (room for optimisation)...**
+* Made things into Traits **Done**
+* Make sure DAG'ify works **I think I did this?** 
 * Best way to turn DAG's into DAG's without tree expansion (map_expr_dag example, maybe not best for Julia)
   - Subexpression replacement
   - Make sure passes are quicker than python

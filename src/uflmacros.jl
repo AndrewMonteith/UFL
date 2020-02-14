@@ -72,7 +72,20 @@ macro ufl_type(expr)
     struct_name = get_struct_name(expr)
 
     prepend!(fields_to_add, (field(:ufl_hash_code, :UInt32),))
-   
+
+    metadata = Dict{Symbol, Int}()
+    tags_index, ufl_tags = find_field(struct_fields, :ufl_tags)
+    if tags_index !== nothing 
+        deleteat!(struct_fields, tags_index)
+
+        wanted_tags = ufl_tags.args[2].args
+        for wanted_tag ∈ wanted_tags 
+            metadata[wanted_tag.args[1]] = wanted_tag.args[2]
+        end
+    end
+
+    # println(metadata)
+
     # Expand ufl_fields variable into respective struct members
     fields_index, ufl_fields = find_field(struct_fields, :ufl_fields)
     if fields_index !== nothing
@@ -86,8 +99,15 @@ macro ufl_type(expr)
             if !(field_name in keys(fields))
                 error("don't recognise field $(field_name)")
             end
-    
-            push!(fields_to_add, field(field_name, fields[field_name].type))
+
+            if field_name === :ufl_operands 
+                num_operands = get!(metadata, :num_ops, -1)
+
+                var_type = num_operands === -1 ? fields[field_name].type : :(NTuple{$(num_operands), AbstractExpr})
+                push!(fields_to_add, field(field_name, var_type))
+            else
+                push!(fields_to_add, field(field_name, fields[field_name].type))
+            end
         end
     end 
     

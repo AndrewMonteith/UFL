@@ -1,3 +1,19 @@
+# struct BinaryOperator end 
+# struct HasOperands end 
+# struct NoOperands end 
+
+# operands_type(::Type{<:Operator}) = HasOperands()
+# operands_type(::Type{<:Terminal}) = NoOperands() 
+# operands_type(::Type{Sum}) = BinaryOperator()
+# operands_type(::Type{Product}) = BinaryOperator()
+
+# Type Instability of these functions makes the program a bit slower:
+# get_operands(::HasOperands, x::AbstractExpr)::VarTuple{AbstractExpr} = x.ufl_operands 
+# get_operands(::NoOperands, x::AbstractExpr)::VarTuple{AbstractExpr} = () 
+# get_operands(::BinaryOperator, x::AbstractExpr)::Tuple{AbstractExpr, AbstractExpr} = x.ufl_operands
+
+# ufl_operands(x::T) where T <: AbstractExpr = get_operands(operands_type(T), x)
+
 ufl_operands(x::Operator)::VarTuple{AbstractExpr} = x.ufl_operands 
 ufl_operands(x::Terminal)::VarTuple{AbstractExpr} = ()
 
@@ -48,3 +64,4 @@ ufl_index_dimensions(x::T) where T = get_index_dimensions(free_indices_type(T), 
 
 
 Base.hash(x::AbstractExpr) = x.ufl_hash_code
+Base.:(==)(x1::AbstractExpr, x2::AbstractExpr) = hash(x1) === hash(x2)

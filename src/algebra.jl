@@ -2,6 +2,7 @@ export Sum, Product, Divison, Power
 
 @ufl_type struct Sum <: Operator 
     ufl_fields = (operands,)
+    ufl_tags=(num_ops=2,)
     
     function Sum(a::AbstractExpr, b::AbstractExpr)
         shape = ufl_shape(a)
@@ -42,7 +43,7 @@ export Sum, Product, Divison, Power
     end
 end
 
-Base.show(io::IO, s::Sum) = print(io, join(map(repr, ufl_operands(s)), " + "))
+Base.show(io::IO, s::Sum) = print(io, "($(s.ufl_operands[1])) + ($(s.ufl_operands[2]))")
 
 Base.:+(e1, e2) = Sum(as_ufl(e1), as_ufl(e2))
 Base.:-(e1, e2) = Sum(as_ufl(e1), -as_ufl(e2))
@@ -91,6 +92,7 @@ end
 
 @ufl_type struct Product <: Operator 
     ufl_fields = (operands, free_indices, index_dimensions)
+    ufl_tags=(nums_ops=2,)
 
     function Product(a::AbstractExpr, b::AbstractExpr) 
         (isempty ∘ ufl_shape)(a) || (isempty ∘ ufl_shape)(b) && error("product can only represent product of scalars")
@@ -195,32 +197,29 @@ function mult(a::AbstractExpr, b::AbstractExpr)
 
     p
 end
-
 Base.:*(e1, e2) = mult(as_ufl(e1), as_ufl(e2))
 
 is_true_scalar(a::AbstractExpr) = (isempty ∘ ufl_shape)(a) && (isempty ∘ ufl_free_indices)(a)
 
 @ufl_type struct Division <: Operator 
     ufl_fields = (operands,)
-    # ufl_tags = (inherit_indices_from_operand=0,)
+    ufl_tags = (num_ops=2,)
 
     function Division(a::AbstractExpr, b::AbstractExpr)
         ufl_shape(a) !== () && error("expecting scalar numerator in Divison.")
-        !is_true_scalar(a) && error("denominator must be a true scalar.")
+        !is_true_scalar(b) && error("denominator must be a true scalar.")
 
         (a isa Zero || (b isa ScalarValue && b.val === 1)) && return a 
 
         (a isa ScalarValue && b isa ScalarValue) && ScalarValue(a.val / b.val)
 
-        new((a, b))
+        new(@sig((a, b)))
     end
 end
-# ufl_shape(d::Division) = ()
 
-function Base.:/(e1::AbstractExpr, e2) 
-    e2 = as_ufl(e2)
+function _div(e1::AbstractExpr, e2::AbstractExpr)
     sh = ufl_shape(e1)
-
+    
     if !isempty(sh) 
         ii = (indices_n ∘ length)(sh)
         d = Division(e1[ii...], e2)
@@ -228,10 +227,12 @@ function Base.:/(e1::AbstractExpr, e2)
     else
         Divison(e1, e2)
     end
-end 
+end
+Base.:/(e1, e2) = _div(as_ufl(e1), as_ufl(e2))
 
 @ufl_type struct Power <: Operator 
-    # ufl_tags = (inherit_indices_from_operand=0,)
+    ufl_fields = (operands,)
+    ufl_tags = (num_ops=2,)
 
     function Power(a::AbstractExpr, b::AbstractExpr) 
         !is_true_scalar(a) && error("Cannot take the power of a non-scalar expression")
@@ -251,5 +252,3 @@ end
         new(@sig((a, b)))
     end
 end
-# ufl_shape(p::Power) = ()
-

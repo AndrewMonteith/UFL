@@ -11,7 +11,7 @@ function build_random_tree(N::Int)
         elseif rand() < 0.5 
             root = root + as_tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         elseif rand() < 1 
-            root = root * (-Identity(3))
+            root = (-Identity(3)) * root
         end
     end 
 
@@ -31,7 +31,7 @@ end
 function run_benchmarks()
     suite = BenchmarkGroup()
 
-    n = 10000
+    n = 500
     println("building with $(n) nodes")
 
     suite["building-tree"] = @benchmarkable build_random_tree($n)

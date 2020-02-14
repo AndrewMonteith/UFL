@@ -66,54 +66,19 @@ macro post_order_traversal(for_loop)
     make_post_traversal_pattern(root_expression, loop_body; iter_var=iter_var)
 end
 
-expr_hashes = Dict{AbstractExpr, UInt32}()
-
-function _compute_expr_hash(expr::AbstractExpr)
-    lifo::Vector{Tuple{AbstractExpr, Vector{AbstractExpr}}} = [(expr, (collect ∘ ufl_operands)(expr))]
-    
-    while !isempty(lifo)
-        (expr, deps) = lifo[end]
-        
-        if isempty(deps)
-            if expr ∉ keys(expr_hashes)
-                expr_hashes[expr] = compute_hash(expr)
-            end
-            pop!(lifo)
-        else
-            e = pop!(deps)
-            e_ops = ufl_operands(e)
-            if isempty(e_ops) 
-                expr_hashes[e] = compute_hash(expr)
-            else
-                push!(lifo, (e, collect(e_ops)))
-            end
-        end
-    end
-    
-    expr_hashes[expr]
-end
-
-# Was going to use WeakKeyDict but apparently 'objects of type Identity' cannot be finalized
-# Apparently the types need be mutable? Until memory becomes a problem this can suffice being a dict
-function compute_expr_hash(expr::AbstractExpr)
-    get!(expr_hashes, expr, _compute_expr_hash(expr))
-end
-
 function unique_pre_traversal(root::AbstractExpr, func::T) where T <: Function
+    to_visit::Vector{UFL.AbstractExpr} = [root]
     visited = Set{AbstractExpr}()
-    lifo::Vector{AbstractExpr} = [root]
-    push!(visited, root)
-    
-    while !isempty(lifo)
-        e = pop!(lifo)
 
-        func(e)
+    while !isempty(to_visit)
+        x = pop!(to_visit)
 
-        for op ∈ ufl_operands(e)
-            if op ∉ visited 
-                push!(lifo, op)
-                push!(visited, op)
-            end 
+        func(x)
+
+        for op ∈ ufl_operands(x)
+            op ∈ visited && continue 
+            push!(to_visit, op)
+            push!(visited, op)
         end 
     end
 end
