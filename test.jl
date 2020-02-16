@@ -1,10 +1,5 @@
-struct Foobar 
-    x::String 
+function foo(::Type{T}, x::U) where {T <: Any, U <: Any}
+    nums = Vector{T}()
 end 
 
-Base.:(==)(f::Foobar, f2::Foobar) = f.x[1] === f2.x[1]
-
-f1 = Foobar("ha")
-f2 = Foobar("ht")
-
-println(f1 == f2)
+foo(Int, 2)

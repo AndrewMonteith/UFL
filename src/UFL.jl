@@ -21,6 +21,7 @@ include("functions.jl")
 include("arguments.jl")
 
 include("corefunctions.jl")
+include("mapdag.jl")
 
 include("benchmark_accessor_patterns.jl")
 end # module
