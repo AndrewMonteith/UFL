@@ -18,32 +18,23 @@ function pre_t_for(tree)
 end
 @test pre_t_for(F) == expected_pre_order_walk
 
-function pre_t_inline(tree)
-    walk = []
-    UFL.@pre_order_traversal(tree, begin 
-        push!(walk, e)
-    end)
-    walk 
-end
-@test pre_t_inline(F) == expected_pre_order_walk
-
-
-
 expected_post_order_walk = [k, j, i, s1, F]
 
 function post_t_for(tree)
     walk = [] 
-    UFL.@post_order_traversal(tree, begin 
-        push!(walk, e)
-    end)
-    walk 
+    UFL.@post_order_traversal for x ∈ tree 
+        push!(walk, x)
+    end
+    walk
 end
 @test post_t_for(F) == expected_post_order_walk
     
 s2 = s1 + s1 
 function pre_unqiue_t(tree)
     walk = []
-    UFL.unique_pre_traversal(tree, node -> push!(walk, node))
+    UFL.@unique_pre_traversal for x ∈ tree
+        push!(walk, x)
+    end
     walk
 end
 
