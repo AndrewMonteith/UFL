@@ -31,14 +31,9 @@ function get_struct_name(def::Expr)
     end
 end
 
-"""
-    Assumes the last statement is a new function 
-    In the future if we need change that make replace new_call with some findall looks for all new calls 
-
-    Disadvantages:
-        Value types are slightly less elegant since we need write a manual constructor to define each parameter as a sig
-"""
 function inject_hash_behaviour(expr, typecode)
+    # Assumes last line for the inner constructor 
+
     functions = findall(expr -> expr isa Expr && expr.head === :function, expr.args[3].args)
     for func_i in functions 
         inner_ctor = expr.args[3].args[func_i]
@@ -61,8 +56,60 @@ function inject_hash_behaviour(expr, typecode)
     end
 end
 
+# The below function was an attempt at an optimization for inner constructors of the form:
+#      new(compute_hash(..., e_1, e_2, e_3), e_1, e_2, e_3)  
+#
+# To be optimised to:
+#      h1 = e_1 
+#      h2 = e_2 
+#      h3 = e_3 
+#      new(compute_hash(..., h1, h2, h3), h1, h2, h3) 
+#
+#  This theoretically would mean that the expressions aren't recomputed twice and you know what
+#  LLVM does this for you already. So all this code is basically useless for now. If ever e_k as 
+#  some function with a sideeffect perhaps LLVM would not perform this optimisation and this function 
+#  might become useful
+#
+# function inject_hash_behaviour(expr, typecode)
+#     # println("Loading expression: ", expr)
+#     h_id = 0
+#     new_hash_identifier() = Symbol(:hash, h_id += 1)
+#
+#     inner_ctor_is = findall(expr -> expr isa Expr && expr.head === :function, expr.args[3].args) 
+#     for inner_ctor_i in inner_ctor_is 
+#         inner_ctor = expr.args[3].args[inner_ctor_i]
+#
+#         new_call = inner_ctor.args[2].args[end].args
+#         
+#         sig_param_is = findall(param -> param isa Expr && param.head === :macrocall && param.args[1] === Symbol("@sig"), new_call)
+#
+#         hash_identifiers::Vector{Symbol} = []
+#         hash_assignments::Vector{Expr} = []
+#         for sig_param_i ∈ sig_param_is
+#             # sig_param_i will be the index of parameter wrapped in a @sig 
+#             # we unwrap it and mark that expression needs to be included in the hash
+#             new_call[sig_param_i] = new_call[sig_param_i].args[3]
+#
+#             hash_id = new_hash_identifier()
+#             push!(hash_identifiers, hash_id)            
+#             push!(hash_assignments, :($(esc(hash_id)) = $(new_call[sig_param_i])))
+#         end
+#
+#         hash_expr = (:(compute_hash($typecode, $(hash_identifiers...))))
+#
+#         if length(hash_assignments) === 1 
+#             insert!(inner_ctor.args[2].args, length(inner_ctor.args[2].args)-1, hash_assignments...)
+#         elseif length(hash_assignments) > 1 
+#             insert!(inner_ctor.args[2].args, length(inner_ctor.args[2].args)-1, hash_assignments)
+#         end
+#
+#         insert!(new_call, 2, esc(hash_expr))
+#     end
+# end
+
 """
-    Inserts predefined fields for a struct 
+    Inserts predefined fields for a struct
+    Parses ufl_fields tags into metadata
     Injects hash logic
 """
 macro ufl_type(expr)
@@ -83,8 +130,6 @@ macro ufl_type(expr)
             metadata[wanted_tag.args[1]] = wanted_tag.args[2]
         end
     end
-
-    # println(metadata)
 
     # Expand ufl_fields variable into respective struct members
     fields_index, ufl_fields = find_field(struct_fields, :ufl_fields)
