@@ -3,7 +3,6 @@ using UFL, Test
 i, j, k = Identity(3), Identity(3), Identity(3)
 
 s = ((i + j) + (i + j)) + k
-println(s)
 
 mutable struct Traverser <: Function
     num_of_calls::Int

@@ -7,10 +7,10 @@ Things to do:
     - Subexpression replacement?
     - Benchmark against python
 
-* Make hashing eager **Done - Was nontrivial (room for optimisation)...**
+* Make hashing eager **Done - Was nontrivial...**
 * Made things into Traits **Done**
-* Make sure DAG'ify works **I think I did this?** 
-* Best way to turn DAG's into DAG's without tree expansion (map_expr_dag example, maybe not best for Julia)
+* Make sure DAG'ify works **Talk about** 
+* Best way to turn DAG's into DAG's without tree expansion (map_expr_dag example, maybe not best for Julia) ** Talk about **
   - Subexpression replacement
   - Make sure passes are quicker than python
 * Make differentation work, the simple one
@@ -27,16 +27,29 @@ Things to do:
   - Reduce complexity of the macro
 
 * Making hashing easier was nontrival
-  - Add @sig paramters in new constructor 
+  - Add @sig paramters in new constructor
   - Bit more metamagic...
   - Makes value types nontrivial
+  - Are indices meant to be accounted for in hash
+    - in UFL at the moment they don't see to be
+
+* Don't fully understand what I was meant to do for differentiation
+
+* Creating copy constructors for common subexpression elimination is non-trivial...
 
 ### POINTS I COULD WRITE ABOUT
-1. Eager Hashing vs Lazy Hashing
-2. Traits via having properties on structs
-3. Difference in tree traversal speed via various flavours
-4. Metaprogramming in Julia vs Metaprogrammign in Julia
+1. Wanting immutability has meant:
+    - Eager Hashing vs Lazy Hashing
+    - Preserving immutability whilst has pros dramtically but adds alot of complexity (hashing and copying) which can be tackled by metaprogramming
+2. Metaprogramming in Julia vs Metaprogrammign in Julia
+3. Traits via having properties on structs
+4. Difference in tree traversal speed via various flavours
+    - Roles in hashing and preserving immutability
 5. Importance of type stability for performance
+6. Building effective type hierachies. Use example of ufl_operands on Terminal/Operator vs on all types
+    - Original accessor for each type would be too slow below of abstract -> concrete type resolution
+    - Whereas generalising to behaviour over abstract types instead of binding it to concrete gave the best performance
+
 
 
 Get this code to work:

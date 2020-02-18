@@ -93,14 +93,14 @@ end
 
 
 as_tensor(expr::AbstractExpr) = expr 
-function as_tensor(exprs::Union{VarTuple, AbstractArray})
+function as_tensor(exprs::Union{VarTuple, AbstractArray})::AbstractExpr
     recursive_convert(expr::Union{Tuple, AbstractArray}) = ListTensor(collect(recursive_convert(e) for e ∈ expr))
     recursive_convert(expr) = as_ufl(expr)
 
     recursive_convert(exprs)
 end
 
-function as_tensor(expr::AbstractExpr, indices::MultiIndex)
+function as_tensor(expr::AbstractExpr, indices::MultiIndex)::AbstractExpr
     isempty(indices) && return expr 
 
     if expr isa Indexed 

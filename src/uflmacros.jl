@@ -32,7 +32,7 @@ function get_struct_name(def::Expr)
 end
 
 function inject_hash_behaviour(expr, typecode)
-    # Assumes last line for the inner constructor 
+    # Assumes last line for the inner constructor is a new
 
     functions = findall(expr -> expr isa Expr && expr.head === :function, expr.args[3].args)
     for func_i in functions 
@@ -49,7 +49,6 @@ function inject_hash_behaviour(expr, typecode)
             push!(sig_exprs, new_call[sig_param_i])
         end
 
-        # hash_expr = (:(compute_hash($typecode, $(sig_exprs...))))
         hash_expr = :( $(esc(:compute_hash))($typecode, $(sig_exprs...)) )
 
         insert!(new_call, 2, hash_expr)
@@ -107,9 +106,26 @@ end
 #     end
 # end
 
+function inject_copy_constructor(expr, struct_name, struct_fields)
+    member_variables = filter(line -> line isa Expr && line.head === :(::), struct_fields)
+
+    println("Member Variables:", member_variables)
+
+    copy_constructor = esc(quote 
+        function $struct_name(x::$struct_name, operands::VarTuple{UFL.AbstractExpr}) 
+            new(x.ufl_hash_code, operands, )
+        end
+    end)
+
+    println("Copy Constructor:", copy_constructor)
+
+    # dump(struct_fields)
+end
+
 """
     Inserts predefined fields for a struct
     Parses ufl_fields tags into metadata
+    Insert copy constructor
     Injects hash logic
 """
 macro ufl_type(expr)
@@ -141,9 +157,7 @@ macro ufl_type(expr)
         for wanted_field ∈ wanted_fields
             field_name = Symbol(:ufl_, wanted_field)
     
-            if !(field_name in keys(fields))
-                error("don't recognise field $(field_name)")
-            end
+            field_name ∉ keys(fields) && error("don't recognise field $(field_name)")
 
             if field_name === :ufl_operands 
                 num_operands = get!(metadata, :num_ops, -1)
@@ -155,10 +169,12 @@ macro ufl_type(expr)
             end
         end
     end 
-    
+
+    # Insert Copy Constructor 
     tc = global typecode += 1
     push!(methods_to_add, esc(quote ufl_typecode(x::$struct_name) = $tc end))
     
+    # inject_copy_constructor(expr, struct_name, struct_fields)
     inject_hash_behaviour(expr, tc)
     
     prepend!(struct_fields, fields_to_add)

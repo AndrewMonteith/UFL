@@ -7,8 +7,6 @@ export Sum, Product, Divison, Power
     function Sum(a::AbstractExpr, b::AbstractExpr)
         shape = ufl_shape(a)
         if shape !== ufl_shape(b) 
-            println("Shape of $(a) is $(shape)")
-            println("Shape of $(b) is $(ufl_shape(b))")
             error("Cannot add expressions of different shape")
         end 
 

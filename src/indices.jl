@@ -13,7 +13,7 @@ abstract type AbstractIndex end
     function FixedIndex(d::Dimension)
         new(@sig(d))
     end
-end 
+end
 Base.show(io::IO, i::FixedIndex) = show(io, "FixedIndex($(i.d))")
 
 
@@ -28,7 +28,7 @@ Base.show(io::IO, i::FixedIndex) = show(io, "FixedIndex($(i.d))")
 
 # Index with a value that ranges between 1 and a dimension d.
 # d cannot be initally known hence the data will be provided later 
-        # alongside the index dimensions
+#         alongside the index dimensions
 index_count = 0
 @ufl_type struct Index <: AbstractIndex 
     id::Int
@@ -54,8 +54,8 @@ Base.:(==)(i::Int, j::Index) = j == i
 Base.isless(i::Index, j::Index) = i.id < j.id
 
 """
-    Sequence of indices either fixed or free 
     Note:
+    Sequence of indices either fixed or free 
         This type is not a subtype of Terminal 
         This could be a problem? However for know just treating 
         this as a class seems sufficient. We can just treat this as an 

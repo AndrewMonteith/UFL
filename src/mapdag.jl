@@ -13,3 +13,11 @@ function map_expr_dag(expr::AbstractExpr, func::F, ::Type{V}=Any) where {F<:Func
 
     expr_vals[expr]
 end 
+
+function subexpression_replacement(root::AbstractExpr)
+    seen_exprs = Dict{AbstractExpr, AbstractExpr}()
+
+    function map_dag(expr::Terminal, operands::Tuple{})
+        get!(seen_exprs, expr, expr)
+    end
+end
