@@ -106,20 +106,20 @@ end
 #     end
 # end
 
-function inject_copy_constructor(expr, struct_name, struct_fields)
+function insert_reconstructor(expr, struct_name, struct_fields)
     member_variables = filter(line -> line isa Expr && line.head === :(::), struct_fields)
 
-    println("Member Variables:", member_variables)
+    !any(var -> var.args[1] === :ufl_operands, member_variables) && return
 
-    copy_constructor = esc(quote 
+    rector_new_args = map(var -> var.args[1] === :ufl_operands ? :operands : :(x.$(var.args[1])), member_variables)
+
+    recontructor = esc(:(
         function $struct_name(x::$struct_name, operands::VarTuple{UFL.AbstractExpr}) 
-            new(x.ufl_hash_code, operands, )
+            new($(rector_new_args...))
         end
-    end)
+    ))
 
-    println("Copy Constructor:", copy_constructor)
-
-    # dump(struct_fields)
+    push!(struct_fields, recontructor)
 end
 
 """
@@ -174,10 +174,10 @@ macro ufl_type(expr)
     tc = global typecode += 1
     push!(methods_to_add, esc(quote ufl_typecode(x::$struct_name) = $tc end))
     
-    # inject_copy_constructor(expr, struct_name, struct_fields)
-    inject_hash_behaviour(expr, tc)
-    
     prepend!(struct_fields, fields_to_add)
+
+    insert_reconstructor(expr, struct_name, struct_fields)
+    inject_hash_behaviour(expr, tc)
 
     return Expr(:block, expr, methods_to_add...)
 end

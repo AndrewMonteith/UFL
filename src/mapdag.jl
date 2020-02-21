@@ -1,4 +1,4 @@
-export map_expr_dag
+export map_expr_dag, remove_common_subexpressions
 
 function map_expr_dag(expr::AbstractExpr, func::F, ::Type{V}=Any) where {F<:Function, V<:Any}
     expr_vals = Dict{AbstractExpr, V}()
@@ -14,10 +14,14 @@ function map_expr_dag(expr::AbstractExpr, func::F, ::Type{V}=Any) where {F<:Func
     expr_vals[expr]
 end 
 
-function subexpression_replacement(root::AbstractExpr)
+function remove_common_subexpressions(root::AbstractExpr)
     seen_exprs = Dict{AbstractExpr, AbstractExpr}()
 
-    function map_dag(expr::Terminal, operands::Tuple{})
-        get!(seen_exprs, expr, expr)
-    end
+    remove_seen_expr(expr::Terminal, operands::Tuple{}) = expr 
+    function remove_seen_expr(expr::Operator, operands::VarTuple{AbstractExpr})
+        println("Got Operator:", expr)
+        typeof(expr)(expr, operands)
+    end 
+
+    map_expr_dag(root, remove_seen_expr, AbstractExpr)
 end

@@ -3,7 +3,7 @@ export Sum, Product, Divison, Power
 @ufl_type struct Sum <: Operator 
     ufl_fields = (operands,)
     ufl_tags=(num_ops=2,)
-    
+
     function Sum(a::AbstractExpr, b::AbstractExpr)
         shape = ufl_shape(a)
         if shape !== ufl_shape(b) 

@@ -46,7 +46,7 @@ function ufl_operands end
 function ufl_free_indices end 
 function ufl_index_dimensions end 
 
-function compute_hash(xs...)
+function compute_hash(xs...)::UInt32
     hashes = [] 
 
     for x ∈ xs 

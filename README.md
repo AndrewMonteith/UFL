@@ -2,10 +2,12 @@ A sample implemendation of UFL in Julia
 
 ### Current Goals
 
-Things to do:
-- See best way to do map_expr_dag 
-    - Subexpression replacement?
-    - Benchmark against python
+* Getting copy constructor working 
+* Get Common Subexpression Elimination Working
+* Symbolic Expression Differentiation
+    - Scalar Expression Differentiation (Product Rule, Chain Rule, Terminal Rules...)
+    - Look in apply_derivates.py and whatever else required
+    - Most differentiation rules are the same, things change when you push the derivative to the terminal. Think about how to change the ruleset for terminal differentiation `
 
 * Make hashing eager **Done - Was nontrivial...**
 * Made things into Traits **Done**
@@ -41,7 +43,7 @@ Things to do:
 1. Wanting immutability has meant:
     - Eager Hashing vs Lazy Hashing
     - Preserving immutability whilst has pros dramtically but adds alot of complexity (hashing and copying) which can be tackled by metaprogramming
-2. Metaprogramming in Julia vs Metaprogrammign in Julia
+2. Metaprogramming in Julia vs Metaprogrammign in Python
 3. Traits via having properties on structs
 4. Difference in tree traversal speed via various flavours
     - Roles in hashing and preserving immutability
