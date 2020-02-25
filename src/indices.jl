@@ -14,17 +14,8 @@ abstract type AbstractIndex end
         new(@sig(d))
     end
 end
-Base.show(io::IO, i::FixedIndex) = show(io, "FixedIndex($(i.d))")
-
-
-"""
-    Note to future self:
-        May need to maintain a cache of the indices 
-        Some places we refer only to the id 
-        We may need to recover the original struct if ever
-        more information was associated with it 
-"""
-
+Base.show(io::IO, i::FixedIndex) = print(io, i.d)
+Base.repr(i::FixedIndex) = "FixedIndex($(i.d))"
 
 # Index with a value that ranges between 1 and a dimension d.
 # d cannot be initally known hence the data will be provided later 
@@ -47,7 +38,7 @@ index_count = 0
         new(@sig(id))
     end
 end 
-Base.show(io::IO, i::Index) = show(io, "i_$(i.id)")
+Base.show(io::IO, i::Index) = print(io, "i_$(i.id)")
 Base.:(==)(i::Index, j::Index) = i.id === j.id
 Base.:(==)(i::Index, j::Int) = i.id === j
 Base.:(==)(i::Int, j::Index) = j == i
@@ -73,10 +64,17 @@ const MultiIndex = VarTuple{AbstractIndex}
 end
 
 Base.length(m::MultiIndexNode) = Base.length(m.indices)
-Base.iterate(m::MultiIndexNode) = Base.iterate(m.indices)
-Base.show(io::IO, m::MultiIndexNode) = print(io, "(", join(m.indices, ", "), ")")
+function Base.show(io::IO, m::MultiIndexNode)
+    if length(m.indices) === 1
+        print(io, m.indices[1])
+    else
+        print(io, join(m.indices, ", "))
+    end 
+end
 Base.repr(m::MultiIndexNode) = "MultiIndex$(repr(m.indices))"
 
+Base.iterate(m::MultiIndexNode) = isempty(m.indices) ? nothing : (m.indices[1], 1)
+Base.iterate(m::MultiIndexNode, state::Int) = state === length(m.indices) ? nothing : (m[state+1], state+1)
 convert(::Type{VarTuple{AbstractIndex}}, x) = MultiIndexNode(x)
 
 indices_n(n::Int) = tuple((Index() for _ ∈ 1:n)...)

@@ -9,7 +9,7 @@ num_cell_entities = Dict(
     "hexahedron" => (8, 12, 6, 1)
 )
 
-cell_name_to_dimensions = Dict(cellname => length(v)-1 for (cellname, v) in num_cell_entities)
+cell_name_to_dimensions = Dict(cellname => length(v)-1 for (cellname, v) ∈ num_cell_entities)
 
 @attach_hash_operators struct Cell
     name::String
@@ -31,6 +31,7 @@ cell_name_to_dimensions = Dict(cellname => length(v)-1 for (cellname, v) in num_
     end
 end
 hash_data(c::Cell) = (c.geometric_dimension, c.topological_dimension, c.name)
+geometric_dimension(c::Cell) = c.geometric_dimension
 
 function Base.show(io::IO, cell::Cell) 
     gdim, tdim = cell.geometric_dimension, cell.topological_dimension

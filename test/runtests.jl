@@ -12,4 +12,5 @@ using UFL, Test
 @testset "Indexing" begin include("indexing.jl") end 
 @testset "Core Functions" begin include("corefunctions.jl") end
 @testset "Map Dag" begin include("mapdag.jl") end
+@testset "Differentiation" begin include("differentiation.jl") end
 # @testset "Example Form" begin include("exampleform.jl") end

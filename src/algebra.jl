@@ -1,5 +1,10 @@
 export Sum, Product, Divison, Power
 
+function binary_show(io::IO, symbol::String, parent::Operator)
+    ops = [parstr(parent, op) for op ∈ parent.ufl_operands]
+    print(io, "$(ops[1]) $(symbol) $(ops[2])")
+end 
+
 @ufl_type struct Sum <: Operator 
     ufl_fields = (operands,)
     ufl_tags=(num_ops=2,)
@@ -41,8 +46,7 @@ export Sum, Product, Divison, Power
     end
 end
 
-Base.show(io::IO, s::Sum) = print(io, "($(s.ufl_operands[1])) + ($(s.ufl_operands[2]))")
-
+Base.show(io::IO, s::Sum) = binary_show(io, "+", s)
 Base.:+(e1, e2) = Sum(as_ufl(e1), as_ufl(e2))
 Base.:-(e1, e2) = Sum(as_ufl(e1), -as_ufl(e2))
 Base.:-(e::AbstractExpr) = -1 * e
@@ -114,8 +118,7 @@ end
         new(@sig((a, b)), fi, fid)
     end
 end
-
-Base.show(io::IO, p::Product) = "$(repr(p.ufl_operands[1])) * $(repr(p.ufl_operands[2]))"
+Base.show(io::IO, p::Product) = binary_show(io, "*", p)
 
 
 function merge_overlappin_indices(afi, afid, bfi, bfid)
@@ -214,6 +217,7 @@ is_true_scalar(a::AbstractExpr) = (isempty ∘ ufl_shape)(a) && (isempty ∘ ufl
         new(@sig((a, b)))
     end
 end
+Base.show(io::IO, div::Division) = binary_show(io, "/", div)
 
 function _div(e1::AbstractExpr, e2::AbstractExpr)
     sh = ufl_shape(e1)
@@ -236,17 +240,21 @@ Base.:/(e1, e2) = _div(as_ufl(e1), as_ufl(e2))
         !is_true_scalar(a) && error("Cannot take the power of a non-scalar expression")
         !is_true_scalar(b) && error("Cnanot raise an expression to a non-scalar power")
 
+        println("Creating a power of ", a, " ", b, " ", b isa ScalarValue)
+
         if a isa ScalarValue && b isa ScalarValue 
-            ScalarValue(a.val ^ b.val)
+            return ScalarValue(a.val ^ b.val)
         elseif b isa Zero 
-            ScalarValue(1)
+            return ScalarValue(1)
         elseif a isa Zero && b isa ScalarValue 
             b.val < 0 && error("Cannot raise 0 to a negative value")
-            Zero((), (), ())
-        elseif b isa ScalarValue && b.val === 1
-            a
+            return Zero((), (), ())
+        elseif b isa ScalarValue && b.val == 1
+            return a
         end
 
         new(@sig((a, b)))
     end
 end
+Base.:^(e1, e2) = Power(as_ufl(e1), as_ufl(e2))
+Base.show(io::IO, p::Power) = binary_show(io, "**", p)

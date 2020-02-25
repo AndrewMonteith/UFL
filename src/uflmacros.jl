@@ -70,7 +70,6 @@ end
 #  might become useful
 #
 # function inject_hash_behaviour(expr, typecode)
-#     # println("Loading expression: ", expr)
 #     h_id = 0
 #     new_hash_identifier() = Symbol(:hash, h_id += 1)
 #
@@ -189,7 +188,7 @@ macro attach_hash_operators(e)
     esc(quote
         $e
 
-        Base.hash(x::$struct_name) = hash(hash_data(x))
+        Base.hash(x::$struct_name) = (hash ∘ hash_data)(x)
         Base.:(==)(x::$struct_name, y::$struct_name) = hash_data(x) === hash_data(y) 
     end)
 end

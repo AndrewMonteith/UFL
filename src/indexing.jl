@@ -3,14 +3,16 @@ export Indexed, IndexSum, ComponentTensor
 @ufl_type struct Indexed <: Operator
     ufl_fields = (operands,free_indices, index_dimensions)
 
-    function Indexed(expr::AbstractExpr, multiindex::MultiIndex)
-        operands = (expr, as_ufl(multiindex))
+    Indexed(expr::AbstractExpr, multiindex::MultiIndex) = Indexed(expr, MultiIndexNode(multiindex))
+
+    function Indexed(expr::AbstractExpr, multiindex::MultiIndexNode)
+        operands = (expr, multiindex)
 
         shape = ufl_shape(expr)
 
-        if length(shape) !== length(multiindex)
-            error("Invalid number of indices $(length(multiindex)) for tensor expression of rank $(length(shape))")
-        elseif any((si < di.d for (si, di) ∈ zip(shape, multiindex) if di isa FixedIndex))
+        if length(shape) !== length(multiindex.indices)
+            error("Invalid number of indices $(length(multiindex.indices)) for tensor expression of rank $(length(shape))")
+        elseif any((si < di.d for (si, di) ∈ zip(shape, multiindex.indices) if di isa FixedIndex))
             error("Fixed index out of range")
         end
 
@@ -25,7 +27,7 @@ export Indexed, IndexSum, ComponentTensor
             collect(zip(efi, efid))
         end
 
-        for (pos, ind) ∈ enumerate(multiindex)
+        for (pos, ind) ∈ enumerate(multiindex.indices)
             if ind isa Index 
                 push!(fi_and_d, (ind, shape[pos]))
             end 
@@ -42,6 +44,8 @@ export Indexed, IndexSum, ComponentTensor
         new(@sig(operands), fi, fid)
     end
 end
+Base.show(io::IO, i::Indexed) = print(io, "$(parstr(i, i.ufl_operands[1]))[$(i.ufl_operands[2])]")
+
 
 @ufl_type struct IndexSum <: Operator 
     ufl_fields = (operands,free_indices, index_dimensions)
@@ -61,6 +65,7 @@ end
         new(@sig((summand, as_ufl(index))), new_fi, new_fid, pos)
     end
 end
+Base.show(io::IO, is::IndexSum) = print(io, "sum_$(is.ufl_operands[2]) $(parstr(is, is.ufl_operands[1]))")
 
 
 function create_slice_indices(indexer, shape, fi)

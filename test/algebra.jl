@@ -40,3 +40,4 @@ m = i / 2
 @test ufl_shape(m) === (3, 3)
 @test (isempty ∘ ufl_free_indices)(m)
 @test (isempty ∘ ufl_index_dimensions)(m)
+

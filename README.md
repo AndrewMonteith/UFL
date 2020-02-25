@@ -1,43 +1,10 @@
 A sample implemendation of UFL in Julia
 
-### Current Goals
-
-* Getting copy constructor working 
-* Get Common Subexpression Elimination Working
-* Symbolic Expression Differentiation
-    - Scalar Expression Differentiation (Product Rule, Chain Rule, Terminal Rules...)
-    - Look in apply_derivates.py and whatever else required
-    - Most differentiation rules are the same, things change when you push the derivative to the terminal. Think about how to change the ruleset for terminal differentiation `
-
-* Make hashing eager **Done - Was nontrivial...**
-* Made things into Traits **Done**
-* Make sure DAG'ify works **Talk about** 
-* Best way to turn DAG's into DAG's without tree expansion (map_expr_dag example, maybe not best for Julia) ** Talk about **
-  - Subexpression replacement
-  - Make sure passes are quicker than python
-* Make differentation work, the simple one
-  - w.r.t to Terminals
-* Begin thinking of what to write under template
-* Lower Priority: Index normal/canonical form to make (i + (j - k)) equal (i + (j - k))
-  - \sum_j a_ij*b_jk === \sum_l a_i*b_jl
-
+Achieved:
+    - Differentiation of basic expressions
+    - Pretty printing
 
 ### POINTS TO TALK ABOUT
-* Traits had a neglible performance impact and seem quite idiomatic. 
-  - Worth it for things like Shape, but not for Operands and stuff
-  - Define behaviour at end of system, far away from definition of struct. Is that maintainable? Should we define behaviour next to struct
-  - Reduce complexity of the macro
-
-* Making hashing easier was nontrival
-  - Add @sig paramters in new constructor
-  - Bit more metamagic...
-  - Makes value types nontrivial
-  - Are indices meant to be accounted for in hash
-    - in UFL at the moment they don't see to be
-
-* Don't fully understand what I was meant to do for differentiation
-
-* Creating copy constructors for common subexpression elimination is non-trivial...
 
 ### POINTS I COULD WRITE ABOUT
 1. Wanting immutability has meant:

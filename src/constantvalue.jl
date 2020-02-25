@@ -31,7 +31,7 @@ ufl_domains(::AbstractConstantValue) = ()
         Example new format code:
             z = Zero((), (2, 4), (3, 5))
     """
-    function Zero(shape::DimensionTuple, free_indices::VarTuple{Dimension}, index_dimensions::VarTuple{Dimension})
+    function Zero(shape::DimensionTuple, free_indices::VarTuple{Index}, index_dimensions::VarTuple{Dimension})
         new(@sig(shape), @sig(free_indices), @sig(index_dimensions))
     end
 end
@@ -68,7 +68,8 @@ Base.show(io::IO, ::Zero) = print(io, "0")
     end
 end
 
-Base.show(io::IO, id::Identity) = print(io, "Identity($(id.dim))")
+Base.repr(id::Identity) = "Identity($(id.dim))"
+Base.show(io::IO, id::Identity) = print(io, "I")
 Base.getindex(id::Identity, i::Int, j::Int) = ScalarValue(i == j ? 1 : 0)
 Base.getindex(id::Identity, i::Int, j::FixedIndex) = id[i, j.d]
 Base.getindex(id::Identity, j::FixedIndex, i::Int) = id[j.d, i]
@@ -86,6 +87,8 @@ Base.getindex(id::Identity, i::FixedIndex, j::FixedIndex) = id[i.d, j.d]
         new{typeof(x)}(@sig(x))
     end
 end
+
+Base.show(io::IO, k::ScalarValue) = print(io, k.val)
 
 
 # Yes this might not handle floating point problems

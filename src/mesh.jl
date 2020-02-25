@@ -29,6 +29,7 @@ mesh_id = 0
 end
 Base.repr(m::Mesh) = "Mesh$(m.id)"
 hash_data(m::Mesh) = repr(m)
+geometric_dimension(m::Mesh) = m.geometric_dimension
 
 
 #=

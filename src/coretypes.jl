@@ -46,6 +46,11 @@ function ufl_operands end
 function ufl_free_indices end 
 function ufl_index_dimensions end 
 
+is_cellwise_constant(::AbstractExpr) = false
+geometric_dimension(::AbstractExpr) = -1
+
+function parstr end 
+
 function compute_hash(xs...)::UInt32
     hashes = [] 
 
@@ -60,5 +65,5 @@ function compute_hash(xs...)::UInt32
     hash(tuple(hashes))
 end
 
-geometric_dimension(x::Any)::Dimension = x.geometric_dimension
+
 topological_dimension(x::Any)::Dimension = x.topological_dimension

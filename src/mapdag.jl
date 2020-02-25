@@ -19,7 +19,6 @@ function remove_common_subexpressions(root::AbstractExpr)
 
     remove_seen_expr(expr::Terminal, operands::Tuple{}) = expr 
     function remove_seen_expr(expr::Operator, operands::VarTuple{AbstractExpr})
-        println("Got Operator:", expr)
         typeof(expr)(expr, operands)
     end 
 

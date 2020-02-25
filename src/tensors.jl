@@ -1,4 +1,4 @@
-export ComponentTensor, as_tensor, as_matrix
+export ComponentTensor, as_tensor, as_matrix, as_scalars
 
 function remove_indices(fi::MultiIndex, fid::DimensionTuple, rfi::MultiIndex)
     isempty(rfi) && return fi, fid 
@@ -54,7 +54,7 @@ end
         new(sh, fi, fid, @sig((expr, as_ufl(indices))))
     end 
 end 
-Base.show(io::IO, ct::ComponentTensor) = print(io, "{ A | A_{$(ct.ufl_operands[2]) = $(ct.ufl_operands[1])}")
+Base.show(io::IO, ct::ComponentTensor) = print(io, "{ A | A_{$(ct.ufl_operands[2])} = $(ct.ufl_operands[1]) }")
 
 @ufl_type struct ListTensor <: Operator 
     ufl_fields = (operands,)
@@ -72,6 +72,26 @@ Base.show(io::IO, ct::ComponentTensor) = print(io, "{ A | A_{$(ct.ufl_operands[2
 
         new(@sig(exprs))
     end
+end
+function Base.show(io::IO, lt::ListTensor)
+    function substring(exprs::VarTuple{AbstractExpr}, indent::Int)
+        ind = " " * indent 
+
+        if any(e -> e isa ListTensor, exprs)
+            substrings::Vector{String} = []
+            
+            for e ∈ exprs 
+                str = e isa ListTensor ? substring(ufl_operands(e), indent+2) : e 
+                push!(substrings, str)
+            end 
+
+            s = join(substrings, ",\n"*ind)
+            "$ind[\n$ind$s\n$ind]"
+        else
+            "$ind[$(join(exprs,", "))]"
+        end
+    end
+
 end
 
 function Base.getindex(lt::ListTensor, key...)
@@ -122,4 +142,15 @@ function as_matrix(exprs::Union{VarTuple{AbstractExpr}, AbstractArray{AbstractEx
     length(indices) !== 2 && error("Expecting exactly two indices")
 
     as_tensor(exprs, indices)
+end
+
+function as_scalars(expressions...)::Tuple{VarTuple{AbstractExpr}, MultiIndex}
+    sh = ufl_shape(expressions[1])
+    if isempty(sh)
+        (expressions, ())
+    else
+        ii = (indices_n ∘ length)(sh)
+        expressions = [expr[ii...] for expr ∈ expressions]
+        (tuple(expressions...), ii)
+    end
 end

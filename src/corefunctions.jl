@@ -27,6 +27,7 @@ shape_type(::Type{Indexed}) = NoShape()
 shape_type(::Type{MultiIndexNode}) = NoShape()
 shape_type(::Type{<:Terminal}) = HasShape()
 shape_type(::Type{ComponentTensor}) = HasShape()
+shape_type(::Type{Grad}) = HasShape()
 shape_type(::Type{IndexSum}) = InheritsShape() 
 shape_type(::Type{Sum}) = InheritsShape() 
 
@@ -49,6 +50,7 @@ free_indices_type(::Type{ListTensor}) = NoFreeIndices()
 free_indices_type(::Type{Sum}) = InheritsFreeIndices()
 free_indices_type(::Type{Division}) = InheritsFreeIndices()
 free_indices_type(::Type{Power}) = InheritsFreeIndices()
+free_indices_type(::Type{Grad}) = InheritsFreeIndices()
 
 get_free_indices(::HasFreeIndices, x::AbstractExpr)::VarTuple{AbstractIndex} = x.ufl_free_indices 
 get_free_indices(::NoFreeIndices, x::AbstractExpr)::VarTuple{AbstractIndex} = () 
@@ -65,3 +67,18 @@ ufl_index_dimensions(x::T) where T = get_index_dimensions(free_indices_type(T), 
 
 Base.hash(x::AbstractExpr) = x.ufl_hash_code
 Base.:(==)(x1::AbstractExpr, x2::AbstractExpr) = hash(x1) === hash(x2)
+
+function Base.length(x::AbstractExpr)
+    sh = ufl_shape(x)
+    length(sh) > 1 && error("cannot take length of non-vector expression")
+    sh[1]
+end
+
+function Base.iterate(x::AbstractExpr, state::Tuple{Int, Int})
+    state[1] > state[2] && (nothing, nothing)
+
+    i = state[1]+1
+
+    (x[i], (i, state[2]))
+end
+Base.iterate(x::AbstractExpr) = (x[1], (1, length(x)))
