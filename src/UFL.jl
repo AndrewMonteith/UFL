@@ -28,5 +28,5 @@ include("precedence.jl")
 include("apply_differentiation.jl")
 include("mapdag.jl")
 
-include("benchmark_dag.jl")
+include("benchmark_differentiation.jl")
 end # module

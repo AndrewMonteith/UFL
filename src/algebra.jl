@@ -240,8 +240,6 @@ Base.:/(e1, e2) = _div(as_ufl(e1), as_ufl(e2))
         !is_true_scalar(a) && error("Cannot take the power of a non-scalar expression")
         !is_true_scalar(b) && error("Cnanot raise an expression to a non-scalar power")
 
-        println("Creating a power of ", a, " ", b, " ", b isa ScalarValue)
-
         if a isa ScalarValue && b isa ScalarValue 
             return ScalarValue(a.val ^ b.val)
         elseif b isa Zero 
@@ -256,5 +254,6 @@ Base.:/(e1, e2) = _div(as_ufl(e1), as_ufl(e2))
         new(@sig((a, b)))
     end
 end
+
 Base.:^(e1, e2) = Power(as_ufl(e1), as_ufl(e2))
 Base.show(io::IO, p::Power) = binary_show(io, "**", p)
