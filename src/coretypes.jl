@@ -1,4 +1,4 @@
-export Terminal, Operator, Dimension, geometric_dimension, topological_dimension, compute_hash, ufl_shape, ufl_operands, ufl_free_indices, ufl_index_dimensions
+export Terminal, Operator, Dimension, geometric_dimension, topological_dimension, compute_hash, ufl_shape, ufl_operands, ufl_free_indices, ufl_index_dimensions, hash_behaviour
 
 """
     Root type of any node in the UFL tree.
@@ -50,6 +50,9 @@ is_cellwise_constant(::AbstractExpr) = false
 geometric_dimension(::AbstractExpr) = -1
 
 function parstr end 
+
+hash_behaviour(x::Any) = x 
+hash_behaviour(x::AbstractExpr) = x.ufl_hash_code
 
 function compute_hash(xs...)::UInt32
     hashes = [] 

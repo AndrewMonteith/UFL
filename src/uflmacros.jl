@@ -40,16 +40,39 @@ function inject_hash_behaviour(expr, typecode)
 
         new_call = inner_ctor.args[2].args[end].args
         
-        sig_param_is = findall(param -> param isa Expr && param.head === :macrocall && param.args[1] === Symbol("@sig"), new_call)
+        sig_param_is = findall(param -> param isa Expr && param.head === :macrocall && (param.args[1] === Symbol("@sig") || param.args[1] === Symbol("@sig_t")), new_call)
         sig_exprs = []
         for sig_param_i ∈ sig_param_is
             # sig_param_i will be the index of parameter wrapped in a @sig 
             # we unwrap it and mark that expression needs to be included in the hash
+            param = new_call[sig_param_i]
+
+            # sig(Tuple) => hash((t1.ufl_hash_code, t2.ufl_hash_code, ..., tn.ufl_hash_code))
+            # sig(expr) => hash(expr) 
+
+            is_tuple = param.args[3] isa Expr && param.args[3].head === :tuple 
             new_call[sig_param_i] = new_call[sig_param_i].args[3]
-            push!(sig_exprs, new_call[sig_param_i])
+
+
+            if is_tuple 
+                with_hashcode_accessors = map(expr -> :(hash_behaviour($expr)), param.args[3].args)
+                push!(sig_exprs, Expr(:tuple, with_hashcode_accessors...))
+            else 
+                push!(sig_exprs, new_call[sig_param_i])
+            end 
+
+
+            # if param.args[1] === Symbol("@sig_t")
+            #     dump(param)
+            # else
+            #     new_call[sig_param_i] = new_call[sig_param_i].args[3]
+            #     push!(sig_exprs, new_call[sig_param_i])
+            # end
+
         end
 
-        hash_expr = :( $(esc(:compute_hash))($typecode, $(sig_exprs...)) )
+
+        hash_expr = :( $(esc(:hash))(($typecode, $(sig_exprs...))) )
 
         insert!(new_call, 2, hash_expr)
     end
