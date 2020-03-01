@@ -1,14 +1,8 @@
 A sample implemendation of UFL in Julia
 
-Achieved:
-    - Differentiation of basic expressions
-        - Benchmark comparisons in benchmark_differentiation. 
-            - Impacted anyway because of class size or reduced implementation of the Julia one?
-            - Running time would probably be affected by number of rules in the multidispatch but even then it's still alot quicker
-                and multidispatch as a first class citizen as compared to second class would prob mean it's quicker
-    - Pretty printing
 
 ### POINTS TO TALK ABOUT
+- .T syntax for transposing causes performance penality. See src/tensoralgebra.jl
 
 ### POINTS I COULD WRITE ABOUT
 1. Wanting immutability has meant:
