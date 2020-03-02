@@ -18,6 +18,7 @@ include("tensors.jl")
 include("indexing.jl")
 
 include("algebra.jl")
+include("tensoralgebra.jl")
 
 include("mesh.jl")
 include("functions.jl")

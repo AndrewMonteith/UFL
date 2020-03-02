@@ -30,7 +30,7 @@ function run_benchmarks()
     println("building with $n nodes")
 
     suite["building-tree"] = @benchmarkable build_random_tree($n) # Julia:~433ms Python:271ms
-    # suite["differentiation"] = @benchmarkable benchmark_1(x) setup=(x=build_random_tree($n)) # Julia: ~6.2ms Python: ~220ms
+    suite["differentiation"] = @benchmarkable benchmark_1(x) setup=(x=build_random_tree($n)) # Julia: ~6.2ms Python: ~220ms
 
     tune!(suite)
 
