@@ -25,7 +25,6 @@ shape_type(::Type{<:Operator}) = NoShape()
 shape_type(::Type{ScalarValue{T}}) where T = NoShape()
 shape_type(::Type{Indexed}) = NoShape()
 shape_type(::Type{MultiIndexNode}) = NoShape()
-shape_type(::Type{Trace}) = NoShape()
 shape_type(::Type{<:Terminal}) = HasShape()
 shape_type(::Type{ComponentTensor}) = HasShape()
 shape_type(::Type{Grad}) = HasShape()
@@ -45,10 +44,11 @@ struct HasFreeIndices end
 struct NoFreeIndices end 
 struct InheritsFreeIndices end 
 
-free_indices_type(::Type{<:Operator}) = HasFreeIndices()
-free_indices_type(::Type{Zero}) = HasFreeIndices()
 free_indices_type(::Type{<:Terminal}) = NoFreeIndices() 
 free_indices_type(::Type{ListTensor}) = NoFreeIndices()
+free_indices_type(::Type{<:MathFunction}) = NoFreeIndices()
+free_indices_type(::Type{<:Operator}) = HasFreeIndices()
+free_indices_type(::Type{Zero}) = HasFreeIndices()
 free_indices_type(::Type{Sum}) = InheritsFreeIndices()
 free_indices_type(::Type{Division}) = InheritsFreeIndices()
 free_indices_type(::Type{Power}) = InheritsFreeIndices()

@@ -227,7 +227,7 @@ function _div(e1::AbstractExpr, e2::AbstractExpr)
         d = Division(e1[ii...], e2)
         as_tensor(d, ii)
     else
-        Divison(e1, e2)
+        Division(e1, e2)
     end
 end
 Base.:/(e1, e2) = _div(as_ufl(e1), as_ufl(e2))

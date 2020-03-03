@@ -1,6 +1,6 @@
 export TrialFunction, TestFunction, Constant
 
-abstract type AbstractFormArgument end 
+abstract type AbstractFormArgument <: Terminal end 
 
 ufl_function_space(arg::AbstractFormArgument) = arg.ufl_function_space
 ufl_domain(arg::AbstractFormArgument) = ufl_element(arg.ufl_function_space)
@@ -30,9 +30,11 @@ is_cellwise_constant(::Argument) = false
 function Base.show(io::IO, arg::Argument)
     s = "v_"
     
-    s *= arg.number < 10 ? arg.number : "{$(arg.number)}"    
-    s *= arg.part !== nothing ? "^$(arg.part)" : "^{$(arg.part)}"
-    
+    s *= ((arg.number < 10) ? string(arg.number) : "{$(arg.number)}")
+    if arg.part !== nothing 
+        s *= (arg.part >= 10 ? "^$(arg.part)" : "^{$(arg.part)}")
+    end
+        
     show(io, s) 
 end
 
@@ -74,9 +76,9 @@ constant_id = 0
 
         shape = fem_value_shape(function_space.element) 
 
-        new(@sig(c), shape, value, @sig(function_space))
+        new(shape, @sig(c), value, @sig(function_space))
     end
 end
 
-Base.repr(c::Constant) = "Constant($((repr ∘ ufl_element)(c))))"
-Base.show(io::IO, c::Constant) = print(io, repr(c))
+Base.repr(c::Constant) = "Constant($((repr ∘ ufl_element)(c.ufl_function_space)), $(c.id)))"
+Base.show(io::IO, c::Constant) = print(io, "w_$( c.id >= 10 ? "{$(string(c.id))}" : string(c.id) )")

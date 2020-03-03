@@ -1,3 +1,5 @@
+export tr, det
+
 abstract type CompoundTensorOperator <: Operator end 
 
 @ufl_type struct Transposed <: CompoundTensorOperator
@@ -17,7 +19,7 @@ abstract type CompoundTensorOperator <: Operator end
     end
 end 
 
-Base.show(io::IO, t::Transposed) = "$(parstr(t, (first ∘ ufl_operands)(t)))^T"
+Base.show(io::IO, t::Transposed) = print(io, "$(parstr(t, (first ∘ ufl_operands)(t)))^T")
 
 @ufl_type struct Trace <: CompoundTensorOperator 
     ufl_fields = (operands,)
@@ -31,7 +33,33 @@ Base.show(io::IO, t::Transposed) = "$(parstr(t, (first ∘ ufl_operands)(t)))^T"
     Trace(z::Zero) = Zero((), ufl_free_indices(z), ufl_index_dimensions(z))
 end 
 
-Base.show(io::IO, t::Trace) = "tr($((first ∘ ufl_operands)(t)))"
+Base.show(io::IO, t::Trace) = print(io, "tr($((first ∘ ufl_operands)(t)))")
+tr(x::AbstractExpr) = Trace(x)
+
+
+@ufl_type struct Determinant <: CompoundTensorOperator 
+    ufl_fields = (operands,shape)
+    ufl_tags=(num_ops=1,)
+
+    Determinant(z::Zero) = Zero((), ufl_free_indices(z), ufl_index_dimensions(z))
+
+    function Determinant(A::AbstractExpr)
+        sh = ufl_shape(A)
+        r = length(sh)
+        Afi = ufl_free_indices(A)
+
+        (r !== 0 && r !== 2) && error("Determinant of tensor with rank != 2 is undefined")
+        (r === 2 & sh[1] !== sh[2]) && error("Cannot take determinant of rectangular rank 2 tensor")
+        (!isempty(Afi)) && error("Not expecting free indices in determinant")
+
+        r === 0 && return A 
+
+        new(@sig((A,)), sh)
+    end
+end
+
+Base.show(io::IO, d::Determinant) = print(io, "det($((first ∘ ufl_operands)(d)))")
+det(x::AbstractExpr) = Determinant(x)
 
 
 # @inline _getproperty(x::AbstractExpr, ::Val{s}) where s = getfield(x, s)

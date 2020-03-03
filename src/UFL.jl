@@ -19,6 +19,7 @@ include("indexing.jl")
 
 include("algebra.jl")
 include("tensoralgebra.jl")
+include("mathfunctions.jl")
 
 include("mesh.jl")
 include("functions.jl")
