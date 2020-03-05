@@ -14,17 +14,14 @@ mesh_id = 0
 # - @attach_ddoperators_from_hash_data
 @attach_hash_operators struct Mesh 
     id::Int
+    cell::Cell
     geometric_dimension::Dimension 
     topological_dimension::Dimension 
 
-    function Mesh(c::Cell)
-        Mesh(geometric_dimension(c), topological_dimension(c))
-    end
-
-    function Mesh(geometric_dimension::Dimension, topological_dimension::Dimension)
+    function Mesh(cell::Cell)
         new_id = mesh_id
         global mesh_id = mesh_id + 1 
-        new(new_id, geometric_dimension, topological_dimension)
+        new(new_id, cell, geometric_dimension(cell), topological_dimension(cell))
     end
 end
 Base.repr(m::Mesh) = "Mesh$(m.id)"

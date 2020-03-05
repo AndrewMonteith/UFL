@@ -2,9 +2,7 @@ using Test, UFL
 
 mesh = UnitTriangleMesh()
 
-elem = VectorElement("CG"; cell=cell, degree=1)
-
-V = VectorFunctionSpace(mesh, elem)
+V = VectorFunctionSpace(mesh, "CG", 1)
 
 v = TestFunction(V) # <- Shape (2, )
 
@@ -37,6 +35,8 @@ lmbda = Constant(10.0)
 # # Stored strain energy density (compressible neo-Hookean model)
 
 psi = (mu/2)*(Ic - 3) - mu*ln(J) + (lmbda/2)*(ln(J))^2
+
+z = dot(B, u)*dx
 
 # # Total potential energy
 # Pi = psi*dx # - dot(T, u)*ds(4) - dot(B, u)*dx

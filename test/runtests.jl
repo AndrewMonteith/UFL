@@ -13,4 +13,5 @@ using UFL, Test
 @testset "Map Dag" begin include("mapdag.jl") end
 @testset "Differentiation" begin include("differentiation.jl") end
 @testset "Tensor Algebra" begin include("tensoralgebra.jl") end
+@testset "Integration" begin include("integration.jl") end
 @testset "Example Form" begin include("exampleform.jl") end

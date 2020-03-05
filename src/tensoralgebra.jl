@@ -1,4 +1,4 @@
-export tr, det
+export tr, det, dot
 
 abstract type CompoundTensorOperator <: Operator end 
 
@@ -38,7 +38,7 @@ tr(x::AbstractExpr) = Trace(x)
 
 
 @ufl_type struct Determinant <: CompoundTensorOperator 
-    ufl_fields = (operands,shape)
+    ufl_fields = (operands,)
     ufl_tags=(num_ops=1,)
 
     Determinant(z::Zero) = Zero((), ufl_free_indices(z), ufl_index_dimensions(z))
@@ -54,12 +54,46 @@ tr(x::AbstractExpr) = Trace(x)
 
         r === 0 && return A 
 
-        new(@sig((A,)), sh)
+        new(@sig((A,)))
     end
 end
 
 Base.show(io::IO, d::Determinant) = print(io, "det($((first ∘ ufl_operands)(d)))")
 det(x::AbstractExpr) = Determinant(x)
+
+@ufl_type struct Dot <: CompoundTensorOperator 
+    ufl_fields = (operands, shape, free_indices, index_dimensions)
+
+    function Dot(a::AbstractExpr, b::AbstractExpr)
+        ash, bsh = ufl_shape(a), ufl_shape(b)
+        ar, br = length(ash), length(bsh)
+        is_scalar = (ar === 0 && br === 0)
+
+        !((ar >= 1 && br >= 1) || is_scalar) && error("Dot product requires non-scalar arguments")
+        !(is_scalar || ash[end] === bsh[1]) && error("Dimension mismatch in dot product")
+        
+        shape = tuple(ash[1:end-1]..., bsh[2:end]...)
+        fi, fid = merge_nonoverlapping_indices(a, b) 
+
+        if (a isa Zero) || (b isa Zero) 
+            return Zero(shape, fi, fid)
+        elseif is_scalar
+            return a * b 
+        end
+
+        new(@sig((a, b)), shape, fi, fid)
+    end
+end
+function Base.show(io::IO, d::Dot)
+    a, b = d.ufl_operands 
+
+    print(io, "$(parstr(d, a)) . $(parstr(d, b))")
+end 
+
+function dot(a::AbstractExpr, b::AbstractExpr)
+    ((isempty ∘ ufl_shape)(a) && (isempty ∘ ufl_shape)(b)) && return a*b 
+    Dot(a, b)
+end
 
 
 # @inline _getproperty(x::AbstractExpr, ::Val{s}) where s = getfield(x, s)

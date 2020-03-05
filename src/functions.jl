@@ -27,15 +27,15 @@ Add required data as needed.
 end
 ufl_element(fs::FunctionSpace) = fs.element
 hash_data(fs::FunctionSpace) = ("FunctionSpace", hash_data(fs.mesh), hash_data(fs.element))
+Base.show(io::IO, fs::FunctionSpace) = print(io, "FunctionSpace($mesh, $element)")
 
-function VectorFunctionSpace(mesh::Mesh, element::AbstractFiniteElement; @opt(dim::Dimension))
+function VectorFunctionSpace(mesh::Mesh, family::String, @opt(degree::Dimension), @opt(dim::Dimension))
     if dim === nothing 
         dim = geometric_dimension(mesh)
     end
 
-    element = VectorElement(element; dim=dim)
+    sub_element = FiniteElement(family; cell=mesh.cell, degree=degree)
+    element = VectorElement(sub_element; dim=dim)
 
     FunctionSpace(element; mesh=mesh)
 end
-
-

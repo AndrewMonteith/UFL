@@ -3,6 +3,9 @@ A sample implemendation of UFL in Julia
 
 ### POINTS TO TALK ABOUT
 - .T syntax for transposing causes performance penality. See src/tensoralgebra.jl
+- Need I worry about storing the integrals sorted in a form? (I think there was some other question I had in week 3 about sorting)
+    - Will I ever deal with forms large enough that it matters
+- Interesting point as the size of the type tree goes, writing efficient type descriptions in src/corefunctions.jl becomes a little more difficult
 
 ### POINTS I COULD WRITE ABOUT
 1. Wanting immutability has meant:

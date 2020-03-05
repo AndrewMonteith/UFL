@@ -5,7 +5,7 @@ abstract type AbstractFiniteElement end
 struct FemBase 
     family::String 
     cell::Union{Cell, Nothing}
-    degree::Union{Dimension, DimensionTuple}
+    degree::Union{Dimension, DimensionTuple, Nothing}
     value_shape::DimensionTuple 
 end
 

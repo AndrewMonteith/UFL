@@ -25,6 +25,7 @@ include("mesh.jl")
 include("functions.jl")
 include("arguments.jl")
 
+include("integration.jl")
 include("corefunctions.jl")
 include("precedence.jl")
 include("apply_differentiation.jl")

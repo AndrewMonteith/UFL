@@ -51,46 +51,6 @@ Base.:+(e1, e2) = Sum(as_ufl(e1), as_ufl(e2))
 Base.:-(e1, e2) = Sum(as_ufl(e1), -as_ufl(e2))
 Base.:-(e::AbstractExpr) = -1 * e
 
-function merge_unqiue_indices(afi, afid, bfi, bfid)
-    len_a, len_b = length(afi), length(bfi)
-
-    len_a === 0 && return bfi, bfid 
-    len_b === 0 && return afi, afid 
-
-    ak, bk = 1, 1
-    fi, fid = [], []
-
-    while !(ak === len_a || bk === len_b)
-        if afi[ak] < bfi[bk]
-            push!(fi, afi[ak])
-            push!(fid, afid[ak])
-            ak += 1
-        elseif afi[ak] > bfi[bk]
-            push!(fi, bfi[bk])
-            push!(fid, bfid[bk])
-            bk += 1
-        else
-            push!(fi, afi[ak])
-            push!(fid, afid[ak])
-            ak += 1
-            bk += 1
-        end
-    end
-
-    if ak === len_a 
-        if bk !== len_b 
-            append!(fi, bfi[bk:end])
-            append!(fid, bfid[bk:end])
-        end
-    elseif bk === len_b 
-        if ak !== len_a 
-            append!(fi, afi[ak:end])
-            append!(fid, afid[ak:end])
-        end
-    end
-    
-    tuple(fi...), tuple(fid...) 
-end
 
 @ufl_type struct Product <: Operator 
     ufl_fields = (operands, free_indices, index_dimensions)
@@ -121,35 +81,6 @@ end
 Base.show(io::IO, p::Product) = binary_show(io, "*", p)
 
 
-function merge_overlappin_indices(afi, afid, bfi, bfid)
-    len_a, len_b = length(afi), length(bfi)
-
-    repeated_indices, repeated_index_dimensions = [], []
-    
-    for ii ∈ 1:len_a 
-        for j ∈ 1:len_b 
-            if afi[ii] == bfi[j]
-                push!(repeated_indices, afi[ii])
-                push!(repeated_index_dimensions, afid[ii])
-                break
-            end
-        end
-    end
-
-    free_indices, index_dimensions = [], []
-
-    for (i, d) ∈ zip((afi..., bfi...) , (afid..., bfid...))
-        if i ∉ repeated_indices
-            push!(free_indices, i)
-            push!(index_dimensions, d)
-        end
-    end
-
-    length(Set(free_indices)) === length(free_indices) || error("Free indices must not contain repeats")
-    length(free_indices) + 2(length(repeated_indices)) === len_a+len_b || error("Expected only twice repeated indices")
-
-    tuple(free_indices...), tuple(index_dimensions...), tuple(repeated_indices...), tuple(repeated_index_dimensions...)
-end
 
 function mult(a::AbstractExpr, b::AbstractExpr)
     fi, fid, ri, rid = merge_overlappin_indices(ufl_free_indices(a), ufl_index_dimensions(a),

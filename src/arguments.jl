@@ -1,11 +1,25 @@
-export TrialFunction, TestFunction, Constant
+export TrialFunction, TestFunction, Constant, UflFunction
 
 abstract type AbstractFormArgument <: Terminal end 
 
 ufl_function_space(arg::AbstractFormArgument) = arg.ufl_function_space
-ufl_domain(arg::AbstractFormArgument) = ufl_element(arg.ufl_function_space)
-ufl_domains(arg::AbstractFormArgument) = ufl_domains(arg.ufl_function_space)
+ufl_domain(x::AbstractExpr) = nothing
+ufl_domain(arg::AbstractFormArgument) = arg.ufl_function_space.mesh
 geometric_dimension(arg::AbstractFormArgument) = ufl_shape(arg)[1]
+
+argument_id = 0
+@ufl_type struct UflFunction <: AbstractFormArgument 
+    ufl_fields = (shape,)
+    id::Int
+    ufl_function_space::FunctionSpace
+
+    function UflFunction(fs::FunctionSpace)
+        c = argument_id 
+        global argument_id = argument_id + 1
+        new(fem_value_shape(fs.element), c, fs)
+    end
+end
+Base.show(io::IO, f::UflFunction) = print(io, "w_$(f.id >= 10 ? "{$(f.id)}" : string(f.id))")
 
 @ufl_type struct Argument <: AbstractFormArgument 
     ufl_fields = (shape,)
@@ -47,8 +61,6 @@ function TrialFunction(function_space::FunctionSpace, part = nothing)
     Argument(function_space, 1, part)
 end
 
-constant_id = 0
-
 @ufl_type struct Constant <: AbstractFormArgument 
     ufl_fields = (shape,)
 
@@ -57,8 +69,8 @@ constant_id = 0
     ufl_function_space::FunctionSpace
 
     function Constant(value::T; @opt(cell::Cell)) where T <: Union{Real, NTuple{N, Real} where N}
-        c = constant_id 
-        global constant_id = constant_id + 1
+        c = argument_id 
+        global argument_id = argument_id + 1
 
         shape = isa(value, Tuple) ? length(value) : size(value)
         rank = length(shape)
