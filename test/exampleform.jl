@@ -33,12 +33,9 @@ mu = Constant(6.3)
 lmbda = Constant(10.0)
 
 # # Stored strain energy density (compressible neo-Hookean model)
-
 psi = (mu/2)*(Ic - 3) - mu*ln(J) + (lmbda/2)*(ln(J))^2
 
-z = dot(B, u)*dx
-
 # # Total potential energy
-# Pi = psi*dx # - dot(T, u)*ds(4) - dot(B, u)*dx
+Pi = psi*dx - dot(T, u)*ds(4) - dot(B, u)*dx
 
 # F = derivative(Pi, u, v)

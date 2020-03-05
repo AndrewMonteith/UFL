@@ -1,20 +1,22 @@
-struct Ones 
-    ones::Vector{Int}
-
-    function Ones(n::Int)
-        new(fill(1, n))
-    end
-end 
-
-Base.iterate(one::Ones) = (1, 1)
-function Base.iterate(one::Ones, state::Int)
-    if state === length(one.ones)
-        nothing 
-    else
-        (1, state += 1) 
-    end
+struct X 
+    a::Int
+    b::Int 
 end
 
-x = [Ones(10)...]
+function reconstruct(x::T; kwargs...) where T
+    fields = fieldnames(T)
+    new_members = []
+
+    for field ∈ fields
+        push!(new_members,  get(kwargs, field, getfield(x, field)))
+    end
+
+    T(new_members...)
+end 
+
+x = X(1, 3)
 
 println(x)
+
+y = reconstruct(x; a=4, b=5)
+println(y)

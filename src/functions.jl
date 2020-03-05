@@ -1,6 +1,4 @@
-# geometric_dimension would be exported by dimensions.jl if we had one
-export Argument, TrialFunction, TestFunction, FunctionSpace, geometric_dimension, VectorFunctionSpace
-
+export FunctionSpace, VectorFunctionSpace
 
 #=
 Add required data as needed.

@@ -41,7 +41,7 @@ function Base.show(io::IO, cell::Cell)
         s *= "$(gdim)D"
     end 
 
-    show(s)
+    print(io, s)
 end
 
 function Base.repr(cell::Cell) 

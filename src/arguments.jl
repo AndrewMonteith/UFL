@@ -3,6 +3,7 @@ export TrialFunction, TestFunction, Constant, UflFunction
 abstract type AbstractFormArgument <: Terminal end 
 
 ufl_function_space(arg::AbstractFormArgument) = arg.ufl_function_space
+ufl_element(arg::AbstractFormArgument) = arg.ufl_function_space.element
 ufl_domain(x::AbstractExpr) = nothing
 ufl_domain(arg::AbstractFormArgument) = arg.ufl_function_space.mesh
 geometric_dimension(arg::AbstractFormArgument) = ufl_shape(arg)[1]

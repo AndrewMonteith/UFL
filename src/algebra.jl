@@ -47,8 +47,12 @@ end
 end
 
 Base.show(io::IO, s::Sum) = binary_show(io, "+", s)
-Base.:+(e1, e2) = Sum(as_ufl(e1), as_ufl(e2))
-Base.:-(e1, e2) = Sum(as_ufl(e1), -as_ufl(e2))
+Base.:+(e1::AbstractExpr, e2::AbstractExpr) = Sum(e1, e2)
+Base.:+(e1::AbstractExpr, e2) = Sum(as_ufl(e1), as_ufl(e2))
+Base.:+(e1, e2::AbstractExpr) = Sum(as_ufl(e1), as_ufl(e2))
+Base.:-(e1::AbstractExpr, e2::AbstractExpr) = Sum(e1, -e2)
+Base.:-(e1::AbstractExpr, e2) = Sum(as_ufl(e1), -as_ufl(e2))
+Base.:-(e1, e2::AbstractExpr) = Sum(as_ufl(e1), -as_ufl(e2))
 Base.:-(e::AbstractExpr) = -1 * e
 
 
