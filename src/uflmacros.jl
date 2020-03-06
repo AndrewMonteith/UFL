@@ -43,8 +43,6 @@ function inject_hash_behaviour(expr, typecode)
         # Make sure inner ctor ends in a new call
         (new_call[1] === :new || (new_call[1] isa Expr && new_call[1].args[1] === :new)) || continue
 
-        # new_call[1] !== :new && continue
-        
         sig_param_is = findall(param -> param isa Expr && param.head === :macrocall && (param.args[1] === Symbol("@sig") || param.args[1] === Symbol("@sig_t")), new_call)
         sig_exprs = []
         for sig_param_i ∈ sig_param_is

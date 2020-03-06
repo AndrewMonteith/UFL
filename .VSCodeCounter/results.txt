@@ -1,0 +1,83 @@
+Date : 2020-03-06 10:43:08
+Directory : c:\Users\Hp\Documents\Projects\UFL_julia
+Total : 55 files,  2477 codes, 260 comments, 900 blanks, all 3637 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Julia    |         53 |      2,366 |        244 |        836 |      3,446 |
+| Markdown |          1 |         95 |          0 |         54 |        149 |
+| Python   |          1 |         16 |         16 |         10 |         42 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                        | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                           |         55 |      2,477 |        260 |        900 |      3,637 |
+| src                                                                         |         35 |      2,046 |        216 |        691 |      2,953 |
+| test                                                                        |         17 |        304 |         28 |        139 |        471 |
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                    | language | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\Hp\Documents\Projects\UFL_julia\README.md                          | Markdown |         95 |          0 |         54 |        149 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\UFL.jl                         | Julia    |         29 |          0 |         10 |         39 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\_traversal_styles.jl           | Julia    |        130 |         17 |         41 |        188 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\algebra.jl                     | Julia    |        148 |          2 |         44 |        194 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\algebra_lowering.jl            | Julia    |         34 |          0 |         10 |         44 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\apply_differentiation.jl       | Julia    |        140 |          3 |         50 |        193 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\arguments.jl                   | Julia    |         72 |          0 |         25 |         97 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\benchmark_accessor_patterns.jl | Julia    |         34 |          0 |          9 |         43 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\benchmark_dag.jl               | Julia    |         38 |          2 |         14 |         54 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\benchmark_differentiation.jl   | Julia    |         27 |          0 |         11 |         38 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\benchmark_iteration_styles.jl  | Julia    |         57 |         55 |         33 |        145 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\cell.jl                        | Julia    |         46 |          0 |         14 |         60 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\checks.jl                      | Julia    |         15 |          0 |          4 |         19 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\compound_expressions.jl        | Julia    |         14 |          0 |          6 |         20 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\constants.jl                   | Julia    |         16 |          1 |          6 |         23 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\constantvalue.jl               | Julia    |         78 |          2 |         24 |        104 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\corefunctions.jl               | Julia    |         62 |         12 |         21 |         95 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\coretypes.jl                   | Julia    |         52 |          1 |         19 |         72 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\differentiation.jl             | Julia    |         71 |          4 |         22 |         97 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\exprcontainers.jl              | Julia    |         12 |          0 |          3 |         15 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\fem.jl                         | Julia    |         85 |          1 |         30 |        116 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\functions.jl                   | Julia    |         29 |          3 |          7 |         39 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\geometry.jl                    | Julia    |         26 |          0 |         10 |         36 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\hashing.jl                     | Julia    |          3 |         25 |          9 |         37 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\indexing.jl                    | Julia    |        115 |          4 |         38 |        157 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\indices.jl                     | Julia    |        129 |          7 |         31 |        167 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\integration.jl                 | Julia    |        114 |          2 |         36 |        152 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\mapdag.jl                      | Julia    |         33 |          0 |         15 |         48 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\mathfunctions.jl               | Julia    |         13 |          0 |          6 |         19 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\mesh.jl                        | Julia    |         24 |          7 |          6 |         37 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\precedence.jl                  | Julia    |         18 |          0 |          4 |         22 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\tensoralgebra.jl               | Julia    |         78 |          6 |         28 |        112 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\tensors.jl                     | Julia    |        117 |          1 |         38 |        156 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\traversal.jl                   | Julia    |         56 |          2 |         18 |         76 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\uflmacros.jl                   | Julia    |        113 |         57 |         43 |        213 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\src\util.jl                        | Julia    |         18 |          2 |          6 |         26 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test.jl                            | Julia    |         16 |          0 |          6 |         22 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test.py                            | Python   |         16 |         16 |         10 |         42 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\algebra.jl                    | Julia    |         30 |          0 |         12 |         42 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\algebra_lowering.jl           | Julia    |         13 |          0 |          4 |         17 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\constantvalue.jl              | Julia    |         12 |         12 |          8 |         32 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\differentiation.jl            | Julia    |         13 |          2 |          9 |         24 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\exampleform.jl                | Julia    |         20 |         14 |         27 |         61 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\fem.jl                        | Julia    |         19 |          0 |         10 |         29 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\hashing.jl                    | Julia    |         16 |          0 |          9 |         25 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\indexing.jl                   | Julia    |         59 |          0 |         19 |         78 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\indices.jl                    | Julia    |          7 |          0 |          2 |          9 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\integration.jl                | Julia    |         29 |          0 |         12 |         41 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\mapdag.jl                     | Julia    |         15 |          0 |          7 |         22 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\mesh.jl                       | Julia    |          4 |          0 |          2 |          6 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\misc.jl                       | Julia    |          7 |          0 |          4 |         11 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\runtests.jl                   | Julia    |         17 |          0 |          1 |         18 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\tensoralgebra.jl              | Julia    |          5 |          0 |          3 |          8 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\tensors.jl                    | Julia    |          5 |          0 |          2 |          7 |
+| c:\Users\Hp\Documents\Projects\UFL_julia\test\traversal.jl                  | Julia    |         33 |          0 |          8 |         41 |
+| Total                                                                       |          |      2,477 |        260 |        900 |      3,637 |
++-----------------------------------------------------------------------------+----------+------------+------------+------------+------------+

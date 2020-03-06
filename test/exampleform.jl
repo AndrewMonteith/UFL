@@ -42,13 +42,20 @@ Pi = Ic*dx
 # Pi = psi*dx #- dot(T, u)*ds(4) - dot(B, u)*dx
 # Pi = dot(T, u)*ds(4)
 
-Pi = dot(B, u)*dx - dot(T, u)*ds(4)
+F = gateaux_derivative(grad(tr(grad(u))), u; argument=v)
+F′ = apply_algebra_lowering(F) 
+println(F′)
+# F′′ = apply_derivatives(F′)
 
-F = derivative(Pi, u; du=v)
+# println(F′′)
 
-F_lowered = apply_algebra_lowering(F)
+# Pi = dot(B, u)*dx - dot(T, u)*ds(4)
 
-println("Lowered:", F_lowered)
-F′ = apply_derivatives(F_lowered)
+# F = derivative(Pi, u; du=v)
 
-println("Final:", F′)
+# F_lowered = apply_algebra_lowering(F)
+
+# println("Lowered:", F_lowered)
+# F′ = apply_derivatives(F_lowered)
+
+# println("Final:", F′)

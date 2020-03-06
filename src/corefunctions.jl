@@ -30,7 +30,9 @@ shape_type(::Type{Determinant}) = NoShape()
 shape_type(::Type{<:Terminal}) = HasShape()
 shape_type(::Type{ComponentTensor}) = HasShape()
 shape_type(::Type{Grad}) = HasShape()
+
 shape_type(::Type{<:CompoundTensorOperator}) = HasShape()
+
 shape_type(::Type{IndexSum}) = InheritsShape() 
 shape_type(::Type{Sum}) = InheritsShape() 
 shape_type(::Type{CoefficientDerivative}) = InheritsShape()

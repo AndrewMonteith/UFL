@@ -1,17 +1,11 @@
 A sample implemendation of UFL in Julia
 
+TODO:
+    - Add Test Cases for things, get code probably working 
+    - Lowering -> Derivatives -> Pull Back
+    - Writing, Deciding what to benchmark any why we want. E.g tree traversal on what types of tree, why is tree traversal important
 
 ### POINTS TO TALK ABOUT
-- Hashing is much faster, I was being an idiot
-- .T syntax for transposing causes performance penality. See src/tensoralgebra.jl
-- Need I worry about storing the integrals sorted in a form? (I think there was some other question I had in week 3 about sorting)
-    - Will I ever deal with forms large enough that it matters
-- Interesting point as the size of the type tree goes, writing efficient type descriptions in src/corefunctions.jl becomes a little more difficult
-- the reconstruct function in src/integration.jl is quite cool I think
-- what is the difference between ExprMapping and ExprList
-- is generic derivative definition of a UflFunction correct
-- the form is basically there, just a few little bugs I gotta iron out 
-- function_pullback wasnt implemented because email
 
 ### POINTS I COULD WRITE ABOUT
 1. Wanting immutability has meant:
@@ -25,8 +19,11 @@ A sample implemendation of UFL in Julia
 6. Building effective type hierachies. Use example of ufl_operands on Terminal/Operator vs on all types
     - Original accessor for each type would be too slow below of abstract -> concrete type resolution
     - Whereas generalising to behaviour over abstract types instead of binding it to concrete gave the best performance
+7. Chose not to include .T syntax because you can't dispatch off data dependent types. Instead will replace trans (ie function for Transposed)
+8. When talking about maintability talk about API surface
+* Where the open source community is for this kind of thing
 
-
+Informal Deadline for Draft: 9th April ~[15, 20] pages
 
 Get this code to work:
 ```julia 

@@ -99,7 +99,7 @@ function create_slice_indices(indexer, shape, fi)
     repeated_indices::Array{AbstractIndex} = []
     slice_indices::Array{AbstractIndex} = [] 
 
-    println(indexer, " ", shape, " ", fi)
+    # println(indexer, " ", shape, " ", fi)
 
     for ind ∈ indexer 
         if ind isa Index 

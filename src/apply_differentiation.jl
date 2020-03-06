@@ -155,6 +155,8 @@ end
 (g::GateauxDerivativeRuleset)(x::AbstractExpr, ops::VarTuple{AbstractExpr}) = g.base(x, ops)
 function (g::GateauxDerivativeRuleset)(grad::Grad, _::VarTuple{AbstractExpr})     
 
+    # Need to handle: grad(tr(grad(u)))
+
     # Count how deep the grad is
     ngrads, o = 0, grad
     while o isa Grad 

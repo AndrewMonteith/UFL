@@ -27,6 +27,11 @@ function lower_compound_algebra(::Transposed, op::Tuple{AbstractExpr})
     as_tensor(op[1][i, j], (j, i))
 end 
 
+function lower_compound_algebra(::Trace, op::Tuple{AbstractExpr})
+    i = Index() 
+    IndexSum(op[1][i, i], (i,))
+end
+
 function lower_compound_algebra(::Dot, operands::Tuple{AbstractExpr, AbstractExpr})
     a, b = operands 
 
@@ -39,6 +44,6 @@ function lower_compound_algebra(::Dot, operands::Tuple{AbstractExpr, AbstractExp
     as_tensor(s, tuple(ai..., bi...))
 end
 
-function apply_algebra_lowering(f::Form)
+function apply_algebra_lowering(f::Union{Form, AbstractExpr})
     map_integrand_dags(lower_compound_algebra, f)
 end

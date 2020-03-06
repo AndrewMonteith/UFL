@@ -1,4 +1,4 @@
-export grad, derivative
+export grad, derivative, gateaux_derivative
 
 abstract type AbstractDerivative <: Operator end 
 
@@ -35,8 +35,7 @@ function Base.show(io::IO, cd::CoefficientDerivative)
     print(io, s)
 end
 
-
-function handle_derivative_arguments(form::Form, coefficient::Coefficient; @opt(argument::Argument))
+function handle_derivative_arguments(form::Union{Form, AbstractExpr}, coefficient::Coefficient; @opt(argument::Argument))
     # This function has been heavily simplified and may need further development in the future.
     # Simplied for the case we have 1 coefficient and 1 argument 
 
@@ -68,7 +67,7 @@ function gateaux_derivative(form::Union{Form, AbstractExpr}, coefficient::Coeffi
         end 
 
         Form(tuple(integrals...))
-    elseif form isa Expr 
+    elseif form isa AbstractExpr 
         CoefficientDerivative(form, coefficients, arguments, coefficient_derivatives)
     else
         error("Invalid argument type")
