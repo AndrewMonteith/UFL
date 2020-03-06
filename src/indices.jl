@@ -87,6 +87,8 @@ function merge_unqiue_indices(afi, afid, bfi, bfid)
     len_a === 0 && return bfi, bfid 
     len_b === 0 && return afi, afid 
 
+    (afi === bfi) && return afi, afid
+
     ak, bk = 1, 1
     fi, fid = [], []
 

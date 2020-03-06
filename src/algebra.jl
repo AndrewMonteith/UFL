@@ -89,7 +89,7 @@ Base.show(io::IO, p::Product) = binary_show(io, "*", p)
 function mult(a::AbstractExpr, b::AbstractExpr)
     fi, fid, ri, rid = merge_overlappin_indices(ufl_free_indices(a), ufl_index_dimensions(a),
                                                 ufl_free_indices(b), ufl_index_dimensions(b))
-   
+    
     shape1, shape2 = ufl_shape(a), ufl_shape(b)
     rank1, rank2 = length(shape1), length(shape2)
 

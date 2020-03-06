@@ -7,7 +7,11 @@ A sample implemendation of UFL in Julia
 - Need I worry about storing the integrals sorted in a form? (I think there was some other question I had in week 3 about sorting)
     - Will I ever deal with forms large enough that it matters
 - Interesting point as the size of the type tree goes, writing efficient type descriptions in src/corefunctions.jl becomes a little more difficult
-- the reconstruct function in src/integration.jl is quite neat I think
+- the reconstruct function in src/integration.jl is quite cool I think
+- what is the difference between ExprMapping and ExprList
+- is generic derivative definition of a UflFunction correct
+- the form is basically there, just a few little bugs I gotta iron out 
+- function_pullback wasnt implemented because email
 
 ### POINTS I COULD WRITE ABOUT
 1. Wanting immutability has meant:

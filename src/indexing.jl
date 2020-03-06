@@ -5,11 +5,33 @@ export Indexed, IndexSum, ComponentTensor
 
     Indexed(expr::AbstractExpr, multiindex::MultiIndex) = Indexed(expr, MultiIndexNode(multiindex))
 
+    function Indexed(zero::Zero, multiindex::MultiIndexNode)
+        fi = if isempty(zero.ufl_free_indices) 
+            Vector{Tuple{Index, Dimension}}()
+        else
+            (collect ∘ zip)(zero.ufl_free_indices, zero.ufl_index_dimensions)
+        end
+
+        for (pos, ind) ∈ enumerate(multiindex.indices)
+            if ind isa Index 
+                push!(fi, (ind, zero.ufl_shape[pos]))
+            end 
+        end 
+
+        fi = (sort! ∘ unique!)(t -> t[1], fi)
+        fi, fid = if isempty(fi)
+            (), ()
+        else
+            zip(fi...)
+        end
+
+        Zero(()::DimensionTuple, fi, fid)
+    end 
+
     function Indexed(expr::AbstractExpr, multiindex::MultiIndexNode)
         operands = (expr, multiindex)
 
         shape = ufl_shape(expr)
-
         if length(shape) !== length(multiindex.indices)
             error("Invalid number of indices $(length(multiindex.indices)) for tensor expression of rank $(length(shape))")
         elseif any((si < di.d for (si, di) ∈ zip(shape, multiindex.indices) if di isa FixedIndex))
@@ -64,8 +86,11 @@ Base.show(io::IO, i::Indexed) = print(io, "$(parstr(i, i.ufl_operands[1]))[$(i.u
         
         new(@sig((summand, as_ufl(index))), new_fi, new_fid, pos)
     end
+
+    IndexSum(summand::AbstractExpr, mi::MultiIndexNode) = IndexSum(summand, mi.indices)
 end
-Base.show(io::IO, is::IndexSum) = print(io, "sum_$(is.ufl_operands[2]) $(parstr(is, is.ufl_operands[1]))")
+
+Base.show(io::IO, is::IndexSum) = print(io, "sum_{$(is.ufl_operands[2])} $(parstr(is, is.ufl_operands[1]))")
 
 
 function create_slice_indices(indexer, shape, fi)
@@ -73,6 +98,8 @@ function create_slice_indices(indexer, shape, fi)
     free_indices::Array{AbstractIndex} = []
     repeated_indices::Array{AbstractIndex} = []
     slice_indices::Array{AbstractIndex} = [] 
+
+    println(indexer, " ", shape, " ", fi)
 
     for ind ∈ indexer 
         if ind isa Index 
@@ -103,7 +130,6 @@ function Base.getindex(e::AbstractExpr, indexer...)
     #=
         Julia does not handle the elipsis slicing
     =#
-
     if !(indexer isa Tuple)
         indexer = (indexer,)
     end

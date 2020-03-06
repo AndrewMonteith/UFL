@@ -6,7 +6,7 @@ V = VectorFunctionSpace(mesh, "CG", 1)
 
 v = TestFunction(V) # <- Shape (2, )
 
-u = TrialFunction(V) # <- Shape (2, )
+u = UflFunction(V) # <- Shape (2, )
 
 T = Constant((0.0, -0.5))
 
@@ -36,6 +36,19 @@ lmbda = Constant(10.0)
 psi = (mu/2)*(Ic - 3) - mu*ln(J) + (lmbda/2)*(ln(J))^2
 
 # # Total potential energy
-Pi = psi*dx - dot(T, u)*ds(4) - dot(B, u)*dx
 
-# F = derivative(Pi, u, v)
+Pi = Ic*dx
+
+# Pi = psi*dx #- dot(T, u)*ds(4) - dot(B, u)*dx
+# Pi = dot(T, u)*ds(4)
+
+Pi = dot(B, u)*dx - dot(T, u)*ds(4)
+
+F = derivative(Pi, u; du=v)
+
+F_lowered = apply_algebra_lowering(F)
+
+println("Lowered:", F_lowered)
+F′ = apply_derivatives(F_lowered)
+
+println("Final:", F′)

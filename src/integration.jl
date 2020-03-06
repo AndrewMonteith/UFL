@@ -24,7 +24,7 @@ end
 Base.hash(m::Measure) = hash((m.integral_type, m.subdomain_id, m.subdomain_data, m.metadata, m.domain))
 Base.show(io::IO, m::Measure) = print(io, integral_type_to_measure_name[m.integral_type])
 
-function reconstruct(x::T; kwargs...) where T
+function reconstruct(x::T; kwargs...)::T where T
     fields = fieldnames(T)
     new_members = []
 
@@ -121,7 +121,11 @@ struct Form
     function Form(integrals::VarTuple{Integral})
         new(integrals)
     end 
-end 
+end
+function Base.show(io::IO, form::Form)
+    str_integrals = map(string, form.integrals)
+    print(io, join(str_integrals, " \n +"))
+end
 
 Base.:+(f::Form, f2::Form) = Form(tuple(f.integrals..., f2.integrals...))
 Base.:+(f::Form, r::Real) = r === 0 ? f : error("cannot add non-zero real to a form")

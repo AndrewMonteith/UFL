@@ -18,5 +18,5 @@ end
 
 t = Traverser(0) 
 
-@test map_expr_dag(s, t, Int) === 9 
+@test map_expr_dag(t, s, Int) === 9 
 @test t.num_of_calls === 4

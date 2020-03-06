@@ -50,7 +50,7 @@ function Base.show(io::IO, arg::Argument)
         s *= (arg.part >= 10 ? "^$(arg.part)" : "^{$(arg.part)}")
     end
         
-    show(io, s) 
+    print(io, s) 
 end
 
 

@@ -33,6 +33,8 @@ shape_type(::Type{Grad}) = HasShape()
 shape_type(::Type{<:CompoundTensorOperator}) = HasShape()
 shape_type(::Type{IndexSum}) = InheritsShape() 
 shape_type(::Type{Sum}) = InheritsShape() 
+shape_type(::Type{CoefficientDerivative}) = InheritsShape()
+shape_type(::Type{ExprList}) = error("non-tensor type has no shape")
 
 get_shape(::HasShape, x::AbstractExpr)::DimensionTuple = x.ufl_shape 
 get_shape(::NoShape, x::AbstractExpr)::DimensionTuple = ()
@@ -58,6 +60,8 @@ free_indices_type(::Type{Power}) = InheritsFreeIndices()
 free_indices_type(::Type{Grad}) = InheritsFreeIndices()
 free_indices_type(::Type{Transposed}) = InheritsFreeIndices()
 free_indices_type(::Type{Trace}) = InheritsFreeIndices()
+free_indices_type(::Type{CoefficientDerivative}) = InheritsFreeIndices()
+free_indices_type(::Type{ExprList}) = error("non-tensor type has no free indicies")
 
 get_free_indices(::HasFreeIndices, x::AbstractExpr)::VarTuple{AbstractIndex} = x.ufl_free_indices 
 get_free_indices(::NoFreeIndices, x::AbstractExpr)::VarTuple{AbstractIndex} = () 

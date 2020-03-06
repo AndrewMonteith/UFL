@@ -11,7 +11,8 @@ include("cell.jl")
 include("fem.jl")
 
 include("geometry.jl")
-include("differentiation.jl")
+
+include("exprcontainers.jl")
 
 include("constantvalue.jl")
 include("tensors.jl")
@@ -24,12 +25,15 @@ include("mathfunctions.jl")
 include("mesh.jl")
 include("functions.jl")
 include("arguments.jl")
-
 include("integration.jl")
+include("differentiation.jl")
+
 include("corefunctions.jl")
 include("precedence.jl")
 include("apply_differentiation.jl")
 include("mapdag.jl")
+include("compound_expressions.jl")
+include("algebra_lowering.jl")
 
 include("benchmark_differentiation.jl")
 end # module
