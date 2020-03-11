@@ -54,16 +54,15 @@ Base.isless(i::Index, j::Index) = i.id < j.id
 """
 const MultiIndex = VarTuple{AbstractIndex}
 
-
 @ufl_type struct MultiIndexNode <: Terminal
     indices::VarTuple{AbstractIndex}
     
     function MultiIndexNode(indices::VarTuple{AbstractIndex})
-        new(indices)
+        new(@sig(indices))
     end
 end
 
-Base.length(m::MultiIndexNode) = Base.length(m.indices)
+Base.length(m::MultiIndexNode) = length(m.indices)
 function Base.show(io::IO, m::MultiIndexNode)
     if length(m.indices) === 1
         print(io, m.indices[1])
@@ -72,9 +71,10 @@ function Base.show(io::IO, m::MultiIndexNode)
     end 
 end
 Base.repr(m::MultiIndexNode) = "MultiIndex$(repr(m.indices))"
+Base.keys(m::MultiIndexNode) = keys(m.indices)
 
 Base.iterate(m::MultiIndexNode) = isempty(m.indices) ? nothing : (m.indices[1], 1)
-Base.iterate(m::MultiIndexNode, state::Int) = state === length(m.indices) ? nothing : (m[state+1], state+1)
+Base.iterate(m::MultiIndexNode, state::Int) = (state === length(m.indices) || state === -1) ? nothing : (m.indices[state+1], state+1)
 convert(::Type{VarTuple{AbstractIndex}}, x) = MultiIndexNode(x)
 
 indices_n(n::Int) = tuple((Index() for _ ∈ 1:n)...)
@@ -120,7 +120,7 @@ function merge_unqiue_indices(afi, afid, bfi, bfid)
             append!(fid, afid[ak:end])
         end
     end
-    
+
     tuple(fi...), tuple(fid...) 
 end
 

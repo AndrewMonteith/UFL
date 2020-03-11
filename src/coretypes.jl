@@ -45,6 +45,16 @@ function ufl_shape end
 function ufl_operands end
 function ufl_free_indices end 
 function ufl_index_dimensions end 
+function reconstruct_expr end
+
+function reconstruct_expr(t::Terminal, operands::VarTuple{AbstractExpr})
+    !isempty(operands) && error("Terminal has no operands")
+    t
+end 
+
+function reconstruct_expr(o::Operator, operands::VarTuple{AbstractExpr})
+    typeof(o)(operands...)
+end
 
 is_cellwise_constant(::AbstractExpr) = false
 geometric_dimension(::AbstractExpr) = -1
@@ -53,20 +63,5 @@ function parstr end
 
 hash_behaviour(x::Any) = x 
 hash_behaviour(x::AbstractExpr) = x.ufl_hash_code
-
-function compute_hash(xs...)::UInt32
-    hashes = [] 
-
-    for x ∈ xs 
-        if x isa Tuple{AbstractExpr}
-            push!(hashes, compute_hash(x...))
-        else
-            push!(hashes, hash(x))
-        end
-    end
-
-    hash(tuple(hashes))
-end
-
 
 topological_dimension(x::Any)::Dimension = x.topological_dimension

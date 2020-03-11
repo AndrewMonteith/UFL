@@ -15,8 +15,8 @@ include("geometry.jl")
 include("exprcontainers.jl")
 
 include("constantvalue.jl")
-include("tensors.jl")
 include("indexing.jl")
+include("tensors.jl")
 
 include("algebra.jl")
 include("tensoralgebra.jl")

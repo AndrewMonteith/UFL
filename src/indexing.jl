@@ -55,7 +55,7 @@ export Indexed, IndexSum, ComponentTensor
             end 
         end 
 
-        unique!(fi_and_d)
+        sort!(unique!(fi_and_d); by=t -> t[1])
 
         fi, fid = if isempty(fi_and_d)
             (), ()
@@ -75,11 +75,14 @@ Base.show(io::IO, i::Indexed) = print(io, "$(parstr(i, i.ufl_operands[1]))[$(i.u
     dim::Dimension
     
     function IndexSum(summand::AbstractExpr, index::MultiIndex)
-        length(index) !== 1 && error("Expecting a single Index but got $(length(index))")
+        length(as_ufl(index)) !== 1 && error("Expecting a single Index but got $(length(index))")
         
         j, = index 
+
+        j ∉ ufl_free_indices(summand) && error("cannot index sum on an index not in summand")
+
         fi, fid = ufl_free_indices(summand), ufl_index_dimensions(summand)
-        pos = findall(i -> i == j, fi)[1]
+        pos = findfirst(i -> i == j, fi)
         
         new_fi = tuple(fi[1:pos-1]..., fi[pos+1:end]...)
         new_fid = tuple(fid[1:pos-1]..., fid[pos+1:end]...)
@@ -89,7 +92,6 @@ Base.show(io::IO, i::Indexed) = print(io, "$(parstr(i, i.ufl_operands[1]))[$(i.u
 
     IndexSum(summand::AbstractExpr, mi::MultiIndexNode) = IndexSum(summand, mi.indices)
 end
-
 Base.show(io::IO, is::IndexSum) = print(io, "sum_{$(is.ufl_operands[2])} $(parstr(is, is.ufl_operands[1]))")
 
 
@@ -98,8 +100,6 @@ function create_slice_indices(indexer, shape, fi)
     free_indices::Array{AbstractIndex} = []
     repeated_indices::Array{AbstractIndex} = []
     slice_indices::Array{AbstractIndex} = [] 
-
-    # println(indexer, " ", shape, " ", fi)
 
     for ind ∈ indexer 
         if ind isa Index 

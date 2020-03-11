@@ -1,4 +1,4 @@
-export grad, derivative, gateaux_derivative
+export grad, derivative
 
 abstract type AbstractDerivative <: Operator end 
 
@@ -10,7 +10,7 @@ const Coefficient = Union{UflFunction, Constant}
 
     dim::Dimension
 
-    function Grad(f)
+    function Grad(f::AbstractExpr)
         is_cellwise_constant(f) && return Zero(tuple(ufl_shape(f)..., geometric_dimension(f)), ufl_free_indices(f), ufl_index_dimensions(f))
 
         gdim = find_geometric_dimension(f)
@@ -19,6 +19,17 @@ const Coefficient = Union{UflFunction, Constant}
 end
 Base.show(io::IO, g::Grad) = print(io, "grad($(g.ufl_operands[1]))")
 grad(f) = (Grad ∘ as_ufl)(f)
+function reconstruct_expr(g::Grad, op::AbstractExpr)
+    if is_cellwise_constant(op)
+        ufl_shape(op) !== ufl_shape(g.ufl_operands[1]) && error("Operands shape mismatch in Grad reconstruct")
+        ufl_free_indices(op) !== ufl_free_indices(g.ufl_operands[1]) && error("Free index mismatch in Grad reconstruct")
+
+        Zero(ufl_shape(g), ufl_free_indices(g), ufl_index_dimensions(g))
+    else
+        grad(op)
+    end 
+end 
+
 
 @ufl_type struct CoefficientDerivative <: AbstractDerivative
     ufl_fields=(operands,)

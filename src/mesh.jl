@@ -24,7 +24,8 @@ mesh_id = 0
         new(new_id, cell, geometric_dimension(cell), topological_dimension(cell))
     end
 end
-Base.repr(m::Mesh) = "Mesh$(m.id)"
+Base.repr(m::Mesh) = "Mesh#<$(m.id)> "
+Base.show(io::IO, m::Mesh) = print(io, "Mesh<#$(m.id)>")
 hash_data(m::Mesh) = repr(m)
 geometric_dimension(m::Mesh) = m.geometric_dimension
 

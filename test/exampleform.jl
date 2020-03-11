@@ -33,29 +33,16 @@ mu = Constant(6.3)
 lmbda = Constant(10.0)
 
 # # Stored strain energy density (compressible neo-Hookean model)
-psi = (mu/2)*(Ic - 3) - mu*ln(J) + (lmbda/2)*(ln(J))^2
+psi = (Ic - 3)*(mu/2) - mu*ln(J) + (lmbda/2)*(ln(J))^2
 
-# # Total potential energy
+# Total potential energy
+dx = Measure("dx")
+ds = Measure("ds")
 
-Pi = Ic*dx
+Pi = psi*dx - dot(T, u)*ds(4) - dot(B, u)*dx
+F = derivative(Pi, u; du=v)
+F_lowered = apply_algebra_lowering(F)
+println("Lowered:", F_lowered)
+F′ = apply_derivatives(F_lowered)
 
-# Pi = psi*dx #- dot(T, u)*ds(4) - dot(B, u)*dx
-# Pi = dot(T, u)*ds(4)
-
-F = gateaux_derivative(grad(tr(grad(u))), u; argument=v)
-F′ = apply_algebra_lowering(F) 
-println(F′)
-# F′′ = apply_derivatives(F′)
-
-# println(F′′)
-
-# Pi = dot(B, u)*dx - dot(T, u)*ds(4)
-
-# F = derivative(Pi, u; du=v)
-
-# F_lowered = apply_algebra_lowering(F)
-
-# println("Lowered:", F_lowered)
-# F′ = apply_derivatives(F_lowered)
-
-# println("Final:", F′)
+println("Final:", F′)

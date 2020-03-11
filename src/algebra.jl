@@ -135,6 +135,7 @@ function mult(a::AbstractExpr, b::AbstractExpr)
 end
 Base.:*(e1, e2) = mult(as_ufl(e1), as_ufl(e2))
 
+is_scalar(a::AbstractExpr) = (isempty ∘ ufl_shape)(a)
 is_true_scalar(a::AbstractExpr) = (isempty ∘ ufl_shape)(a) && (isempty ∘ ufl_free_indices)(a)
 
 @ufl_type struct Division <: Operator 

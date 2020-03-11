@@ -1,7 +1,8 @@
 A sample implemendation of UFL in Julia
 
 TODO:
-    - Add Test Cases for things, get code probably working 
+    - Add Test Cases for things, get code probably working
+        - grad(tr(grad(u)))
     - Lowering -> Derivatives -> Pull Back
     - Writing, Deciding what to benchmark any why we want. E.g tree traversal on what types of tree, why is tree traversal important
 

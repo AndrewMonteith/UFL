@@ -40,7 +40,7 @@ function inject_hash_behaviour(expr, typecode)
 
         new_call = inner_ctor.args[2].args[end].args
 
-        # Make sure inner ctor ends in a new call
+        # Make sure inner ctor ends l
         (new_call[1] === :new || (new_call[1] isa Expr && new_call[1].args[1] === :new)) || continue
 
         sig_param_is = findall(param -> param isa Expr && param.head === :macrocall && (param.args[1] === Symbol("@sig") || param.args[1] === Symbol("@sig_t")), new_call)
@@ -122,26 +122,25 @@ end
 #     end
 # end
 
-function insert_reconstructor(expr, struct_name, struct_fields)
-    member_variables = filter(line -> line isa Expr && line.head === :(::), struct_fields)
+# function insert_reconstructor(expr, struct_name, struct_fields)
+#     member_variables = filter(line -> line isa Expr && line.head === :(::), struct_fields)
 
-    !any(var -> var.args[1] === :ufl_operands, member_variables) && return
+#     !any(var -> var.args[1] === :ufl_operands, member_variables) && return
 
-    rector_new_args = map(var -> var.args[1] === :ufl_operands ? :operands : :(x.$(var.args[1])), member_variables)
+#     rector_new_args = map(var -> var.args[1] === :ufl_operands ? :operands : :(x.$(var.args[1])), member_variables)
 
-    recontructor = esc(:(
-        function $struct_name(x::$struct_name, operands::VarTuple{UFL.AbstractExpr}) 
-            new($(rector_new_args...))
-        end
-    ))
+#     recontructor = esc(:(
+#         function $struct_name(x::$struct_name, operands::VarTuple{UFL.AbstractExpr}) 
+#             new($(rector_new_args...))
+#         end
+#     ))
 
-    push!(struct_fields, recontructor)
-end
+#     push!(struct_fields, recontructor)
+# end
 
 """
     Inserts predefined fields for a struct
     Parses ufl_fields tags into metadata
-    Insert copy constructor
     Injects hash logic
 """
 macro ufl_type(expr)
@@ -186,13 +185,11 @@ macro ufl_type(expr)
         end
     end 
 
-    # Insert Copy Constructor 
     tc = global typecode += 1
     push!(methods_to_add, esc(quote ufl_typecode(x::$struct_name) = $tc end))
     
     prepend!(struct_fields, fields_to_add)
-
-    insert_reconstructor(expr, struct_name, struct_fields)
+    
     inject_hash_behaviour(expr, tc)
 
     return Expr(:block, expr, methods_to_add...)

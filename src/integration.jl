@@ -35,8 +35,6 @@ function reconstruct(x::T; kwargs...)::T where T
     T(new_members...)
 end 
 
-
-
 function (m::Measure)(@opt(subdomain_id::Union{Int, String, Mesh}), @opt(domain::Mesh))
     # if no args are provided
     subdomain_id === nothing && reconstruct(m; subdomain_id="everywhere") 

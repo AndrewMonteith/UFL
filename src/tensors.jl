@@ -37,12 +37,20 @@ function remove_indices(fi::MultiIndex, fid::DimensionTuple, rfi::MultiIndex)
     end
 
     fi, fid = isempty(newfiid) ? ((), ()) : zip(newfiid...)
-    
+   
     fi, fid, tuple(shape...)
 end
 
 @ufl_type struct ComponentTensor <: Operator 
     ufl_fields = (shape, free_indices, index_dimensions, operands)
+
+    function ComponentTensor(zero::Zero, indices::VarTuple{Index})
+        fi, fid, sh = remove_indices(ufl_free_indices(zero),
+                                     ufl_index_dimensions(zero),
+                                     indices)
+
+        Zero(sh, fi, fid)
+    end
 
     function ComponentTensor(expr::AbstractExpr, indices::VarTuple{Index})
         ufl_shape(expr) !== () && error("Expecting scalar valued expression.")
@@ -53,8 +61,17 @@ end
 
         new(sh, fi, fid, @sig((expr, as_ufl(indices))))
     end 
+
+    ComponentTensor(expr::AbstractExpr, ii::MultiIndexNode) = ComponentTensor(expr, ii.indices)
 end 
 Base.show(io::IO, ct::ComponentTensor) = print(io, "{ A | A_{$(ct.ufl_operands[2])} = $(ct.ufl_operands[1]) }")
+function reconstruct_expr(ct::ComponentTensor, expr::Indexed, indices::MultiIndexNode)
+    if indices === expr.ufl_operands[2]
+        expr.ufl_operands[1]
+    else
+        invoke(reconstruct_expr, Tuple{ComponentTensor, AbstractExpr, MultiIndexNode}, (ct, expr, indices))
+    end
+end 
 
 @ufl_type struct ListTensor <: Operator 
     ufl_fields = (operands,)
@@ -154,3 +171,11 @@ function as_scalars(expressions...)::Tuple{VarTuple{AbstractExpr}, MultiIndex}
         tuple(expressions...), ii
     end
 end
+
+function as_scalar(expr::AbstractExpr)::Tuple{AbstractExpr, MultiIndex}
+    ii = (indices_n ∘ length ∘ ufl_shape)(expr)
+
+    !isempty(ii) && (expr = expr[ii...]);
+
+    expr, ii
+end 
