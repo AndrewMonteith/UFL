@@ -32,9 +32,9 @@ include("precedence.jl")
 include("apply_differentiation.jl")
 include("mapdag.jl")
 include("compound_expressions.jl")
-include("algebra_lowering.jl")
-include("function_pullback.jl")
+include("apply_algebra_lowering.jl")
+include("apply_function_pullback.jl")
 
 include("corefunctions.jl")
-include("benchmark_differentiation.jl")
+include("benchmark_example_form.jl")
 end # module
