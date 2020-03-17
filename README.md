@@ -1,12 +1,15 @@
 A sample implemendation of UFL in Julia
 
 TODO:
-    - Add Test Cases for things, get code probably working
+    - Add Test Cases for things, get code probably working ** yas **
         - grad(tr(grad(u)))
-    - Lowering -> Derivatives -> Pull Back
-    - Writing, Deciding what to benchmark any why we want. E.g tree traversal on what types of tree, why is tree traversal important
+    - Lowering -> Derivatives -> Pull Back ** yas ** 
+    - Writing, Deciding what to benchmark any why we want. E.g tree traversal on what types of tree, why is tree traversal important ** not yet ** 
 
 ### POINTS TO TALK ABOUT
+* Didn't bother adding is_cellwise_constant to Jacobian, this can be used in simplification passes. You reckon it's worth adding? ie is_piecewise_linear_simplex_domain
+* What code trigger the non-identity mapping in function pulling
+
 
 ### POINTS I COULD WRITE ABOUT
 1. Wanting immutability has meant:
@@ -22,7 +25,7 @@ TODO:
     - Whereas generalising to behaviour over abstract types instead of binding it to concrete gave the best performance
 7. Chose not to include .T syntax because you can't dispatch off data dependent types. Instead will replace trans (ie function for Transposed)
 8. When talking about maintability talk about API surface
-* Where the open source community is for this kind of thing
+9. Where the open source community is for this kind of thing
 
 Informal Deadline for Draft: 9th April ~[15, 20] pages
 

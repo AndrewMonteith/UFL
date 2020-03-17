@@ -28,6 +28,9 @@ Base.repr(m::Mesh) = "Mesh#<$(m.id)> "
 Base.show(io::IO, m::Mesh) = print(io, "Mesh<#$(m.id)>")
 hash_data(m::Mesh) = repr(m)
 geometric_dimension(m::Mesh) = m.geometric_dimension
+function is_piecewise_linear_simplex_domain(m::Mesh) 
+    
+end
 
 
 #=

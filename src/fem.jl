@@ -1,24 +1,31 @@
-export FiniteElement, MixedElement, VectorElement, fem_cell, fem_family, fem_degree, fem_value_shape
+export FiniteElement, MixedElement, VectorElement, fem_cell, fem_family, fem_degree, fem_value_shape, fem_mapping, fem_ref_value_shape
 
 abstract type AbstractFiniteElement end 
 
 struct FemBase 
     family::String 
-    cell::Union{Cell, Nothing}
-    degree::Union{Dimension, DimensionTuple, Nothing}
+    cell::UFL.@opt_t(Cell)
+    degree::UFL.@opt_t(Union{Dimension, DimensionTuple})
     value_shape::DimensionTuple 
-end
+    ref_value_shape::DimensionTuple
+    mapping::String
 
-fem_family(a::AbstractFiniteElement) = a.base.family 
-fem_cell(a::AbstractFiniteElement) = a.base.cell 
-fem_degree(a::AbstractFiniteElement) = a.base.degree 
-fem_value_shape(a::AbstractFiniteElement) = a.base.value_shape
+    function FemBase(family::String, cell::UFL.@opt_t(Cell), degree::UFL.@opt_t(Union{Dimension, DimensionTuple}), value_shape::DimensionTuple, ref_val_shape::DimensionTuple)
+        mapping = get!(family_to_mappings, family, "affine")
+        new(family, cell, degree, value_shape, ref_val_shape, mapping)
+    end
+end
 
 family_analogies = Dict("CG" => "Lagrange", "R" => "Real")
 
 family_to_value_ranks = Dict(
     "Lagrange" => 0,
     "Real" => 0
+)
+
+family_to_mappings = Dict(
+    "Lagrange" => "identity",
+    "Real" => "identity"
 )
 
 
@@ -33,19 +40,19 @@ struct FiniteElement <: AbstractFiniteElement
         end
 
         value_rank = family_to_value_ranks[family]
-        value_shape = if value_rank === 0
-            ()
+        value_shape, ref_value_shape = if value_rank === 0
+            (), ()
         elseif cell === nothing 
             error("cannot infer shape with no provided cell")
         elseif value_rank === 1
-            (cell.geometric_dimension,)
+            (cell.geometric_dimension,), (cell.topological_dimension,)
         elseif value_rank === 2 
-            (cell.geometric_dimension, cell.geometric_dimension)
+            (cell.geometric_dimension, cell.geometric_dimension), (cell.topological_dimension, cell.topological_dimension)
         else
             error("value rank is too high $(value_rank) for $(family). Must be 0 <= r <= 2")
         end
 
-        new(FemBase(family, cell, degree, value_shape))
+        new(FemBase(family, cell, degree, value_shape, ref_value_shape))
     end 
 end
 
@@ -70,7 +77,8 @@ function maximum_degree(degrees)
 end
 
 function NewMixedElementBase(elements...; kwargs...)
-    value_shape = get(kwargs, :value_shape, tuple(sum(prod(fem_value_shape(element)) for element ∈ elements)))
+    value_shape = get(kwargs, :value_shape, tuple(sum(collect(prod(fem_value_shape(e)) for e ∈ elements)))) 
+    ref_value_shape = get(kwargs, :ref_value_shape, tuple(sum(collect(prod(fem_ref_value_shape(e)) for e ∈ elements)))) 
     element_family = get(kwargs, :family, "Mixed")
 
     degree = maximum_degree([fem_degree(element) for element ∈ elements])
@@ -78,14 +86,15 @@ function NewMixedElementBase(elements...; kwargs...)
     #  In firedrake cell selection is done by sorting them... I'm'a just pick the first one 
     cell = fem_cell(elements[1])
 
-    FemBase(element_family, cell, degree, value_shape)
+    FemBase(element_family, cell, degree, value_shape, ref_value_shape)
 end
 
 struct MixedElement <: AbstractFiniteElement 
     base::FemBase 
+    elements::VarTuple{AbstractFiniteElement}
 
     function MixedElement(elements...; kwargs...)
-        new(NewMixedElementBase(elements...; kwargs...))
+        new(NewMixedElementBase(elements...; kwargs...), elements)
     end
 end
 
@@ -113,3 +122,11 @@ struct VectorElement  <: AbstractFiniteElement
     end 
 end
 
+
+fem_family(a::AbstractFiniteElement) = a.base.family 
+fem_cell(a::AbstractFiniteElement) = a.base.cell 
+fem_degree(a::AbstractFiniteElement) = a.base.degree 
+fem_value_shape(a::AbstractFiniteElement) = a.base.value_shape
+fem_ref_value_shape(a::AbstractFiniteElement) = a.base.ref_value_shape
+fem_mapping(a::AbstractFiniteElement) = a.base.mapping 
+fem_mapping(m::MixedElement) = all(fem_mapping(e)==="identity" for e ∈ m.elements) ? "identity" : "undefined"

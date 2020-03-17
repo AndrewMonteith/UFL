@@ -1,4 +1,4 @@
-export grad, derivative
+export grad, derivative, Coefficient
 
 abstract type AbstractDerivative <: Operator end 
 
