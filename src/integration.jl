@@ -69,7 +69,7 @@ function extract_domains(expr::AbstractExpr)::VarTuple{Mesh}
     join_domains(domains)
 end 
 
-function Base.:*(integrand::AbstractExpr, m::Measure)
+function Base.:*(integrand::AbstractExpr, m::Measure)::Form
     !is_true_scalar(integrand) && error("Can only integrate over scalar expressions.")
 
     # In Future: Might need to support subdomain_id as a tuple?
@@ -91,7 +91,7 @@ function Base.:*(integrand::AbstractExpr, m::Measure)
     Form((integral,))
 end
 
-Base.:*(expr::Real, m::Measure) = as_ufl(expr)*m
+Base.:*(expr::Real, m::Measure)::AbstractExpr = as_ufl(expr)*m
 
 
 struct Integral
@@ -141,7 +141,7 @@ Base.:-(f::Form, x) = f + (-x)
 Base.:-(x, f::Form) = (-x) + f
 Base.:-(f::Form) = Form(tuple((-integral for integral ∈ f.integrals)...))
 
-function Base.:*(f::Form, s::AbstractExpr)
+function Base.:*(f::Form, s::AbstractExpr)::Form
     if is_scalar_constant_expression(s)
         Form([s*integral for integral ∈ f.integrals])
     else

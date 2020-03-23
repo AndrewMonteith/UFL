@@ -1,17 +1,17 @@
 A sample implemendation of UFL in Julia
 
 TODO:
-    - Add Test Cases for things, get code probably working ** yas **
-        - grad(tr(grad(u)))
-    - Lowering -> Derivatives -> Pull Back ** yas ** 
-    - Writing, Deciding what to benchmark any why we want. E.g tree traversal on what types of tree, why is tree traversal important ** not yet ** 
+    - Lowering -> Apply_Derivatives -> Function Pullback -> Apply_Derivatives
+    - Speedup
+    - Write entire report
+        - Design choices, why we made, how to extend
+        - Feel free to add small snippets of code
+    - Send rough structure of the report. Coherent story, why i chose, why i did, how it helps, ...
 
 ### POINTS TO TALK ABOUT
-* Didn't bother adding is_cellwise_constant to Jacobian, this can be used in simplification passes. You reckon it's worth adding? ie is_piecewise_linear_simplex_domain
-* What code trigger the non-identity mapping in function pulling
-
 
 ### POINTS I COULD WRITE ABOUT
+
 1. Wanting immutability has meant:
     - Eager Hashing vs Lazy Hashing
     - Preserving immutability whilst has pros dramtically but adds alot of complexity (hashing and copying) which can be tackled by metaprogramming
@@ -20,6 +20,7 @@ TODO:
 4. Difference in tree traversal speed via various flavours
     - Roles in hashing and preserving immutability
 5. Importance of type stability for performance
+    - Don't use isa too much since it means Julia cannot reason about the type information at the caller site
 6. Building effective type hierachies. Use example of ufl_operands on Terminal/Operator vs on all types
     - Original accessor for each type would be too slow below of abstract -> concrete type resolution
     - Whereas generalising to behaviour over abstract types instead of binding it to concrete gave the best performance
@@ -32,7 +33,7 @@ Informal Deadline for Draft: 9th April ~[15, 20] pages
 Get this code to work:
 ```julia 
 mesh is 2D
-
+    mesh = UnitSquareMesh(2, 2)
     V = VectorFunctionSpace(mesh, "P", 1)
 
     v = TestFunction(V) <- Shape (2, )
@@ -76,6 +77,11 @@ mesh is 2D
 Think about tranformation pass tools. Don't consider the UFL a tree, consider it a DAG. Think about avoiiding visting the same expression twice. Trees aren't large enough that creating a new tree isn't expensive expensive
 
 ### Questions & Answers
+Q: What code trigger the non-identity mapping in function pulling
+A: Not necessary
+
+Q: is_cellwise_constant for Jacobian
+A: Mention how it could help in report but don't implement
 
 Q: ufl_domain is commented as saying it should be deprecated? I presume I should do the same.
 A: The TODO was wrong
@@ -86,7 +92,6 @@ A: I was right for once
 
 Q: There are two definitions of FiniteElement, one in UFL and one in FIAT. I copied the UFL one. Is that right?
 A: Two rights in a row
-
 
 Q: I've mocked the Mesh class keeping only what we discussed last time but it seems a bit simple.
 Q: Trying to rip out all the guf from firedrake into Julia is non-trivial. The point of the project is not the VectorFunctionSpace, Function, ... stuff. It's to focus on the DSL part more? In which case having these trivial copies to merely mock the data is ok?

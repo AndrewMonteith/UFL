@@ -147,7 +147,7 @@ function as_tensor(expr::AbstractExpr, indices::MultiIndex)::AbstractExpr
 
     ComponentTensor(expr, indices)
 end
-as_tensor(expr::AbstractExpr, index::AbstractExpr) = as_tensor(expr, (index,))
+as_tensor(expr::AbstractExpr, index::AbstractExpr)::AbstractExpr = as_tensor(expr, (index,))
 
 function as_matrix(expr::AbstractExpr)
     length(ufl_shape(expr)) !== 2 && error("Expecting rank 2 tensor.")

@@ -44,7 +44,7 @@ Base.show(io::IO, ji::JacobianInverse) = print(io, "K")
     function Jacobian(domain::Mesh)
         new(domain)
     end
-end 
+end
 Base.show(io::IO, jdet::JacobianDeterminant) = print(io, "detJ")
 
 

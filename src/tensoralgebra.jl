@@ -1,4 +1,4 @@
-export tr, det, dot
+export tr, det, dot, trans
 
 abstract type CompoundTensorOperator <: Operator end 
 
@@ -18,6 +18,7 @@ abstract type CompoundTensorOperator <: Operator end
         new(@sig((x,)), (b, a))
     end
 end 
+trans(t::AbstractExpr) = Transposed(t)
 
 Base.show(io::IO, t::Transposed) = print(io, "$(parstr(t, (first ∘ ufl_operands)(t)))^T")
 
@@ -100,13 +101,13 @@ end
 # @inline _getproperty(x::AbstractExpr, ::Val{:T}) = Transposed(x)
 
 # @inline Base.getproperty(x::AbstractExpr, s::Symbol) = _getproperty(x, Val{s}())
-# Intercepted this allows us to have transposed operators but is a performance bottleneck.
-# Differentiation 6.2ms -> 8.4ms 
-# Building Tree 404 microseconds -> 3ms 
-function Base.getproperty(x::AbstractExpr, s::Symbol)
-    if s === :T 
-        Transposed(x)
-    else
-        getfield(x, s)
-    end 
-end 
+# # Intercepted this allows us to have transposed operators but is a performance bottleneck.
+# # Differentiation 6.2ms -> 8.4ms 
+# # Building Tree 404 microseconds -> 3ms 
+# function Base.getproperty(x::AbstractExpr, s::Symbol)
+#     if s === :T 
+#         Transposed(x)
+#     else
+#         getfield(x, s)
+#     end 
+# end 

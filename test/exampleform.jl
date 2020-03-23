@@ -42,7 +42,8 @@ ds = Measure("ds")
 Pi = psi*dx - dot(T, u)*ds(4) - dot(B, u)*dx
 F = derivative(Pi, u; du=v)
 F_lowered = apply_algebra_lowering(F)
-println("Lowered:", F_lowered)
 F′ = apply_derivatives(F_lowered)
 
-println("Final:", F′)
+# println("Lowered:", F_lowered)
+# println()
+# println("Final:", F′)

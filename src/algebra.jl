@@ -47,13 +47,14 @@ end
 end
 
 Base.show(io::IO, s::Sum) = binary_show(io, "+", s)
-Base.:+(e1::AbstractExpr, e2::AbstractExpr) = Sum(e1, e2)
-Base.:+(e1::AbstractExpr, e2) = Sum(as_ufl(e1), as_ufl(e2))
-Base.:+(e1, e2::AbstractExpr) = Sum(as_ufl(e1), as_ufl(e2))
-Base.:-(e1::AbstractExpr, e2::AbstractExpr) = Sum(e1, -e2)
-Base.:-(e1::AbstractExpr, e2) = Sum(as_ufl(e1), -as_ufl(e2))
-Base.:-(e1, e2::AbstractExpr) = Sum(as_ufl(e1), -as_ufl(e2))
-Base.:-(e::AbstractExpr) = -1 * e
+Base.:+(e1::AbstractExpr, e2::AbstractExpr)::AbstractExpr = Sum(e1, e2)
+Base.:+(e1::AbstractExpr, e2)::AbstractExpr = Sum(as_ufl(e1), as_ufl(e2))
+Base.:+(e1, e2::AbstractExpr)::AbstractExpr = Sum(as_ufl(e1), as_ufl(e2))
+
+Base.:-(e1::AbstractExpr, e2::AbstractExpr)::AbstractExpr = Sum(e1, -e2)
+Base.:-(e1::AbstractExpr, e2)::AbstractExpr = Sum(as_ufl(e1), -as_ufl(e2))
+Base.:-(e1, e2::AbstractExpr)::AbstractExpr = Sum(as_ufl(e1), -as_ufl(e2))
+Base.:-(e::AbstractExpr)::AbstractExpr = -1 * e
 
 
 @ufl_type struct Product <: Operator 
@@ -86,7 +87,7 @@ Base.show(io::IO, p::Product) = binary_show(io, "*", p)
 
 
 
-function mult(a::AbstractExpr, b::AbstractExpr)
+function mult(a::AbstractExpr, b::AbstractExpr)::AbstractExpr
     fi, fid, ri, rid = merge_overlappin_indices(ufl_free_indices(a), ufl_index_dimensions(a),
                                                 ufl_free_indices(b), ufl_index_dimensions(b))
     

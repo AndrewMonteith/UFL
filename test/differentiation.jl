@@ -20,7 +20,7 @@ expected = r"^\(\{ A \| A\_\{i\_\d+\} = I\[1, i\_\d+\] }\) \+ \(\{ A \| A\_\{i_\
 @test occursin(expected, string(diff))
 
 diff = apply_derivatives(grad(2*x))
-expected = r"\{ A \| A\_\{i\_\d+\} = 2 \* \(\{ A \| A\_\{i_\d+\} = I\[1, i\_22\] \}\)\[i\_\d+\] \}"
+expected = r"\{ A \| A\_\{i\_\d+\} = 2 \* \(\{ A \| A\_\{i\_\d+\} = I\[1, i\_\d+\] \}\)\[i\_\d+\] \}"
 @test occursin(expected, string(diff))
 
 diff = apply_derivatives(grad(x^2))
@@ -44,5 +44,5 @@ diff = apply_derivatives(x)
 
 x = grad((tr ∘ grad)(u)/2)
 diff = apply_derivatives(apply_algebra_lowering(x))
-r=r"\{ A \| A\_\{i\_\d+\} = \(sum\_\{i\_\d+\} \(\{ A \| A\_\{i\_\d+\} = \(grad\(grad\(w\_0\)\)\)\[i\_\d+, i_\d+, i\_\d+\] \}\)\)\[i\_\d+\] \/ 2 \}"
+r=r"\{ A \| A\_\{i\_\d+\} = \(sum\_\{i\_\d+\} \(\{ A \| A\_\{i\_\d+\} = \(grad\(grad\(w\_\d+\)\)\)\[i\_\d+, i\_\d+, i\_\d+\] \}\)\)\[i\_\d+\] \/ 2 \}"
 @test occursin(r, string(diff))

@@ -21,13 +21,13 @@ function lower_compound_algebra(::Determinant, operands::Tuple{AbstractExpr})::A
     end
 end
 
-function lower_compound_algebra(t::Transposed, op::Tuple{AbstractExpr})
+function lower_compound_algebra(::Transposed, op::Tuple{AbstractExpr})
     (i, j) = indices_n(2)
 
     as_tensor(op[1][i, j], (j, i))
 end 
 
-function lower_compound_algebra(::Trace, op::Tuple{AbstractExpr})
+function lower_compound_algebra(::Trace, op::Tuple{AbstractExpr})::AbstractExpr
     i = Index() 
     op[1][i, i]
 end

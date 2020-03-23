@@ -12,7 +12,7 @@ r = r"\(grad\(w\_\d\)\)\[0, 0\] \* \(grad\(w\_\d\)\)\[1, 1\] \+ -1 \* \(grad\(w\
 
 x = dot(c, u)# *dx 
 lowered_x = apply_algebra_lowering(x)
-r = r"sum\_\{i\_\d+\} w\_\d\[i\_\d+\] \* w\_\d\[i\_\d+\]"
+r = r"sum\_\{i\_\d+\} w\_\{\d+\}\[i\_\d+\] \* w\_\d+\[i\_\d+\]"
 @test occursin(r, string(lowered_x))
 @test (isempty ∘ ufl_free_indices)(lowered_x)
 

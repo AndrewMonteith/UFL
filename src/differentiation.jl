@@ -18,8 +18,8 @@ const Coefficient = Union{UflFunction, Constant}
     end
 end
 Base.show(io::IO, g::Grad) = print(io, "grad($(g.ufl_operands[1]))")
-grad(f) = (Grad ∘ as_ufl)(f)
-function reconstruct_expr(g::Grad, op::AbstractExpr)
+grad(f)::Grad = (Grad ∘ as_ufl)(f)
+function reconstruct_expr(g::Grad, op::AbstractExpr)::AbstractExpr
     if is_cellwise_constant(op)
         ufl_shape(op) !== ufl_shape(g.ufl_operands[1]) && error("Operands shape mismatch in Grad reconstruct")
         ufl_free_indices(op) !== ufl_free_indices(g.ufl_operands[1]) && error("Free index mismatch in Grad reconstruct")
@@ -60,7 +60,6 @@ end
 
 function gateaux_derivative(form::Union{Form, AbstractExpr}, coefficient::Coefficient; @opt(argument::Argument), @opt(coefficient_derivatives::Dict{Coefficient, Argument}))
     # Compute Gateaux derivative for form w.r.t coefficient in direction of argument 
-    
     coefficients, arguments = handle_derivative_arguments(form, coefficient; argument=argument)
 
     if coefficient_derivatives === nothing 

@@ -1,6 +1,6 @@
-export map_expr_dag, remove_common_subexpressions, map_integrand_dags
+export map_expr_dag, map_integrand_dags
 
-function map_expr_dag(func::F, expr::AbstractExpr, ::Type{V}=Any) where {F<:Function, V<:Any}
+function map_expr_dag(func::F, expr::AbstractExpr, ::Type{V}=AbstractExpr) where {F<:Function, V<:Any}
     expr_vals = Dict{AbstractExpr, V}()
     vals = Dict{V, V}()
     
@@ -14,17 +14,16 @@ function map_expr_dag(func::F, expr::AbstractExpr, ::Type{V}=Any) where {F<:Func
     expr_vals[expr]
 end 
 
+# function remove_common_subexpressions(root::AbstractExpr)
+#     seen_exprs = Dict{AbstractExpr, AbstractExpr}()
 
-function remove_common_subexpressions(root::AbstractExpr)
-    seen_exprs = Dict{AbstractExpr, AbstractExpr}()
+#     remove_seen_expr(expr::Terminal, operands::Tuple{}) = expr 
+#     function remove_seen_expr(expr::Operator, operands::VarTuple{AbstractExpr})
+#         typeof(expr)(expr, operands)
+#     end 
 
-    remove_seen_expr(expr::Terminal, operands::Tuple{}) = expr 
-    function remove_seen_expr(expr::Operator, operands::VarTuple{AbstractExpr})
-        typeof(expr)(expr, operands)
-    end 
-
-    map_expr_dag(root, remove_seen_expr, AbstractExpr)
-end
+#     map_expr_dag(root, remove_seen_expr, AbstractExpr)
+# end
 
 
 function map_integrands(func::F, form::Form) where F <: Function 
