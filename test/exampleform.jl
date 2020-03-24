@@ -18,7 +18,7 @@ I = Identity(d) # (2x2 identity)
 
 F = I + grad(u) # <- (2x2)              Deformation gradient
 
-C = F.T*F # <- (sum_i F.T[i, j] * F[j, k])                   # Right Cauchy-Green tensor
+C = trans(F)*F # <- (sum_i F.T[i, j] * F[j, k])                   # Right Cauchy-Green tensor
 
 # # Invariants of deformation tensors
 
