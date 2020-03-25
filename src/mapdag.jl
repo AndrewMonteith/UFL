@@ -1,30 +1,31 @@
-export map_expr_dag, map_integrand_dags
+export map_expr_dag, map_integrand_dags, AbstractMapper, cached
 
-function map_expr_dag(func::F, expr::AbstractExpr, ::Type{V}=AbstractExpr) where {F<:Function, V<:Any}
-    expr_vals = Dict{AbstractExpr, V}()
-    vals = Dict{V, V}()
-    
-    @UFL.post_order_traversal for node ∈ expr 
-        node ∈ keys(expr_vals) && continue
+abstract type AbstractMapper <: Function end
 
-        v = func(node, map(op -> expr_vals[op], ufl_operands(node)))::V
-        expr_vals[node] = get!(vals, v, v)
-    end
-
-    expr_vals[expr]
+struct BaseMapper{V} 
+    cached::Dict{AbstractExpr, V}
+    BaseMapper() = new{AbstractExpr}(Dict{AbstractExpr, AbstractExpr}())
+    BaseMapper{V}() where V = new{V}(Dict{AbstractExpr, V}())
 end 
 
-# function remove_common_subexpressions(root::AbstractExpr)
-#     seen_exprs = Dict{AbstractExpr, AbstractExpr}()
+Base.getindex(m::AbstractMapper, x::AbstractExpr) = m.base.cached[x]
+Base.getindex(m::AbstractMapper, x::Tuple{AbstractExpr, AbstractExpr})::Tuple{AbstractExpr, AbstractExpr} = (m[x[1]], m[x[2]])
+Base.in(x::AbstractExpr, m::AbstractMapper) = x ∈ keys(m.base.cached) 
 
-#     remove_seen_expr(expr::Terminal, operands::Tuple{}) = expr 
-#     function remove_seen_expr(expr::Operator, operands::VarTuple{AbstractExpr})
-#         typeof(expr)(expr, operands)
-#     end 
+function (m::BaseMapper{AbstractExpr})(expr::AbstractExpr)::AbstractExpr 
+    ops = ufl_operands(expr)
+    operands = Tuple(m.cached[e] for e ∈ ops)
+    ops === operands ? expr : reconstruct_expr(expr, operands)
+end 
 
-#     map_expr_dag(root, remove_seen_expr, AbstractExpr)
-# end
+function map_expr_dag(mapper::AbstractMapper, expr::AbstractExpr)
+    @UFL.post_order_traversal for node ∈ expr 
+        node ∈ mapper && continue
+        mapper.base.cached[node] = mapper(node)
+    end
 
+    mapper[expr]
+end 
 
 function map_integrands(func::F, form::Form) where F <: Function 
     mapped_integrals = [map_integrands(func, integral) for integral ∈ form.integrals]
@@ -33,7 +34,7 @@ function map_integrands(func::F, form::Form) where F <: Function
     Form(tuple(nonzero_integrals...))
 end
 
-function map_integrands(func::F, integral::Integral) where F <: Function 
+function map_integrands(func::F, integral::Integral)::Integral where F <: Function 
     reconstruct(integral; integrand=func(integral.integrand))
 end
 
@@ -41,6 +42,6 @@ function map_integrands(func::F, expr::AbstractExpr)::AbstractExpr where F <: Fu
     func(expr)
 end 
 
-function map_integrand_dags(func::F, expr::Union{Form, Integral, AbstractExpr}) where F <: Function 
+function map_integrand_dags(func::AbstractMapper, expr::Union{Form, Integral, AbstractExpr})
     map_integrands(e -> map_expr_dag(func, e), expr)
 end 

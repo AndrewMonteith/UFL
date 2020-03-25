@@ -25,14 +25,15 @@ function apply_single_function_pullback(arg::AbstractFormArgument)
     error("undefined for $arg with mapping $mapping")
 end 
 
-struct FunctionPullback <: Function
-    cache::Dict{AbstractFormArgument, AbstractExpr}
+struct FunctionPullback <: AbstractMapper 
+    base::BaseMapper 
+    cache::Dict{AbstractFormArgument, AbstractExpr} 
 
-    FunctionPullback() = new(Dict{AbstractFormArgument, AbstractExpr}())
+    FunctionPullback() = new(BaseMapper(), Dict{AbstractFormArgument, AbstractExpr}())
 end 
 
-(fs::FunctionPullback)(t::Terminal, ops::VarTuple{AbstractExpr}) = t 
-(fs::FunctionPullback)(expr::AbstractExpr, ops::VarTuple{AbstractExpr}) = reuse_if_untouched(expr, ops)
-(fs::FunctionPullback)(arg::AbstractFormArgument, ops::VarTuple{AbstractExpr}) = get!(fs.cache, arg, apply_single_function_pullback(arg))
+(fs::FunctionPullback)(t::Terminal) = t
+(fs::FunctionPullback)(expr::AbstractExpr) = fs.base(expr)
+(fs::FunctionPullback)(arg::AbstractFormArgument) = get!(fs.cache, arg, apply_single_function_pullback(arg))
 
 apply_function_pullback(expr::Union{Form, AbstractExpr}) = map_integrand_dags(FunctionPullback(), expr)

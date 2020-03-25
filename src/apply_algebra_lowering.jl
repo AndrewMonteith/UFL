@@ -1,9 +1,16 @@
 export apply_algebra_lowering
 
-lower_compound_algebra(expr::AbstractExpr, operands::VarTuple{AbstractExpr}) = reuse_if_untouched(expr, operands)
+struct LowerAlgebra <: AbstractMapper 
+    base::BaseMapper
 
-function lower_compound_algebra(::Determinant, operands::Tuple{AbstractExpr})::AbstractExpr
-    expr = operands[1]
+    LowerAlgebra() = new(BaseMapper())
+end
+(l::LowerAlgebra)(x::AbstractExpr) = l.base(x)
+
+function (l::LowerAlgebra)(d::Determinant)
+    o = ufl_operands(d)
+
+    expr = l[o[1]]
     sh = ufl_shape(expr)
 
     if sh === () 
@@ -21,19 +28,20 @@ function lower_compound_algebra(::Determinant, operands::Tuple{AbstractExpr})::A
     end
 end
 
-function lower_compound_algebra(::Transposed, op::Tuple{AbstractExpr})
+function (l::LowerAlgebra)(t::Transposed)
     (i, j) = indices_n(2)
+    op = l[ufl_operands(t)[1]] # cached(l, ufl_operands(t)[1])
 
-    as_tensor(op[1][i, j], (j, i))
+    as_tensor(op[i, j], (j, i))
 end 
 
-function lower_compound_algebra(::Trace, op::Tuple{AbstractExpr})::AbstractExpr
+function (l::LowerAlgebra)(t::Trace)::AbstractExpr
     i = Index() 
-    op[1][i, i]
+    l[ufl_operands(t)[1]][i, i]
 end
 
-function lower_compound_algebra(::Dot, operands::Tuple{AbstractExpr, AbstractExpr})
-    a, b = operands 
+function (l::LowerAlgebra)(d::Dot)
+    a, b = l[ufl_operands(d)]
 
     ai = indices_n((length ∘ ufl_shape)(a)-1)
     bi = indices_n((length ∘ ufl_shape)(b)-1)
@@ -44,5 +52,58 @@ function lower_compound_algebra(::Dot, operands::Tuple{AbstractExpr, AbstractExp
     as_tensor(s, tuple(ai..., bi...))
 end
 
+apply_algebra_lowering(f::Union{Form, AbstractExpr}) = map_integrand_dags(LowerAlgebra(), f)
 
-apply_algebra_lowering(f::Union{Form, AbstractExpr}) = map_integrand_dags(lower_compound_algebra, f)
+
+
+
+# lower_compound_algebra(expr::AbstractExpr, cached::Dict{AbstractExpr, AbstractExpr}) = reuse_if_untouched_(expr, cached)
+
+# function lower_compound_algebra(d::Determinant, cached::Dict{AbstractExpr, AbstractExpr})::AbstractExpr
+#     o = ufl_operands(d)
+
+#     expr = cached[o[1]]
+#     sh = ufl_shape(expr)
+
+#     if sh === () 
+#         expr 
+#     elseif sh[1] === sh[2]
+#         if sh[1] === 1
+#             expr[0, 0]
+#         elseif sh[1] === 2
+#             determinant_expr_2x2(expr)
+#         elseif sh[1] === 3
+#             determinant_expr_3x3(expr)
+#         end
+#     else
+#         error("we don't support this for now")
+#     end
+# end
+
+# function lower_compound_algebra(t::Transposed, cached::Dict{AbstractExpr, AbstractExpr})
+#     (i, j) = indices_n(2)
+#     op = cached[ufl_operands(t)[1]]
+
+#     as_tensor(op[i, j], (j, i))
+# end 
+
+# function lower_compound_algebra(t::Trace, cached::Dict{AbstractExpr, AbstractExpr})::AbstractExpr
+#     i = Index() 
+#     cached[ufl_operands(t)[1]][i, i]
+# end
+
+# function lower_compound_algebra(d::Dot, cached::Dict{AbstractExpr, AbstractExpr})
+#     x, y = ufl_operands(d) 
+#     a, b = cached[x], cached[y]
+
+#     ai = indices_n((length ∘ ufl_shape)(a)-1)
+#     bi = indices_n((length ∘ ufl_shape)(b)-1)
+#     k = Index()
+
+#     s = a[ai..., k] * b[k, bi...] 
+
+#     as_tensor(s, tuple(ai..., bi...))
+# end
+
+
+# apply_algebra_lowering(f::Union{Form, AbstractExpr}) = map_integrand_dags(lower_compound_algebra, f)

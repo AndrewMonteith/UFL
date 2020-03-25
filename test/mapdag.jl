@@ -4,19 +4,16 @@ i, j, k = Identity(3), Identity(3), Identity(3)
 
 s = ((i + j) + (i + j)) + k
 
-mutable struct Traverser <: Function
-    num_of_calls::Int
+struct CounterMapper <: UFL.AbstractMapper 
+    base::UFL.BaseMapper{Int}
+    CounterMapper() = new(UFL.BaseMapper{Int}())
 end 
 
-safe_sum(x::Tuple{}) = 0
+safe_sum(::Tuple{}) = 0
 safe_sum(x) = sum(x)
 
-function (t::Traverser)(x::UFL.AbstractExpr, operands::UFL.VarTuple{Int})
-    t.num_of_calls += 1
-    1 + safe_sum(operands)
-end
+function (cm::CounterMapper)(x::UFL.AbstractExpr)
+    1 + safe_sum(map(op -> cm[op], ufl_operands(x)))
+end 
 
-t = Traverser(0) 
-
-@test map_expr_dag(t, s, Int) === 9 
-@test t.num_of_calls === 4
+@test map_expr_dag(CounterMapper(), s) === 9 
