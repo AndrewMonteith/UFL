@@ -1,35 +1,28 @@
-# Project Plan
-
-Rough sketch of points to talk about in my report.
-General Questions are highlighted in bold.
-
 ## Introduction 2-3 Pages
 
-* Introduce workflow of a physical simulation ie: Give structure & Mathematical process (in equation), Simulate Over Time 
-* Introduce symbolic computing as area that deals with representing and manipulating the equation
-* Introduce notion of Domain Specific Language
-  * Talk about different flavours and which best applies for symbolic computing
-  * Introduce Unified Form Language as example of DSL relating to symbolic computing
-* Simplification Passes on DSL's
-  * Simple examples like common subexpression elimination
-* Introduce Julia Programming Language
-  * Cover basics of Type System & Multi Dispatch with small code snippets example
-* Introduce goals of the project - Julia better implementation Language than Python for UFL
-  * First class abstractions offered in Julia better than Python for making UFL?
+* Workflow of a physical simulation ie: Give structure & Mathematical process (in equation), Simulate Over Time
+* Symbolic Languages / Domain Specific Languages
+  * Different flavours and what applied to symbolic languages
+* Term Rewriting -> Series of transformation passes
+  * Give some example of transformation passes
+* Unified Form Language in a form compiler setting
+* Julia Programming Language
+  * Type System & Mutli-Dispatch & Metaprogramming with small code snippets
+* Project Goals:
+  * First class abstractions offered in Julia better than Python?
   * More performant? - Relative to constructing and manipulating trees
     * Mention not implementing entire UFL surface API but recreating core parts
 
-## Related Work 2-4 Pages     : Prob gonna be nearer 2 than 4 pages
+## Related Work
 
-* Firedrake Project
-  * 2 Languages in project: C & Python.
-    * Python for the expressive & ease for the developer 
-      * Term rewriting and simplification is written in python
-    * C for the Needs C for the speed of simulation
-    * Single host&target language would make things easier
-  * Uses UFL for DSL for DE
-  * **Any other points to talk about here?**
-  
+* Fenics & Firedrake Project
+  * Difference in design choices
+  * Compiler for (UFL + Domain) -> C
+    * Python for expressive & ease
+    * Term manipulation done in Python
+    * C for speed of simulation
+    * Single host&target would make things easier
+
 * Current Julia Ecosystem
   * Often maths processes are DE's, this is Julia's current defacto package for representing and solving them
   * ModellingToolkit -> DSL to represent maths stuff
@@ -38,41 +31,46 @@ General Questions are highlighted in bold.
   * Simplify/Rewrite -> Transformation Passes
     * Could be used for our domain but would require changing our current datstructure to match their macro system
 
-## Solution 4-7 Pages
+## Solution
 
 * How I used Julia's type System
   * Using Abstract Types and multidispatch to generalise type behaviour
-  * Traits as a maintainble way to describe behaviour on types, can add complexity for describing multiple 
+  * Traits as a maintainble way to describe behaviour on types, can add complexity for describing multiple
+  * Trees need be homogenous types else we get a combinator type explosion
 
 * Julia Metaprogramming reducing boilerplate compared to pythons decorators
 * Not including .T syntax because can't dispatch off data dependent types
 * Design choices for hashing (eager vs lazy)
   * Added complexity by doing eager (Having to use @sig macro)
 * Tree Traversal
+  * Treating trees a DAGs to avoid blowup in size
 
-## Results 2-3 Pages
+## Results
 
-**Which ones should I include**:
+* Discuss how we create input instances to benchmark on
+  * Number of nodes in the tree.
+  * Number of types in the tree (Which is an indirect measure of number of dispatches)
 
-* Hasing Benchmarks
-* Tree Construction
-* Tree Traversal Benchmarks
-  * Would I need define this pass here?
-* Differentiation Benchmarks
-  * Would I need define this pass here or earlier?
-* Algebraic Lowering Benchmarks
-* **Is this the right place to introduce the example form**
-* Example Form Benchmarks
+* Define and Benchmark
+  * Hashing Benchmark
+  * Tree Construction
+  * Tree Traversal
+  * Algebraic Lowering
+  * Differentiation
+  * Example Form Benchmark
+    * Introduce example form here
 
-## Evaluation 1-2 Pages
+## Evaluation
 
 * Why is this a bloody separate section?
 * Maintability results
   * Small API surface due to traits
   * Reducer boilerplate because of metaprogramming means we can easily change general behaviour of type tree
-  * **Any other easy points**
+  * Discuss how effective the benchmarking is
+    * How input instances reflect true forms
+    * Whether results show only great gain for obnoxiously large forms 
 
-## Conclusion <= 1 Page
+## Conclusion
 
 Julia is faster
 Julia is less verbose
