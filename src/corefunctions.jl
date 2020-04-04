@@ -97,3 +97,16 @@ function Base.iterate(x::AbstractExpr, state::Tuple{Int, Int})
     (x[i], (i, state[2]))
 end
 Base.iterate(x::AbstractExpr) = (x[1], (1, length(x)))
+
+is_terminal(::Terminal) = true 
+is_terminal(::AbstractExpr) = false
+
+function is_cellwise_constant(x::Operator)
+    UFL.@unique_pre_traversal for s ∈ x 
+        if is_terminal(s) && !is_cellwise_constant(s) 
+            return false
+        end
+    end
+
+    true
+end

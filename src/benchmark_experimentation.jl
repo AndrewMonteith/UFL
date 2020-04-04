@@ -75,6 +75,12 @@ end
 
 using BenchmarkTools
 
+# Benchmarking Traversal:
+# for n ∈ [100, 200, 300, 500, 1_000, 5_000, 10_000, 20_000] 
+#     suite["$(n)_pre"] = @benchmarkable count_nodes_pre_ot(tree) setup=(tree=build_static_type_tree($n, $x, $u, $v))
+#     suite["$(n)_post"] = @benchmarkable count_nodes_post_ot(tree) setup=(tree=build_static_type_tree($n, $x, $u, $v))
+# end
+
 function do_benchmarks()
     suite = BenchmarkGroup()
     

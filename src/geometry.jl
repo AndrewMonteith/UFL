@@ -2,6 +2,8 @@ export SpatialCoordinate, find_geometric_dimension
 
 abstract type AbstractGeometricCellQuantity <: Terminal end 
 
+is_cellwise_constant(::AbstractGeometricCellQuantity) = false
+
 @ufl_type struct SpatialCoordinate <: AbstractGeometricCellQuantity
     ufl_fields=(shape,)
 
@@ -13,6 +15,7 @@ abstract type AbstractGeometricCellQuantity <: Terminal end
     end
 end 
 Base.show(io::IO, sc::SpatialCoordinate) = print(io, "x")
+is_cellwise_constant(s::SpatialCoordinate) = s.topological_dimension === 0
 
 geometric_dimension(s::SpatialCoordinate) = s.geometric_dimesnion
 

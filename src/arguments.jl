@@ -21,6 +21,7 @@ argument_id = 0
     end
 end
 Base.show(io::IO, f::UflFunction) = print(io, "w_$(f.id >= 10 ? "{$(f.id)}" : string(f.id))")
+is_cellwise_constant(f::UflFunction) = (is_cellwise_constant ∘ ufl_element)(f)
 
 @ufl_type struct Argument <: AbstractFormArgument 
     ufl_fields = (shape,)
@@ -39,7 +40,6 @@ Base.show(io::IO, f::UflFunction) = print(io, "w_$(f.id >= 10 ? "{$(f.id)}" : st
     end
 end
 Base.repr(arg::Argument) = "Argument($(repr(arg.ufl_function_space)), $(arg.number))"
-
 is_cellwise_constant(::Argument) = false 
 
 function Base.show(io::IO, arg::Argument)
@@ -93,5 +93,6 @@ end
     end
 end
 
+is_cellwise_constant(::Constant) = true
 Base.repr(c::Constant) = "Constant($((repr ∘ ufl_element)(c.ufl_function_space)), $(c.id)))"
 Base.show(io::IO, c::Constant) = print(io, "w_$( c.id >= 10 ? "{$(string(c.id))}" : string(c.id) )")

@@ -77,6 +77,8 @@ Base.iterate(m::MultiIndexNode) = isempty(m.indices) ? nothing : (m.indices[1], 
 Base.iterate(m::MultiIndexNode, state::Int) = (state === length(m.indices) || state === -1) ? nothing : (m.indices[state+1], state+1)
 convert(::Type{VarTuple{AbstractIndex}}, x) = MultiIndexNode(x)
 
+is_cellwise_constant(::MultiIndexNode) = true
+
 indices_n(n::Int) = tuple((Index() for _ ∈ 1:n)...)
 indices(m::MultiIndexNode) = m.indices
 indices(m) = m

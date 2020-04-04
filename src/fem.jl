@@ -130,3 +130,5 @@ fem_value_shape(a::AbstractFiniteElement) = a.base.value_shape
 fem_ref_value_shape(a::AbstractFiniteElement) = a.base.ref_value_shape
 fem_mapping(a::AbstractFiniteElement) = a.base.mapping 
 fem_mapping(m::MixedElement) = all(fem_mapping(e)==="identity" for e ∈ m.elements) ? "identity" : "undefined"
+
+is_cellwise_constant(a::AbstractFiniteElement) = fem_family(a) === "Real" && fem_degree(a) === 0
