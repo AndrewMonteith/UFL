@@ -1,4 +1,4 @@
-export pre_order_traversal, unique_pre_traversal, post_order_traversal
+export pre_order_traversal, unique_pre_traversal, post_order_traversal, unique_post_order_traversal
 
 function decompose_for_loop(for_loop)
     iter_var = for_loop.args[1].args[1]
@@ -18,18 +18,27 @@ macro pre_order_traversal(for_loop)
         
         while !isempty(to_visit)
             $iter_var = pop!(to_visit)
-            append!(to_visit, ufl_operands($iter_var))
-        
+
+            for x′ ∈ ufl_operands($iter_var)
+                push!(to_visit, x′)
+            end
+            
             $loop_body
         end
     end)
 end
 
-macro post_order_traversal(for_loop)
+mutable struct MutableKvp 
+    expr::AbstractExpr 
+    next::Int
+end
+
+macro _unique_post_order_traversal(for_loop)
     root, loop_body, iter_var = decompose_for_loop(for_loop)
 
     esc(quote
         lifo::Vector{Tuple{UFL.AbstractExpr, Array{UFL.AbstractExpr}}} = [($root, (collect ∘ ufl_operands)($root))]
+        visited = Set{UFL.AbstractExpr}()
 
         while !isempty(lifo)
             (expr, deps) = lifo[end]
@@ -41,7 +50,7 @@ macro post_order_traversal(for_loop)
                 dep = pop!(deps)
                 dep_ops = ufl_operands(dep)
 
-                if !isempty(dep_ops)
+                if dep ∉ visited && !isempty(dep_ops)
                     push!(lifo, (dep, collect(dep_ops)))
                     continue
                 end
@@ -49,7 +58,55 @@ macro post_order_traversal(for_loop)
                 dep
             end 
 
+            push!(visited, $iter_var)
+
             $loop_body
+        end
+    end)
+end
+
+macro post_order_traversal(for_loop)
+    root, loop_body, iter_var = decompose_for_loop(for_loop)
+    
+    esc(quote
+        lifo::Vector{UFL.MutableKvp} = [UFL.MutableKvp($root, 1)]
+        
+        while !isempty(lifo)
+            kvp = lifo[end]
+            
+            children = ufl_operands(kvp.expr)
+            
+            $iter_var = if kvp.next > length(children)
+                pop!(lifo)
+                kvp.expr
+            else
+                child = children[kvp.next]
+                lifo[end].next += 1
+                
+                push!(lifo, UFL.MutableKvp(child, 1))
+                
+                continue
+            end
+            
+            $loop_body
+        end 
+    end)
+end
+
+macro unique_post_order_traversal(for_loop)
+    root, loop_body, iter_var = decompose_for_loop(for_loop)
+
+    esc(quote
+        visited = Set{UFL.AbstractExpr}()
+
+        UFL.@post_order_traversal for $iter_var ∈ $root 
+            if $iter_var ∈ visited 
+                continue 
+            end 
+
+            push!(visited, $iter_var)
+
+            $loop_body 
         end
     end)
 end

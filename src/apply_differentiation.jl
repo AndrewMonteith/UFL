@@ -50,29 +50,25 @@ generic_derivative_rule(mapper::AbstractMapper, i::Indexed) = indexed_derivative
 function generic_derivative_rule(mapper::AbstractMapper, s::Sum)
     a, b = mapper[ufl_operands(s)]
     a + b
-    # a, b = ufl_operands(s)
-    # cached(mapper, a) + cached(mapper, b)
 end 
 
 function generic_derivative_rule(mapper::AbstractMapper, i::IndexSum)
     a, b = mapper[ufl_operands(i)]
     IndexSum(a, b)
-    # a, b = ufl_operands(i)
-    # IndexSum(mapper[a]cached(mapper, a), cached(mapper, b))
 end
 
 function generic_derivative_rule(mapper::AbstractMapper, l::Ln)
     f = ufl_operands(l)[1] 
-    f′ = mapper[f] # cached(mapper, f)
+    f′ = mapper[f]
 
     f′  isa Zero && error("Division by zero")
 
-    f/f′ 
+    f′/f 
 end 
 
 function generic_derivative_rule(mapper::AbstractMapper, p::Product)
     a, b = ufl_operands(p)
-    a′, b′ = mapper[a], mapper[b] #cached(mapper, a), cached(mapper, b)
+    a′, b′ = mapper[a], mapper[b]
 
     (da, db), ii = as_scalars(a′, b′)
     
@@ -92,7 +88,7 @@ function generic_derivative_rule(mapper::AbstractMapper, p::Power)
     !is_true_scalar(f) && error("Expecting scalar f in f**g")
     !is_true_scalar(g) && error("Expecting scalar g in f**g")
 
-    f′, g′ = mapper[f], mapper[g] # cached(mapper, f), cached(mapper, g)
+    f′, g′ = mapper[f], mapper[g]
 
     if g′ isa Zero
         f′ * g * f^(g-1)
@@ -114,7 +110,7 @@ end
 
 function generic_derivative_rule(mapper::AbstractMapper, d::Division)
     f, g = ufl_operands(d)
-    f′, g′ = mapper[f], mapper[g] # cached(mapper, f), cached(mapper, g)
+    f′, g′ = mapper[f], mapper[g]
 
     !UFL.is_scalar(f) && error("Not expecting nonscalar numerator")
     !UFL.is_scalar(g) && error("Not expecting nonscalar denominator")

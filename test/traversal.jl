@@ -18,10 +18,10 @@ function pre_t_for(tree)
 end
 @test pre_t_for(F) == expected_pre_order_walk
 
-expected_post_order_walk = [k, j, i, s1, F]
+expected_post_order_walk = [i, j, s1, k, F]
 
 function post_t_for(tree)
-    walk = [] 
+    walk::Vector{UFL.AbstractExpr} = [] 
     UFL.@post_order_traversal for x ∈ tree 
         push!(walk, x)
     end

@@ -15,13 +15,7 @@
 
 ## Related Work
 
-* Fenics & Firedrake Project
-  * Difference in design choices
-  * Compiler for (UFL + Domain) -> C
-    * Python for expressive & ease
-    * Term manipulation done in Python
-    * C for speed of simulation
-    * Single host&target would make things easier
+SciPy / Haskell / Racket
 
 * Current Julia Ecosystem
   * Often maths processes are DE's, this is Julia's current defacto package for representing and solving them

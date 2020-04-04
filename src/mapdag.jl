@@ -19,7 +19,7 @@ function (m::BaseMapper{AbstractExpr})(expr::AbstractExpr)::AbstractExpr
 end 
 
 function map_expr_dag(mapper::AbstractMapper, expr::AbstractExpr)
-    @UFL.post_order_traversal for node ∈ expr 
+    UFL.@unique_post_order_traversal for node ∈ expr 
         node ∈ mapper && continue
         mapper.base.cached[node] = mapper(node)
     end

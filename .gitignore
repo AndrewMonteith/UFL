@@ -1,3 +1,4 @@
 .vscode/*
 test_snippets.jl
 .VSCodeCounter/*
+.venv/*
