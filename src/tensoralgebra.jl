@@ -1,4 +1,4 @@
-export tr, det, dot, trans
+export tr, det, dot, trans, inner
 
 abstract type CompoundTensorOperator <: Operator end 
 
@@ -96,6 +96,29 @@ function dot(a::AbstractExpr, b::AbstractExpr)
     Dot(a, b)
 end
 
+
+@ufl_type struct Inner <: CompoundTensorOperator
+    ufl_fields = (operands, free_indices, index_dimensions)
+    ufl_tags = (num_ops=2,)
+
+    function Inner(a::AbstractExpr, b::AbstractExpr)
+        ash, bsh = ufl_shape(a), ufl_shape(b)
+        ash !== bsh && error("Shapes do not match: $ash and $bsh")
+
+        if ash isa Zero || bsh isa Zero 
+            fi, fid = merge_nonoverlapping_indices(a, b)
+            return Zero((), fi, fid)
+        end 
+
+        # If Conj node implemented add simplifications rules here.
+        fi, fid = merge_nonoverlapping_indices(a, b)
+
+        new(@sig((a, b)), fi, fid)
+    end
+end
+
+Base.show(io::IO, i::Inner) = print("$(parstr(i, i.ufl_operands[1])) : $(parstr(i, i.ufl_operands[2]))")
+inner(a::AbstractExpr, b::AbstractExpr) = Inner(a, b)
 
 # @inline _getproperty(x::AbstractExpr, ::Val{s}) where s = getfield(x, s)
 # @inline _getproperty(x::AbstractExpr, ::Val{:T}) = Transposed(x)

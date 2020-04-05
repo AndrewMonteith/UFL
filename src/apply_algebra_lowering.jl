@@ -52,6 +52,18 @@ function (l::LowerAlgebra)(d::Dot)
     as_tensor(s, tuple(ai..., bi...))
 end
 
+function (l::LowerAlgebra)(i::Inner)
+    a, b = l[ufl_operands(i)]
+
+    ash, bsh = ufl_shape(a), ufl_shape(b)
+    
+    ash !== bsh && error("Mismatching shape") 
+
+    ii = (indices_n ∘ length)(ash)
+
+    return a[ii...] * conj(b[ii...])
+end
+
 apply_algebra_lowering(f::Union{Form, AbstractExpr}) = map_integrand_dags(LowerAlgebra(), f)
 
 

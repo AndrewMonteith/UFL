@@ -167,8 +167,17 @@ function as_scalars(expressions...)::Tuple{VarTuple{AbstractExpr}, MultiIndex}
         expressions, ()
     else
         ii = (indices_n ∘ length)(sh)
-        expressions = [expr[ii...] for expr ∈ expressions]
-        tuple(expressions...), ii
+        Tuple(expr[ii...] for expr ∈ expressions), ii
+    end
+end
+
+function as_scalars(expr1::AbstractExpr, expr2::AbstractExpr)::Tuple{Tuple{AbstractExpr, AbstractExpr}, MultiIndex}
+    sh = ufl_shape(expr1)
+    if isempty(sh)
+        (expr1, expr2), () 
+    else
+        ii = (indices_n ∘ length)(sh)
+        (expr1[ii...], expr2[ii...]), ii
     end
 end
 

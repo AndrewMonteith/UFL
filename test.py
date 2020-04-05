@@ -1,6 +1,9 @@
 from ufl.corealg.map_dag import map_expr_dag
 from ufl.corealg.multifunction import MultiFunction
 from ufl.corealg.traversal import pre_traversal, post_traversal
+from ufl.algorithms.apply_algebra_lowering import apply_algebra_lowering
+from ufl.algorithms.apply_derivatives import apply_derivatives
+
 
 from firedrake import * 
 import random
@@ -14,17 +17,17 @@ V = VectorFunctionSpace(mesh, "CG", 1)
 u = TrialFunction(V)
 v = TestFunction(V)
 
-def count_nodes(root):
-    s = 0
-    for x in pre_traversal(root):
-        s += 1
-    return s
+# def count_nodes(root):
+#     s = 0
+#     for x in pre_traversal(root):
+#         s += 1
+#     return s
 
-def count_nodes_post(root):
-    s = 0 
-    for x in post_traversal(root):
-        s += 1 
-    return s
+# def count_nodes_post(root):
+#     s = 0 
+#     for x in post_traversal(root):
+#         s += 1 
+#     return s
 
 def build_random_tree(n, x, u, v):
     atom1 = tr(grad(u))
@@ -62,3 +65,12 @@ def build_random_tree(n, x, u, v):
                     root = atom4 + root 
     
     return root
+
+tree_100 = apply_algebra_lowering(build_random_tree(100, x, u, v))
+tree_200 = apply_algebra_lowering(build_random_tree(200, x, u, v))
+tree_300 = apply_algebra_lowering(build_random_tree(300, x, u, v))
+tree_500 = apply_algebra_lowering(build_random_tree(500, x, u, v))
+tree_1000 = apply_algebra_lowering(build_random_tree(1000, x, u, v))
+tree_5000 = apply_algebra_lowering(build_random_tree(5000, x, u, v))
+tree_10000 = apply_algebra_lowering(build_random_tree(10000, x, u, v))
+tree_20000 = apply_algebra_lowering(build_random_tree(20000, x, u, v))

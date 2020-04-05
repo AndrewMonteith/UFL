@@ -65,6 +65,44 @@ export Indexed, IndexSum, ComponentTensor
 
         new(@sig(operands), fi, fid)
     end
+
+    # function Indexed(expr::AbstractExpr, multiindex::MultiIndexNode)
+    #     operands = (expr, multiindex)
+
+    #     shape = ufl_shape(expr)
+    #     if length(shape) !== length(multiindex.indices)
+    #         error("Invalid number of indices $(length(multiindex.indices)) for tensor expression of rank $(length(shape))")
+    #     elseif any((si < di.d for (si, di) ∈ zip(shape, multiindex.indices) if di isa FixedIndex))
+    #         error("Fixed index out of range")
+    #     end
+
+    #     efi = ufl_free_indices(expr)
+    #     efid = ufl_index_dimensions(expr)
+
+    #     # If efi or efid are empty collect destroys the type information of the elements of the array 
+    #     # by erasing them to Union{} which causes the push later to fail
+    #     fi_and_d::Vector{Tuple{AbstractIndex, Dimension}} = if isempty(efi) 
+    #         []
+    #     else
+    #         collect(zip(efi, efid))
+    #     end
+
+    #     for (pos, ind) ∈ enumerate(multiindex.indices)
+    #         if ind isa Index 
+    #             push!(fi_and_d, (ind, shape[pos]))
+    #         end 
+    #     end 
+
+    #     sort!(unique!(fi_and_d); by=t -> t[1])
+
+    #     fi, fid = if isempty(fi_and_d)
+    #         (), ()
+    #     else
+    #         collect(zip(fi_and_d...))
+    #     end 
+
+    #     new(@sig(operands), fi, fid)
+    # end
 end
 Base.show(io::IO, i::Indexed) = print(io, "$(parstr(i, i.ufl_operands[1]))[$(i.ufl_operands[2])]")
 

@@ -26,7 +26,7 @@ We give julia times followed by python times
 * n = 10000, 1ms / 2.42ms
 * n = 20000, 2.1ms / 4.87ms
 
-## Post-Order Traversal
+### Post-Order Traversal
 
 * n = 100, 18.8μs / 79.7μs
 * n = 200, 35.4μs / 161μs
@@ -36,3 +36,14 @@ We give julia times followed by python times
 * n = 5000, 820μs / 4.75ms
 * n = 10000, 1.65ms / 9.61ms
 * n = 20000, 3.26ms / 20.3ms
+
+## Differentiation
+
+* n = 100, 103.5μs / 348μs
+* n = 200, 181μs / 512μs
+* n = 300, 259μs / 710μs
+* n = 500, 403μs / 1.11ms
+* n = 1000, 761μs / 2.07ms
+* n = 5000, 3.5ms / 9.89ms
+* n = 10000, 7ms / 20ms
+* n = 20000, 9ms / 39.6ms

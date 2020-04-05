@@ -73,6 +73,70 @@ function count_nodes_post_ot(root::AbstractExpr)
     x
 end
 
+function build_diff_example_1(x::AbstractExpr, u::AbstractExpr, v::AbstractExpr)
+    root = x
+    for i ∈ 2:10
+        if random_bool()
+            root = root + x^i 
+        else
+            root = x^i + root 
+        end 
+    end
+    root
+end
+
+function build_diff_example_2(x::AbstractExpr, u::AbstractExpr, v::AbstractExpr)
+    root = x - 1/x
+    for i ∈ 2:10 
+        term = (i*x^i - i/x^i)
+        if random_bool()
+            root = root + term
+        else
+            root = term + root 
+        end 
+    end
+    root
+end
+
+function build_diff_example_3(x::AbstractExpr, u::AbstractExpr, v::AbstractExpr)
+    root = 0
+    for i ∈ 1:10 
+        term = x^i*ln(x) + 1/(x^i*ln(x))
+        if random_bool()
+            root = root + term
+        else
+            root = term + root 
+        end 
+    end
+    root
+end
+
+function build_diff_example_4(x::AbstractExpr, u::AbstractExpr, v::AbstractExpr)
+    root = 0
+    for i ∈ 1:10 
+        term = x^i*dot(u, v) + ln(1/x^i)*inner(u, v)
+        if random_bool()
+            root = root + term
+        else
+            root = term + root 
+        end 
+    end
+    root
+end
+
+function build_diff_example_5(x::AbstractExpr, u::AbstractExpr, v::AbstractExpr)
+    root = 0
+    for i ∈ 1:10 
+        term = x^i*det(grad(u)) + ln(1/x^i)*tr(grad(u))
+        if random_bool()
+            root = root + term
+        else
+            root = term + root 
+        end 
+    end
+    root
+end
+
 using BenchmarkTools
 
 # Benchmarking Traversal:
@@ -87,17 +151,21 @@ function do_benchmarks()
     mesh = UnitTriangleMesh()
     (x,y) = SpatialCoordinate(2, 2)
     
-    V = VectorFunctionSpace(mesh, "CG", 1)
+    V = VectorFunctionSpace(mesh, "CG", 1);
     
     u = UflFunction(V)
     v = TestFunction(V)
-   
-    for n ∈ [100, 200, 300, 500, 1_000, 5_000, 10_000, 20_000] 
-        suite["$(n)_pre"] = @benchmarkable count_nodes_pre_ot(tree) setup=(tree=build_static_type_tree($n, $x, $u, $v))
-        suite["$(n)_post"] = @benchmarkable count_nodes_post_ot(tree) setup=(tree=build_static_type_tree($n, $x, $u, $v))
-    end
+  
+    suite["example_1"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_1($x, $u, $v)))
+    # suite["example_2"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_2($x, $u, $v)))
+    # suite["example_3"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_3($x, $u, $v)))
+    # suite["example_4"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_4($x, $u, $v)))
+    # suite["example_5"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_5($x, $u, $v)))
+    # for n ∈ [100, 200, 300, 500, 1_000, 5_000, 10_000, 20_000] 
+    #     suite["$(n)"] = @benchmarkable UFL.apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_static_type_tree($n, $x, $u, $v)))
+    # end
 
     tune!(suite)
 
-    BenchmarkTools.run(suite, verbose=true, seconds=120)
+    BenchmarkTools.run(suite, verbose=true, seconds=8)
 end

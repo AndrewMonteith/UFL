@@ -46,6 +46,7 @@ generic_derivative_rule(mapper::AbstractMapper, m::MultiIndexNode) = m
 generic_derivative_rule(mapper::AbstractMapper, c::AbstractConstantValue) = zero_terminal(mapper, c)
 generic_derivative_rule(mapper::AbstractMapper, f::UflFunction) = mapper.base(f)
 generic_derivative_rule(mapper::AbstractMapper, i::Indexed) = indexed_derivative(mapper, i)
+generic_derivative_rule(mapper::AbstractMapper, c::Conj) = conj(mapper[c.ufl_operands[1]])
 
 function generic_derivative_rule(mapper::AbstractMapper, s::Sum)
     a, b = mapper[ufl_operands(s)]
@@ -137,6 +138,7 @@ end
 
 (g::GradDerivativeMapper)(sc::SpatialCoordinate) = g.id
 (g::GradDerivativeMapper)(c::Union{Constant, UflFunction}) = is_cellwise_constant(c) ? zero_terminal(g, c) : Grad(c)
+(g::GradDerivativeMapper)(arg::Argument) = Grad(arg)
 function (g::GradDerivativeMapper)(gr::Grad)
     (typeof(gr.ufl_operands[1]) isa Grad || typeof(gr.ufl_operands[1]) <: Terminal) || error("Expecting only grads applied to a terminal")
     Grad(gr)

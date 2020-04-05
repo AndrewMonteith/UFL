@@ -1,4 +1,4 @@
-export Cell, vertex, triangle, quadrilateral 
+export Cell, vertex, triangle, quadrilateral, tetrahedron
 
 num_cell_entities = Dict(
     "vertex" => (1,),
@@ -58,3 +58,4 @@ end
 vertex = Cell("vertex", 0)
 triangle = Cell("triangle", 2)
 quadrilateral = Cell("quadrilateral", 2)
+tetrahedron = Cell("tetrahedron", 3)

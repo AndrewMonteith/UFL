@@ -25,7 +25,7 @@ Add required data as needed.
 end
 ufl_element(fs::FunctionSpace) = fs.element
 hash_data(fs::FunctionSpace) = ("FunctionSpace", hash_data(fs.mesh), hash_data(fs.element))
-Base.show(io::IO, fs::FunctionSpace) = print(io, "FunctionSpace($mesh, $element)")
+Base.show(io::IO, fs::FunctionSpace) = print(io, "FunctionSpace($(fs.mesh), $(fs.element))")
 
 function VectorFunctionSpace(mesh::Mesh, family::String, @opt(degree::Dimension), @opt(dim::Dimension))
     if dim === nothing 

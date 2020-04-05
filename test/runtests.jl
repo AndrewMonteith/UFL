@@ -15,5 +15,5 @@ using UFL, Test
 @testset "Tensor Algebra" begin include("tensoralgebra.jl") end
 @testset "Integration" begin include("integration.jl") end
 @testset "Algebraic Lowering" begin include("algebra_lowering.jl") end
-@testset "Example Form" begin include("exampleform.jl") end
 @testset "Function Pullback" begin include("function_pullback.jl") end
+@testset "Example Form" begin include("exampleform.jl") end

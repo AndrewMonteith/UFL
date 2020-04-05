@@ -36,6 +36,6 @@ include("apply_algebra_lowering.jl")
 include("apply_function_pullback.jl")
 
 include("corefunctions.jl")
-include("benchmark_example_form.jl")
+include("benchmark_experimentation.jl")
 
 end # module

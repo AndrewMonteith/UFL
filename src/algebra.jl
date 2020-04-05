@@ -1,4 +1,4 @@
-export Sum, Product, Divison, Power
+export conj, Sum, Division, Product, Power
 
 function binary_show(io::IO, symbol::String, parent::Operator)
     ops = [parstr(parent, op) for op ∈ parent.ufl_operands]
@@ -194,3 +194,18 @@ end
 
 Base.:^(e1, e2) = Power(as_ufl(e1), as_ufl(e2))
 Base.show(io::IO, p::Power) = binary_show(io, "**", p)
+
+@ufl_type struct Conj <: Operator 
+    ufl_fields=(operands,)
+    ufl_tags=(num_ops=1,)
+
+    Conj(r::Real) = r
+    Conj(a::Conj) = a.ufl_operands[1]
+
+    function Conj(a::AbstractExpr)
+        new(@sig((a,)))
+    end
+end
+
+conj(c::AbstractExpr) = Conj(c)
+Base.show(io::IO, c::Conj) = print(io, "conj($(parstr(c, c.ufl_operands[1])))")
