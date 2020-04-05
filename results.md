@@ -39,11 +39,8 @@ We give julia times followed by python times
 
 ## Differentiation
 
-* n = 100, 103.5μs / 348μs
-* n = 200, 181μs / 512μs
-* n = 300, 259μs / 710μs
-* n = 500, 403μs / 1.11ms
-* n = 1000, 761μs / 2.07ms
-* n = 5000, 3.5ms / 9.89ms
-* n = 10000, 7ms / 20ms
-* n = 20000, 9ms / 39.6ms
+* Form 1 - 458.7μs / 1.21ms
+* Form 2 - 1.82ms / 3.51ms
+* Form 3 - 1.85ms / 3.45ms
+* Form 4 - 2.96ms / 5.05ms
+* Form 5 - 2.98ms / 5.74ms

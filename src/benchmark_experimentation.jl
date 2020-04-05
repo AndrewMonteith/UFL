@@ -157,10 +157,10 @@ function do_benchmarks()
     v = TestFunction(V)
   
     suite["example_1"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_1($x, $u, $v)))
-    # suite["example_2"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_2($x, $u, $v)))
-    # suite["example_3"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_3($x, $u, $v)))
-    # suite["example_4"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_4($x, $u, $v)))
-    # suite["example_5"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_5($x, $u, $v)))
+    suite["example_2"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_2($x, $u, $v)))
+    suite["example_3"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_3($x, $u, $v)))
+    suite["example_4"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_4($x, $u, $v)))
+    suite["example_5"] = @benchmarkable apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_diff_example_5($x, $u, $v)))
     # for n ∈ [100, 200, 300, 500, 1_000, 5_000, 10_000, 20_000] 
     #     suite["$(n)"] = @benchmarkable UFL.apply_derivatives(grad(tree)) setup=(tree=UFL.apply_algebra_lowering(build_static_type_tree($n, $x, $u, $v)))
     # end
