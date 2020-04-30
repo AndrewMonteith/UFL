@@ -55,11 +55,19 @@ function do_benchmarks()
 
     F = build_form()
     F_lowered = apply_algebra_lowering(F)
+    F′ = apply_derivatives(F_lowered)
 
-    suite["differentiation"] = @benchmarkable apply_derivatives($F_lowered)
-    suite["lowering"] = @benchmarkable apply_algebra_lowering($F)
+    println("--- Doing Pullback")
+    F_pulled = apply_function_pullback(F′)
+    F′′ = apply_derivatives(F_pulled)
+    
+
+    # suite["lowering"] = @benchmarkable apply_algebra_lowering($F)
+    # suite["differentiation_1"] = @benchmarkable apply_derivatives($F_lowered)
+    suite["pulled"] = @benchmarkable apply_function_pullback($F′)
+    # suite["differentiation_2"] = @benchmarkable apply_derivatives($F_pulled)
 
     tune!(suite)
 
-    BenchmarkTools.run(suite, verbose=true, seconds=10)
+    BenchmarkTools.run(suite, verbose=true, seconds=5)
 end

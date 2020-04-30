@@ -64,10 +64,11 @@ free_indices_type(::Type{Sum}) = InheritsFreeIndices()
 free_indices_type(::Type{Division}) = InheritsFreeIndices()
 free_indices_type(::Type{Power}) = InheritsFreeIndices()
 free_indices_type(::Type{Conj}) = InheritsFreeIndices()
-free_indices_type(::Type{Grad}) = InheritsFreeIndices()
+free_indices_type(::Type{<:AbstractDerivative}) = InheritsFreeIndices()
+# free_indices_type(::Type{Grad}) = InheritsFreeIndices()
 free_indices_type(::Type{Transposed}) = InheritsFreeIndices()
 free_indices_type(::Type{Trace}) = InheritsFreeIndices()
-free_indices_type(::Type{CoefficientDerivative}) = InheritsFreeIndices()
+# free_indices_type(::Type{CoefficientDerivative}) = InheritsFreeIndices()
 free_indices_type(::Type{ExprList}) = error("non-tensor type has no free indicies")
 
 get_free_indices(::HasFreeIndices, x::AbstractExpr)::VarTuple{AbstractIndex} = x.ufl_free_indices 

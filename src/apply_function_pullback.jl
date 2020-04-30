@@ -8,6 +8,7 @@ export apply_function_pullback
     end
 end
 Base.show(io::IO, rv::ReferenceValue) = print(io, "reference_value($(rv.ufl_operands[1]))")
+ufl_domain(rv::ReferenceValue) = ufl_domain(rv.ufl_operands[1])
 
 function apply_single_function_pullback(arg::AbstractFormArgument)
     element = ufl_element(arg)
@@ -27,13 +28,13 @@ end
 
 struct FunctionPullback <: AbstractMapper 
     base::BaseMapper 
-    cache::Dict{AbstractFormArgument, AbstractExpr} 
+    cache::Dict{AbstractFormArgument,AbstractExpr} 
 
-    FunctionPullback() = new(BaseMapper(), Dict{AbstractFormArgument, AbstractExpr}())
+    FunctionPullback() = new(BaseMapper(), Dict{AbstractFormArgument,AbstractExpr}())
 end 
 
 (fs::FunctionPullback)(t::Terminal) = t
 (fs::FunctionPullback)(expr::AbstractExpr) = fs.base(expr)
 (fs::FunctionPullback)(arg::AbstractFormArgument) = get!(fs.cache, arg, apply_single_function_pullback(arg))
 
-apply_function_pullback(expr::Union{Form, AbstractExpr}) = map_integrand_dags(FunctionPullback(), expr)
+apply_function_pullback(expr::Union{Form,AbstractExpr}) = map_integrand_dags(FunctionPullback(), expr)

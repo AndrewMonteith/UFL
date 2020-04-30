@@ -30,10 +30,10 @@ include("differentiation.jl")
 
 include("precedence.jl")
 include("mapdag.jl")
-include("apply_differentiation.jl")
 include("compound_expressions.jl")
 include("apply_algebra_lowering.jl")
 include("apply_function_pullback.jl")
+include("apply_differentiation.jl")
 
 include("corefunctions.jl")
 include("benchmark_experimentation.jl")

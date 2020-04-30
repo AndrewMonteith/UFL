@@ -19,7 +19,7 @@ function build_random_tree(N::Int)
 end 
 
 function benchmark_1(tree)
-    s= 0
+    s = 0
     i = 0
     @UFL.pre_order_traversal for x ∈ tree
         i += 1
@@ -28,6 +28,7 @@ function benchmark_1(tree)
     (i, s)
 end
 
+
 function run_benchmarks()
     suite = BenchmarkGroup()
 
@@ -35,9 +36,9 @@ function run_benchmarks()
     println("building with $(n) nodes")
 
     suite["building-tree"] = @benchmarkable build_random_tree($n)
-    suite["trait-iterators"] = @benchmarkable benchmark_1(x) setup=(x=build_random_tree($n))
+    suite["trait-iterators"] = @benchmarkable benchmark_1(x) setup = (x = build_random_tree($n))
 
     tune!(suite)
 
-    BenchmarkTools.run(suite, verbose=true, seconds=10)
+    BenchmarkTools.run(suite, verbose = true, seconds = 10)
 end

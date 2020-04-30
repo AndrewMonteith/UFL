@@ -123,12 +123,12 @@ struct VectorElement  <: AbstractFiniteElement
 end
 
 
-fem_family(a::AbstractFiniteElement) = a.base.family 
-fem_cell(a::AbstractFiniteElement) = a.base.cell 
-fem_degree(a::AbstractFiniteElement) = a.base.degree 
-fem_value_shape(a::AbstractFiniteElement) = a.base.value_shape
-fem_ref_value_shape(a::AbstractFiniteElement) = a.base.ref_value_shape
-fem_mapping(a::AbstractFiniteElement) = a.base.mapping 
-fem_mapping(m::MixedElement) = all(fem_mapping(e)==="identity" for e ∈ m.elements) ? "identity" : "undefined"
+fem_family(a::AbstractFiniteElement)::String = a.base.family 
+fem_cell(a::AbstractFiniteElement)::UFL.@opt_t(Cell) = a.base.cell 
+fem_degree(a::AbstractFiniteElement)::UFL.@opt_t(Union{Dimension, DimensionTuple}) = a.base.degree 
+fem_value_shape(a::AbstractFiniteElement)::DimensionTuple = a.base.value_shape
+fem_ref_value_shape(a::AbstractFiniteElement)::DimensionTuple = a.base.ref_value_shape
+fem_mapping(a::AbstractFiniteElement)::String = a.base.mapping 
+fem_mapping(m::MixedElement)::String = all(fem_mapping(e)==="identity" for e ∈ m.elements) ? "identity" : "undefined"
 
 is_cellwise_constant(a::AbstractFiniteElement) = fem_family(a) === "Real" && fem_degree(a) === 0

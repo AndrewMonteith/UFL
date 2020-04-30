@@ -48,12 +48,12 @@ function ufl_index_dimensions end
 function reconstruct_expr end
 function is_cellwise_constant end
 
-function reconstruct_expr(t::Terminal, operands::VarTuple{AbstractExpr})
+function reconstruct_expr(t::Terminal, operands...) # operands::VarTuple{AbstractExpr})
     !isempty(operands) && error("Terminal has no operands")
     t
 end 
 
-function reconstruct_expr(o::Operator, operands::VarTuple{AbstractExpr})
+function reconstruct_expr(o::Operator, operands...) # operands::VarTuple{AbstractExpr})
     typeof(o)(operands...)
 end
 

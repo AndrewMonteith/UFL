@@ -18,7 +18,7 @@ function indexed_derivative(m::AbstractMapper, i::Indexed)::AbstractExpr
             if all(j ∈ kk for j ∈ jj)
                 Cind = collect(kk.indices)
                 for (i, j) ∈ zip(ii.indices, jj.indices)
-                    Cind[findfirst(x -> x === j, kk)] = i 
+                    Cind[findfirst(x->x === j, kk)] = i 
                 end 
 
                 return Indexed(C, MultiIndexNode(tuple(Cind...)))
@@ -48,6 +48,13 @@ generic_derivative_rule(mapper::AbstractMapper, f::UflFunction) = mapper.base(f)
 generic_derivative_rule(mapper::AbstractMapper, i::Indexed) = indexed_derivative(mapper, i)
 generic_derivative_rule(mapper::AbstractMapper, c::Conj) = conj(mapper[c.ufl_operands[1]])
 
+# generic_derivative_rule(mapper::AbstractMapper, c::Cos) = -sin(mapper[c.ufl_operands[1]])
+
+# function generic_derivative_rule(mapper::AbstractMapper, s::Sin)
+#     x′, = mapper[s.ufl_operands[1]]
+#     cos(x′)
+# end
+
 function generic_derivative_rule(mapper::AbstractMapper, s::Sum)
     a, b = mapper[ufl_operands(s)]
     a + b
@@ -64,7 +71,7 @@ function generic_derivative_rule(mapper::AbstractMapper, l::Ln)
 
     f′  isa Zero && error("Division by zero")
 
-    f′/f 
+    f′ / f 
 end 
 
 function generic_derivative_rule(mapper::AbstractMapper, p::Product)
@@ -92,7 +99,7 @@ function generic_derivative_rule(mapper::AbstractMapper, p::Power)
     f′, g′ = mapper[f], mapper[g]
 
     if g′ isa Zero
-        f′ * g * f^(g-1)
+        f′ * g * f^(g - 1)
     else
         error("do not support generic power rule yet")
     end
@@ -119,12 +126,12 @@ function generic_derivative_rule(mapper::AbstractMapper, d::Division)
     sd, si = as_scalar(d)
     sgp, gi = as_scalar(g′)
     
-    o_gp = sd*sgp
+    o_gp = sd * sgp
     if !(isempty(si) && isempty(gi))
         o_gp = as_tensor(o_gp, tuple(si..., gi...))
     end 
     
-    (f′-o_gp)/g
+    (f′ - o_gp) / g
 end
 
 
@@ -137,11 +144,26 @@ struct GradDerivativeMapper <: AbstractMapper
 end
 
 (g::GradDerivativeMapper)(sc::SpatialCoordinate) = g.id
-(g::GradDerivativeMapper)(c::Union{Constant, UflFunction}) = is_cellwise_constant(c) ? zero_terminal(g, c) : Grad(c)
+(g::GradDerivativeMapper)(c::Union{Constant,UflFunction}) = is_cellwise_constant(c) ? zero_terminal(g, c) : Grad(c)
 (g::GradDerivativeMapper)(arg::Argument) = Grad(arg)
 function (g::GradDerivativeMapper)(gr::Grad)
     (typeof(gr.ufl_operands[1]) isa Grad || typeof(gr.ufl_operands[1]) <: Terminal) || error("Expecting only grads applied to a terminal")
     Grad(gr)
+end
+
+function (g::GradDerivativeMapper)(rv::ReferenceValue)
+    f = ufl_operands(rv)[1]
+
+    !is_terminal(f) && error("ReferenceValue can only wrap a terminal")
+
+    domain = ufl_domain(f)
+
+    K = JacobianInverse(domain)
+    
+    r = (indices_n ∘ length ∘ ufl_shape)(rv)
+    i, j = indices_n(2)
+
+    as_tensor(K[j, i] * ReferenceGrad(rv)[tuple(r..., j)...], tuple(r..., i))
 end
 (g::GradDerivativeMapper)(x::AbstractExpr) = generic_derivative_rule(g, x)
 
@@ -151,17 +173,17 @@ struct GateauxDerivativeMapper <: AbstractMapper
     var_shape::DimensionTuple
     w::VarTuple{AbstractExpr} # coefficients 
     v::VarTuple{AbstractExpr} # arguments 
-    w2v::Dict{AbstractExpr, AbstractExpr} # coefficients -> arguments
-    cd::Dict{AbstractExpr, AbstractExpr} # nonzero df/dw
+    w2v::Dict{AbstractExpr,AbstractExpr} # coefficients -> arguments
+    cd::Dict{AbstractExpr,AbstractExpr} # nonzero df/dw
 
     function GateauxDerivativeMapper(coefficients::ExprList, arguments::ExprList, coefficient_derivatives::ExprList)
         w2v = Dict(w => v for (w, v) ∈ zip(coefficients, arguments))
 
         cd = ufl_operands(coefficient_derivatives)
         cd′ = if isempty(cd)
-            Dict{AbstractExpr, AbstractExpr}()
+            Dict{AbstractExpr,AbstractExpr}()
         else
-            Dict(cd[2*i] => cd[2*i+1] for i ∈ 1:(length(cd)÷2))
+            Dict(cd[2 * i] => cd[2 * i + 1] for i ∈ 1:(length(cd) ÷ 2))
         end      
 
         new(BaseMapper(), (), ufl_operands(coefficients), ufl_operands(arguments), w2v, cd′)
@@ -222,4 +244,4 @@ function (d::DerivativeMapper)(cd::CoefficientDerivative)
     map_expr_dag(rules, d[dummy])
 end
 
-apply_derivatives(expr::Union{Form, AbstractExpr}) = map_integrand_dags(DerivativeMapper(), expr)
+apply_derivatives(expr::Union{Form,AbstractExpr}) = map_integrand_dags(DerivativeMapper(), expr)

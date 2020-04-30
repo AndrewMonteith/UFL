@@ -44,3 +44,11 @@ We give julia times followed by python times
 * Form 3 - 1.85ms / 3.45ms
 * Form 4 - 2.96ms / 5.05ms
 * Form 5 - 2.98ms / 5.74ms
+
+## Example Form
+
+* Algebraic Lowering - 364μs / 680μs
+* Differentiation 1 - 697μs / 1300μs
+* Function Pullback - 609μs / 913μs
+* Differentiation 2 - 775μs / 1250μs
+* Total - 2445μs / 4143μs

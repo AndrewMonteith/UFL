@@ -2,11 +2,11 @@ export grad, derivative, Coefficient
 
 abstract type AbstractDerivative <: Operator end 
 
-const Coefficient = Union{UflFunction, Constant}
+const Coefficient = Union{UflFunction,Constant}
 
 @ufl_type struct Grad <: AbstractDerivative
-    ufl_fields = (operands,shape)
-    ufl_tags = (num_ops=1,)
+    ufl_fields = (operands, shape)
+    ufl_tags = (num_ops = 1,)
 
     dim::Dimension
 
@@ -18,7 +18,8 @@ const Coefficient = Union{UflFunction, Constant}
     end
 end
 Base.show(io::IO, g::Grad) = print(io, "grad($(g.ufl_operands[1]))")
-grad(f)::Grad = (Grad ∘ as_ufl)(f)
+
+grad(f)::AbstractExpr = (Grad ∘ as_ufl)(f)
 function reconstruct_expr(g::Grad, op::AbstractExpr)::AbstractExpr
     if is_cellwise_constant(op)
         ufl_shape(op) !== ufl_shape(g.ufl_operands[1]) && error("Operands shape mismatch in Grad reconstruct")
@@ -31,9 +32,26 @@ function reconstruct_expr(g::Grad, op::AbstractExpr)::AbstractExpr
 end 
 
 
+@ufl_type struct ReferenceGrad <: AbstractDerivative
+    ufl_fields = (operands,)
+    dim::Dimension 
+
+    function ReferenceGrad(f::AbstractExpr)
+        dim = (topological_dimension ∘ ufl_domain)(f)
+
+        if is_cellwise_constant(f)
+            return Zero(tuple(f.ufl_shape..., dim), ufl_free_indices(f), ufl_index_dimensions(f))
+        end
+
+        new(@sig((f,)), dim)
+    end
+end 
+ufl_shape(rg::ReferenceGrad) = tuple(ufl_shape(rg.ufl_operands[1])..., rg.dim)
+
+
 @ufl_type struct CoefficientDerivative <: AbstractDerivative
-    ufl_fields=(operands,)
-    ufl_tags=(num_ops=4,)
+    ufl_fields = (operands,)
+    ufl_tags = (num_ops = 4,)
 
     function CoefficientDerivative(integrand::AbstractExpr, coefficients::ExprList, arguments::ExprList, coefficient_derivatves::ExprList)
         new(@sig((integrand, coefficients, arguments, coefficient_derivatves)))
@@ -46,7 +64,7 @@ function Base.show(io::IO, cd::CoefficientDerivative)
     print(io, s)
 end
 
-function handle_derivative_arguments(form::Union{Form, AbstractExpr}, coefficient::Coefficient; @opt(argument::Argument))
+function handle_derivative_arguments(form::Union{Form,AbstractExpr}, coefficient::Coefficient; @opt(argument::Argument))
     # This function has been heavily simplified and may need further development in the future.
     # Simplied for the case we have 1 coefficient and 1 argument 
 
@@ -58,9 +76,9 @@ function handle_derivative_arguments(form::Union{Form, AbstractExpr}, coefficien
     return coefficients, arguments
 end
 
-function gateaux_derivative(form::Union{Form, AbstractExpr}, coefficient::Coefficient; @opt(argument::Argument), @opt(coefficient_derivatives::Dict{Coefficient, Argument}))
+function gateaux_derivative(form::Union{Form,AbstractExpr}, coefficient::Coefficient; @opt(argument::Argument), @opt(coefficient_derivatives::Dict{Coefficient,Argument}))
     # Compute Gateaux derivative for form w.r.t coefficient in direction of argument 
-    coefficients, arguments = handle_derivative_arguments(form, coefficient; argument=argument)
+    coefficients, arguments = handle_derivative_arguments(form, coefficient; argument = argument)
 
     if coefficient_derivatives === nothing 
         coefficient_derivatives = ExprList()
@@ -73,7 +91,7 @@ function gateaux_derivative(form::Union{Form, AbstractExpr}, coefficient::Coeffi
         for integral ∈ form.integrals 
             # TODO? : Accept coefficient as SpatialCoordinate 
             fd = CoefficientDerivative(integral.integrand, coefficients, arguments, coefficient_derivatives)
-            push!(integrals, reconstruct(integral; integrand=fd))
+            push!(integrals, reconstruct(integral; integrand = fd))
         end 
 
         Form(tuple(integrals...))
@@ -88,7 +106,7 @@ function derivative(form::Form, u::Coefficient; @opt(du::Argument))
     function argument(V::FunctionSpace)
         if du === nothing 
             n = isempty(form.arguments) ? -1 : maximum(u.number for arg ∈ form.arguments) 
-            Argument(V, n+1)
+            Argument(V, n + 1)
         else
             du 
         end 
@@ -103,5 +121,5 @@ function derivative(form::Form, u::Coefficient; @opt(du::Argument))
         argument(V)
     end 
     
-    gateaux_derivative(form, u; argument=du)
+    gateaux_derivative(form, u; argument = du)
 end 

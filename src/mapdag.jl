@@ -15,7 +15,7 @@ Base.in(x::AbstractExpr, m::AbstractMapper) = x ∈ keys(m.base.cached)
 function (m::BaseMapper{AbstractExpr})(expr::AbstractExpr)::AbstractExpr 
     ops = ufl_operands(expr)
     operands = Tuple(m.cached[e] for e ∈ ops)
-    ops === operands ? expr : reconstruct_expr(expr, operands)
+    ops == operands ? expr : reconstruct_expr(expr, operands...)
 end 
 
 function map_expr_dag(mapper::AbstractMapper, expr::AbstractExpr)

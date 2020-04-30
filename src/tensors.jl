@@ -65,13 +65,13 @@ end
     ComponentTensor(expr::AbstractExpr, ii::MultiIndexNode) = ComponentTensor(expr, ii.indices)
 end 
 Base.show(io::IO, ct::ComponentTensor) = print(io, "{ A | A_{$(ct.ufl_operands[2])} = $(ct.ufl_operands[1]) }")
-function reconstruct_expr(ct::ComponentTensor, expr::Indexed, indices::MultiIndexNode)
-    if indices === expr.ufl_operands[2]
-        expr.ufl_operands[1]
-    else
-        invoke(reconstruct_expr, Tuple{ComponentTensor, AbstractExpr, MultiIndexNode}, (ct, expr, indices))
-    end
-end 
+# function reconstruct_expr(ct::ComponentTensor, expr::Indexed, indices::MultiIndexNode)
+#     if indices === expr.ufl_operands[2]
+#         expr.ufl_operands[1]
+#     else
+#         invoke(reconstruct_expr, Tuple{Operator, Tuple{AbstractExpr, MultiIndexNode}}, (ct, (expr, indices)))
+#     end
+# end 
 
 @ufl_type struct ListTensor <: Operator 
     ufl_fields = (operands,)
